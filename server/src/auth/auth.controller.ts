@@ -3,6 +3,7 @@ import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('auth')
 export class AuthController {
@@ -19,6 +20,7 @@ export class AuthController {
   }
 
   @Get('profile')
+  @ApiBearerAuth('JWT')
   @UseGuards(JwtAuthGuard)
   getProfile(@Req() req: Request) {
     const user = (req as Request & { user: any }).user;

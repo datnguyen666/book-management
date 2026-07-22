@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -44,5 +44,19 @@ export class CategoryController {
   @Roles(Role.ADMIN)
   async create(@Body() dto: CreateCategoryDto) {
     return this.categoryService.create(dto);
+  }
+
+  @Get()
+  @ApiOperation({
+    summary: 'Get all categories',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return all categories',
+  })
+  @ApiBearerAuth('JWT')
+  @UseGuards(JwtAuthGuard)
+  async findAll() {
+    return this.categoryService.findAll();
   }
 }

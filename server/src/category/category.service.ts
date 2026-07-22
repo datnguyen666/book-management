@@ -20,4 +20,13 @@ export class CategoryService {
     }
     throw error;
   }
+
+  async findAll() {
+    const categories = await this.prisma.category.findMany({
+      orderBy: {
+        name: 'asc',
+      },
+    });
+    return { data: categories };
+  }
 }

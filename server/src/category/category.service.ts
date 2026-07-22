@@ -2,6 +2,7 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class CategoryService {
@@ -28,5 +29,19 @@ export class CategoryService {
       },
     });
     return { data: categories };
+  }
+
+  async findOne(id: number) {
+    const category = await this.prisma.category.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+
+    return category;
   }
 }

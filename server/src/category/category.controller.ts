@@ -1,25 +1,37 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-
 import { Role } from '@prisma/client';
+
+import { Roles } from '../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-
 @ApiTags('Categories')
+@ApiBearerAuth('JWT')
+@UseGuards(JwtAuthGuard)
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
+
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
   @ApiOperation({
     summary: 'Create a new category',
   })
@@ -28,20 +40,9 @@ export class CategoryController {
     description: 'Category created successfully',
   })
   @ApiResponse({
-    status: 401,
-    description: 'Unauthorized',
-  })
-  @ApiResponse({
-    status: 403,
-    description: 'Forbidden',
-  })
-  @ApiResponse({
     status: 409,
     description: 'Category name already exists',
   })
-  @ApiBearerAuth('JWT')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
   async create(@Body() dto: CreateCategoryDto) {
     return this.categoryService.create(dto);
   }
@@ -54,9 +55,26 @@ export class CategoryController {
     status: 200,
     description: 'Return all categories',
   })
-  @ApiBearerAuth('JWT')
-  @UseGuards(JwtAuthGuard)
   async findAll() {
     return this.categoryService.findAll();
+  }
+
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get category by id',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Return category',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+  })
+  async findOne(
+    @Param('id', ParseIntPipe)
+    id: number,
+  ) {
+    return this.categoryService.findOne(id);
   }
 }

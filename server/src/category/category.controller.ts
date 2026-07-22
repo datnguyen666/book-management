@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -103,5 +104,30 @@ export class CategoryController {
     @Body() dto: UpdateCategoryDto,
   ) {
     return this.categoryService.update(id, dto);
+  }
+
+  @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: 'Delete category',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Category deleted successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Category not found',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Category is in use',
+  })
+  async remove(
+    @Param('id', ParseIntPipe)
+    id: number,
+  ) {
+    return this.categoryService.remove(id);
   }
 }

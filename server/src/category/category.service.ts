@@ -71,4 +71,28 @@ export class CategoryService {
       throw error;
     }
   }
+
+  async remove(id: number) {
+    try {
+      return await this.prisma.category.delete({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        switch (error.code) {
+          case 'P2025':
+            throw new NotFoundException('Category not found');
+
+          case 'P2003':
+            throw new ConflictException(
+              'Cannot delete category because it is being used by one or more books',
+            );
+        }
+      }
+
+      throw error;
+    }
+  }
 }

@@ -4,7 +4,8 @@ import * as bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-  const hashedPassword = await bcrypt.hash('Admin@123', 10);
+  // ===== Admin =====
+  const adminPassword = await bcrypt.hash('Admin@123', 10);
 
   const admin = await prisma.user.upsert({
     where: {
@@ -12,21 +13,44 @@ async function main() {
     },
     update: {
       email: 'admin@book.local',
-      password: hashedPassword,
+      password: adminPassword,
       role: Role.ADMIN,
       isActive: true,
     },
     create: {
       username: 'admin',
       email: 'admin@book.local',
-      password: hashedPassword,
+      password: adminPassword,
       role: Role.ADMIN,
       isActive: true,
     },
   });
 
-  console.log('✅ Admin user is ready.');
+  // ===== Staff =====
+  const staffPassword = await bcrypt.hash('Staff@123', 10);
+
+  const staff = await prisma.user.upsert({
+    where: {
+      username: 'staff',
+    },
+    update: {
+      email: 'staff@book.local',
+      password: staffPassword,
+      role: Role.STAFF,
+      isActive: true,
+    },
+    create: {
+      username: 'staff',
+      email: 'staff@book.local',
+      password: staffPassword,
+      role: Role.STAFF,
+      isActive: true,
+    },
+  });
+
+  console.log('✅ Users are ready.');
   console.log(admin);
+  console.log(staff);
 }
 
 main()

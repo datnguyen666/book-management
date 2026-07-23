@@ -195,4 +195,41 @@ export class BookService {
       throw error;
     }
   }
+
+  async uploadCover(id: number, filename: string) {
+    try {
+      const book = await this.prisma.book.update({
+        where: {
+          id,
+        },
+
+        data: {
+          coverImage: `/uploads/${filename}`,
+        },
+
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+      });
+
+      return {
+        message: 'Cover image uploaded successfully',
+        data: book,
+      };
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Book not found');
+      }
+
+      throw error;
+    }
+  }
 }

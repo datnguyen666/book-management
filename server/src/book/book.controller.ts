@@ -9,10 +9,15 @@ import {
   Param,
   Patch,
   Delete,
+  UploadedFile,
+  UseInterceptors,
+  BadRequestException,
 } from '@nestjs/common';
 
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -28,6 +33,9 @@ import { BookService } from './book.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { QueryBookDto } from './dto/query-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
+
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerOptions } from '../common/upload/multer.config';
 
 @ApiTags('Books')
 @ApiBearerAuth('JWT')
@@ -92,5 +100,33 @@ export class BookController {
     id: number,
   ) {
     return this.bookService.remove(id);
+  }
+
+  @Post(':id/cover')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  @UseInterceptors(FileInterceptor('file', multerOptions))
+  @ApiOperation({ summary: 'Upload book cover' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  uploadCover(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
+
+    return this.bookService.uploadCover(id, file.filename);
   }
 }

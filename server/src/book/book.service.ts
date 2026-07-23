@@ -12,6 +12,9 @@ import { CreateBookDto } from './dto/create-book.dto';
 import { QueryBookDto } from './dto/query-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 
+import * as fs from 'fs/promises';
+import * as path from 'path';
+
 @Injectable()
 export class BookService {
   constructor(private readonly prisma: PrismaService) {}
@@ -197,39 +200,51 @@ export class BookService {
   }
 
   async uploadCover(id: number, filename: string) {
-    try {
-      const book = await this.prisma.book.update({
-        where: {
-          id,
-        },
+    const existingBook = await this.prisma.book.findUnique({
+      where: {
+        id,
+      },
+    });
 
-        data: {
-          coverImage: `/uploads/${filename}`,
-        },
+    if (!existingBook) {
+      throw new NotFoundException('Book not found');
+    }
 
-        include: {
-          category: {
-            select: {
-              id: true,
-              name: true,
-            },
+    if (existingBook.coverImage) {
+      const oldFilePath = path.join(
+        process.cwd(),
+        existingBook.coverImage.replace(/^\/+/, ''),
+      );
+
+      try {
+        await fs.unlink(oldFilePath);
+      } catch {
+        // File không tồn tại hoặc không xóa được -> bỏ qua
+      }
+    }
+
+    const book = await this.prisma.book.update({
+      where: {
+        id,
+      },
+
+      data: {
+        coverImage: `/uploads/${filename}`,
+      },
+
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
           },
         },
-      });
+      },
+    });
 
-      return {
-        message: 'Cover image uploaded successfully',
-        data: book,
-      };
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException('Book not found');
-      }
-
-      throw error;
-    }
+    return {
+      message: 'Cover image uploaded successfully',
+      data: book,
+    };
   }
 }

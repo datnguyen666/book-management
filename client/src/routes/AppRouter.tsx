@@ -1,11 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { LoginPage } from "@/pages/auth/LoginPage";
 
 function DashboardPage() {
   return <h1>Dashboard</h1>;
-}
-
-function LoginPage() {
-  return <h1>Login</h1>;
 }
 
 function NotFoundPage() {

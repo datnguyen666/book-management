@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { login } from "@/api/auth.api";
+import { useAuthStore } from "@/store/auth.store";
 
 import { loginSchema, type LoginFormData } from "@/features/auth/login.schema";
 
@@ -20,8 +23,21 @@ export function LoginForm() {
     },
   });
 
+  const navigate = useNavigate();
+
+  const setAccessToken = useAuthStore((state) => state.setAccessToken);
+
   const onSubmit = async (data: LoginFormData) => {
-    console.log(data);
+    try {
+      const response = await login(data);
+
+      setAccessToken(response.accessToken);
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error(error);
+      alert("Invalid username or password");
+    }
   };
 
   return (

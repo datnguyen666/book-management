@@ -3,6 +3,7 @@ import { LoginPage } from "@/pages/auth/LoginPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { HomeRedirect } from "@/routes/HomeRedirect";
 import { GuestRoute } from "./GuestRoute";
+import { AdminLayout } from "@/components/layout/AdminLayout";
 import { DashboardPage } from "@/pages/dashboard/DashboardPage";
 
 function NotFoundPage() {
@@ -20,7 +21,9 @@ export function AppRouter() {
         </Route>
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route element={<AdminLayout />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

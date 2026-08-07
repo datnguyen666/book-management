@@ -3,10 +3,7 @@ import { LoginPage } from "@/pages/auth/LoginPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { HomeRedirect } from "@/routes/HomeRedirect";
 import { GuestRoute } from "./GuestRoute";
-
-function DashboardPage() {
-  return <h1>Dashboard</h1>;
-}
+import { DashboardPage } from "@/pages/dashboard/DashboardPage";
 
 function NotFoundPage() {
   return <h1>404 Not Found</h1>;

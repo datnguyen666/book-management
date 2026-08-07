@@ -1,6 +1,8 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LoginPage } from "@/pages/auth/LoginPage";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { HomeRedirect } from "@/routes/HomeRedirect";
+import { GuestRoute } from "./GuestRoute";
 
 function DashboardPage() {
   return <h1>Dashboard</h1>;
@@ -14,9 +16,11 @@ export function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<HomeRedirect />} />
 
-        <Route path="/login" element={<LoginPage />} />
+        <Route element={<GuestRoute />}>
+          <Route path="/login" element={<LoginPage />} />
+        </Route>
 
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />

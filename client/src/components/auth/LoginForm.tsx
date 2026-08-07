@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { login } from "@/api/auth.api";
+import { login, getProfile } from "@/api/auth.api";
 import { useAuthStore } from "@/store/auth.store";
 
 import { loginSchema, type LoginFormData } from "@/features/auth/login.schema";
@@ -22,6 +22,7 @@ export function LoginForm() {
       password: "",
     },
   });
+  const setUser = useAuthStore((state) => state.setUser);
 
   const navigate = useNavigate();
 
@@ -29,10 +30,19 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await login(data);
+      // 1. Login
+      const loginResponse = await login(data);
 
-      setAccessToken(response.accessToken);
+      // 2. Lưu JWT
+      setAccessToken(loginResponse.accessToken);
 
+      // 3. Lấy thông tin user
+      const profile = await getProfile();
+
+      // 4. Lưu user vào store
+      setUser(profile);
+
+      // 5. Chuyển trang
       navigate("/dashboard");
     } catch (error) {
       console.error(error);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export function Header() {
   const user = useAuthStore((state) => state.user);
@@ -53,11 +53,20 @@ export function Header() {
 
   const formattedDateTime = `${formattedDate} • ${formattedTime}`;
 
+  const location = useLocation();
+  const pageTitles: Record<string, string> = {
+    "/dashboard": "Dashboard",
+    "/categories": "Categories",
+    "/books": "Books",
+  };
+
+  const pageTitle = pageTitles[location.pathname] ?? "Book Management";
+
   return (
     <header className="flex h-16 items-center justify-between border-b bg-white px-6">
       {/* Page title + Date/Time */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900">Dashboard</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{pageTitle}</h2>
 
         <p className="mt-0.5 text-xs" style={{ color: "#94a8c2" }}>
           {formattedDateTime}

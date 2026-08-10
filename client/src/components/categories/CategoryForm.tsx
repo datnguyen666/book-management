@@ -7,17 +7,25 @@ import {
 } from "@/schemas/category.schema";
 
 interface CategoryFormProps {
+  initialData?: CreateCategoryFormData;
+
   onSubmit: (data: CreateCategoryFormData) => void;
 
   onCancel: () => void;
 
   isSubmitting: boolean;
+
+  submitLabel: string;
+  submittingLabel: string;
 }
 
 export function CategoryForm({
+  initialData,
   onSubmit,
   onCancel,
   isSubmitting,
+  submitLabel,
+  submittingLabel,
 }: CategoryFormProps) {
   const {
     register,
@@ -27,8 +35,8 @@ export function CategoryForm({
     resolver: zodResolver(createCategorySchema),
 
     defaultValues: {
-      name: "",
-      description: "",
+      name: initialData?.name ?? "",
+      description: initialData?.description ?? "",
     },
   });
 
@@ -37,14 +45,14 @@ export function CategoryForm({
       {/* Name */}
       <div>
         <label
-          htmlFor="name"
+          htmlFor="category-name"
           className="mb-1.5 block text-sm font-medium text-gray-700"
         >
           Name
         </label>
 
         <input
-          id="name"
+          id="category-name"
           type="text"
           {...register("name")}
           placeholder="Enter category name"
@@ -60,14 +68,14 @@ export function CategoryForm({
       {/* Description */}
       <div>
         <label
-          htmlFor="description"
+          htmlFor="category-description"
           className="mb-1.5 block text-sm font-medium text-gray-700"
         >
           Description
         </label>
 
         <textarea
-          id="description"
+          id="category-description"
           rows={4}
           {...register("description")}
           placeholder="Enter category description"
@@ -102,7 +110,7 @@ export function CategoryForm({
             color: "#d4a853",
           }}
         >
-          {isSubmitting ? "Creating..." : "Create Category"}
+          {isSubmitting ? submittingLabel : submitLabel}
         </button>
       </div>
     </form>

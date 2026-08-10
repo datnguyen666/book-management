@@ -5,6 +5,8 @@ import type { CreateCategoryFormData } from "@/schemas/category.schema";
 
 interface CategoryModalProps {
   isOpen: boolean;
+  mode: "create" | "edit";
+  initialData?: CreateCategoryFormData;
 
   onClose: () => void;
 
@@ -17,6 +19,8 @@ interface CategoryModalProps {
 
 export function CategoryModal({
   isOpen,
+  mode,
+  initialData,
   onClose,
   onSubmit,
   isSubmitting,
@@ -26,6 +30,8 @@ export function CategoryModal({
     return null;
   }
 
+  const isEdit = mode === "edit";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
       <div className="w-full max-w-lg rounded-lg bg-white shadow-xl">
@@ -33,11 +39,13 @@ export function CategoryModal({
         <div className="flex items-center justify-between border-b px-6 py-4">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
-              Add Category
+              {isEdit ? "Edit Category" : "Add Category"}
             </h2>
 
             <p className="mt-0.5 text-xs text-gray-500">
-              Create a new book category.
+              {isEdit
+                ? "Update category information."
+                : "Create a new book category."}
             </p>
           </div>
 
@@ -61,6 +69,10 @@ export function CategoryModal({
         {/* Form */}
         <div className="p-6">
           <CategoryForm
+            key={`${mode}-${initialData?.name ?? ""}`}
+            initialData={initialData}
+            submitLabel={isEdit ? "Save Changes" : "Create Category"}
+            submittingLabel={isEdit ? "Saving..." : "Creating..."}
             onSubmit={onSubmit}
             onCancel={onClose}
             isSubmitting={isSubmitting}

@@ -38,6 +38,10 @@ export interface GetBooksParams {
   limit?: number;
 }
 
+interface BookDetailResponse {
+  data: Book;
+}
+
 export async function getBooks(
   params?: GetBooksParams,
 ): Promise<BookListResponse> {
@@ -49,7 +53,7 @@ export async function getBooks(
 }
 
 export async function getBook(id: number): Promise<Book> {
-  const response = await api.get<Book>(`/books/${id}`);
+  const response = await api.get<BookDetailResponse>(`/books/${id}`);
 
-  return response.data;
+  return response.data.data;
 }

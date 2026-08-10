@@ -1,8 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, BookOpen } from "lucide-react";
-import axios from "axios";
-
 import { useBook } from "@/hooks/use-books";
+import { getMediaUrl } from "@/lib/media";
 
 export function BookDetailPage() {
   const navigate = useNavigate();
@@ -57,10 +56,24 @@ export function BookDetailPage() {
   if (isError || !book) {
     let message = "Failed to load book. Please try again.";
 
-    if (axios.isAxiosError(isError ? new Error() : null)) {
-      message = "Failed to load book.";
-    }
+    if (isError || !book) {
+      return (
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+          >
+            <ArrowLeft size={16} />
+            Back to Books
+          </button>
 
+          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-600">
+            Failed to load book. Please try again.
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="space-y-4">
         <button
@@ -108,7 +121,7 @@ export function BookDetailPage() {
           <div className="flex aspect-[3/4] items-center justify-center overflow-hidden rounded-md bg-gray-100">
             {book.coverImage ? (
               <img
-                src={book.coverImage}
+                src={getMediaUrl(book.coverImage)}
                 alt={book.title}
                 className="h-full w-full object-cover"
               />

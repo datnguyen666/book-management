@@ -13,9 +13,10 @@ export interface Book {
   publisher: string | null;
   publishedDate: string | null;
   description: string | null;
-  price: string;
+  price: string | number;
   stock: number;
   coverImage: string | null;
+  categoryId: number;
   category: BookCategory;
   createdAt: string;
   updatedAt: string;
@@ -42,6 +43,28 @@ interface BookDetailResponse {
   data: Book;
 }
 
+interface CreateBookResponse {
+  data: Book;
+}
+
+interface UpdateBookResponse {
+  data: Book;
+}
+
+export interface CreateBookPayload {
+  title: string;
+  isbn: string;
+  author: string;
+  publisher?: string;
+  publishedDate?: string;
+  description?: string;
+  price: number;
+  stock: number;
+  categoryId: number;
+}
+
+export type UpdateBookPayload = Partial<CreateBookPayload>;
+
 export async function getBooks(
   params?: GetBooksParams,
 ): Promise<BookListResponse> {
@@ -56,4 +79,36 @@ export async function getBook(id: number): Promise<Book> {
   const response = await api.get<BookDetailResponse>(`/books/${id}`);
 
   return response.data.data;
+}
+
+export async function uploadBookCover(id: number, file: File): Promise<Book> {
+  const formData = new FormData();
+
+  formData.append("file", file);
+
+  const response = await api.post<BookDetailResponse>(
+    `/books/${id}/cover`,
+    formData,
+  );
+
+  return response.data.data;
+}
+
+export async function createBook(payload: CreateBookPayload): Promise<Book> {
+  const response = await api.post<CreateBookResponse>("/books", payload);
+
+  return response.data.data;
+}
+
+export async function updateBook(
+  id: number,
+  payload: UpdateBookPayload,
+): Promise<Book> {
+  const response = await api.patch<UpdateBookResponse>(`/books/${id}`, payload);
+
+  return response.data.data;
+}
+
+export async function deleteBook(id: number): Promise<void> {
+  await api.delete(`/books/${id}`);
 }

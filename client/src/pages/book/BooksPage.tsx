@@ -1,14 +1,28 @@
 import { useState } from "react";
 import { BookOpen, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
-import { useBooks } from "@/hooks/use-books";
+import {
+  useBooks,
+  useCreateBook,
+  useUpdateBook,
+  useUploadBookCover,
+} from "@/hooks/use-books";
 import { useNavigate } from "react-router-dom";
+import type { Book, CreateBookPayload } from "@/api/book.api";
+import { BookForm } from "@/components/books/BookForm";
+import { useCategories } from "@/hooks/use-categories";
 
 const DEFAULT_LIMIT = 10;
 
 export function BooksPage() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
+
+  const {
+    data: categories = [],
+    isLoading: isCategoriesLoading,
+    isError: isCategoriesError,
+  } = useCategories();
 
   const { data, isLoading, isError, isFetching } = useBooks({
     page,
@@ -36,6 +50,59 @@ export function BooksPage() {
     setPage(newPage);
   };
 
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  const [formMode, setFormMode] = useState<"create" | "edit">("create");
+
+  const [selectedBook, setSelectedBook] = useState<Book | undefined>(undefined);
+
+  const handleCreate = () => {
+    setFormMode("create");
+    setSelectedBook(undefined);
+    setIsFormOpen(true);
+  };
+
+  const handleEdit = (book: Book) => {
+    setFormMode("edit");
+    setSelectedBook(book);
+    setIsFormOpen(true);
+  };
+
+  const createMutation = useCreateBook();
+  const updateMutation = useUpdateBook();
+  const uploadCoverMutation = useUploadBookCover();
+
+  const handleFormSubmit = async (
+    data: CreateBookPayload,
+    coverFile?: File,
+  ) => {
+    if (formMode === "create") {
+      const createdBook = await createMutation.mutateAsync(data);
+
+      if (coverFile) {
+        await uploadCoverMutation.mutateAsync({
+          id: createdBook.id,
+          file: coverFile,
+        });
+      }
+    } else if (selectedBook) {
+      await updateMutation.mutateAsync({
+        id: selectedBook.id,
+        payload: data,
+      });
+
+      if (coverFile) {
+        await uploadCoverMutation.mutateAsync({
+          id: selectedBook.id,
+          file: coverFile,
+        });
+      }
+    }
+
+    setIsFormOpen(false);
+    setSelectedBook(undefined);
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -55,6 +122,8 @@ export function BooksPage() {
             backgroundColor: "#111827",
             color: "#d4a853",
           }}
+          onClick={handleCreate}
+          disabled={isCategoriesLoading || isCategoriesError}
         >
           <Plus size={16} />
           Add Book
@@ -190,6 +259,7 @@ export function BooksPage() {
                         <button
                           type="button"
                           className="text-xs font-medium text-gray-600 hover:underline"
+                          onClick={() => handleEdit(book)}
                         >
                           Edit
                         </button>
@@ -253,6 +323,40 @@ export function BooksPage() {
       {/* Background fetching indicator */}
       {isFetching && !isLoading && (
         <p className="text-right text-xs text-gray-400">Updating...</p>
+      )}
+
+      {isFormOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">
+                {formMode === "create" ? "Create Book" : "Update Book"}
+              </h2>
+
+              <p className="mt-1 text-sm text-gray-500">
+                {formMode === "create"
+                  ? "Create a new book."
+                  : "Update book information."}
+              </p>
+            </div>
+
+            <BookForm
+              mode={formMode}
+              book={selectedBook}
+              categories={categories}
+              isSubmitting={
+                createMutation.isPending ||
+                updateMutation.isPending ||
+                uploadCoverMutation.isPending
+              }
+              onSubmit={handleFormSubmit}
+              onCancel={() => {
+                setIsFormOpen(false);
+                setSelectedBook(undefined);
+              }}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

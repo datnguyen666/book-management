@@ -1,4 +1,4 @@
-const API_ORIGIN = import.meta.env.VITE_API_ORIGIN || "http://localhost:3000";
+const API_ORIGIN = import.meta.env.VITE_API_ORIGIN;
 
 export function getMediaUrl(
   path: string | null | undefined,

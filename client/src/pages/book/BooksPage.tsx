@@ -6,6 +6,7 @@ import {
   useCreateBook,
   useUpdateBook,
   useUploadBookCover,
+  useDeleteBook,
 } from "@/hooks/use-books";
 import { useNavigate } from "react-router-dom";
 import type { Book, CreateBookPayload } from "@/api/book.api";
@@ -71,6 +72,7 @@ export function BooksPage() {
   const createMutation = useCreateBook();
   const updateMutation = useUpdateBook();
   const uploadCoverMutation = useUploadBookCover();
+  const deleteMutation = useDeleteBook();
 
   const handleFormSubmit = async (
     data: CreateBookPayload,
@@ -262,6 +264,28 @@ export function BooksPage() {
                           onClick={() => handleEdit(book)}
                         >
                           Edit
+                        </button>
+
+                        <button
+                          type="button"
+                          className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50"
+                          disabled={deleteMutation.isPending}
+                          onClick={async () => {
+                            const confirmed = window.confirm(
+                              `Are you sure you want to delete "${book.title}"?`,
+                            );
+
+                            if (!confirmed) {
+                              return;
+                            }
+
+                            await deleteMutation.mutateAsync(book.id);
+                            if (books.length === 1 && page > 1) {
+                              setPage((current) => current - 1);
+                            }
+                          }}
+                        >
+                          Delete
                         </button>
                       </div>
                     </td>

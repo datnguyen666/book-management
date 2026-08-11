@@ -10,7 +10,7 @@ import {
   getBooks,
   createBook,
   updateBook,
-  // deleteBook,
+  deleteBook,
   uploadBookCover,
   type CreateBookPayload,
   type UpdateBookPayload,
@@ -80,6 +80,24 @@ export function useUploadBookCover() {
 
       queryClient.invalidateQueries({
         queryKey: ["book", variables.id],
+      });
+    },
+  });
+}
+
+export function useDeleteBook() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => deleteBook(id),
+
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({
+        queryKey: ["books"],
+      });
+
+      queryClient.removeQueries({
+        queryKey: ["books", id],
       });
     },
   });

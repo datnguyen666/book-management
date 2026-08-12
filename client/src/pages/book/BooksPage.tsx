@@ -12,6 +12,9 @@ import { useNavigate } from "react-router-dom";
 import type { Book, CreateBookPayload } from "@/api/book.api";
 import { BookForm } from "@/components/books/BookForm";
 import { useCategories } from "@/hooks/use-categories";
+import { Eye } from "lucide-react";
+import { Edit } from "lucide-react";
+import { Trash } from "lucide-react";
 
 const DEFAULT_LIMIT = 10;
 
@@ -248,27 +251,27 @@ export function BooksPage() {
                     </td>
 
                     {/* Actions */}
-                    <td className="px-6 py-4">
+                    <td className="px-5 py-5">
                       <div className="flex justify-end gap-3">
                         <button
                           type="button"
                           onClick={() => navigate(`/books/${book.id}`)}
-                          className="text-xs font-medium text-blue-600 hover:underline"
+                          className="text-xs font-medium text-blue-600 cursor-pointer"
                         >
-                          View
+                          <Eye size={16} />
                         </button>
 
                         <button
                           type="button"
-                          className="text-xs font-medium text-gray-600 hover:underline"
+                          className="text-xs font-medium text-gray-600 cursor-pointer"
                           onClick={() => handleEdit(book)}
                         >
-                          Edit
+                          <Edit size={16} />
                         </button>
 
                         <button
                           type="button"
-                          className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50"
+                          className="text-xs font-medium text-red-600 cursor-pointer disabled:opacity-50"
                           disabled={deleteMutation.isPending}
                           onClick={async () => {
                             const confirmed = window.confirm(
@@ -285,7 +288,7 @@ export function BooksPage() {
                             }
                           }}
                         >
-                          Delete
+                          <Trash size={16} />
                         </button>
                       </div>
                     </td>

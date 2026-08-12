@@ -5,13 +5,17 @@ import { Sidebar } from "./Sidebar";
 
 export function AdminLayout() {
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen ">
       <Sidebar />
 
       <div className="flex flex-1 flex-col">
-        <Header />
-
-        <main className="flex-1 bg-slate-100 p-6">
+        <header className="shrink-0">
+          <Header />
+        </header>
+        <main
+          className="min-h-0 flex-1 overflow-y-auto p-4"
+          style={{ backgroundColor: "#faf8f3" }}
+        >
           <Outlet />
         </main>
       </div>

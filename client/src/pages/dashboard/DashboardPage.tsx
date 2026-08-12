@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { BookOpen, FolderOpen, RefreshCw } from "lucide-react";
 
 import { useDashboardSummary } from "@/hooks/use-dashboard";
@@ -10,8 +11,18 @@ interface SummaryCard {
 }
 
 export function DashboardPage() {
-  const { data, isLoading, isError, refetch, isFetching } =
+  const { data, isLoading, isError, isFetching, refetch } =
     useDashboardSummary();
+
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const handleRefresh = async () => {
+    const result = await refetch();
+
+    if (!result.isError) {
+      setLastUpdated(new Date());
+    }
+  };
 
   const summaryCards: SummaryCard[] = [
     {
@@ -31,12 +42,32 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Page heading */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Overview</h1>
 
-        <p className="mt-1 text-sm text-gray-500">
-          Here's what's happening with your library.
-        </p>
+          <p className="mt-1 text-sm text-gray-500">
+            Here's what's happening with your library.
+          </p>
+
+          {lastUpdated && (
+            <p className="mt-2 text-xs text-gray-400">
+              Last updated: {lastUpdated.toLocaleTimeString()}
+            </p>
+          )}
+        </div>
+
+        {/* Refresh */}
+        <button
+          type="button"
+          onClick={handleRefresh}
+          disabled={isFetching}
+          className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <RefreshCw size={14} className={isFetching ? "animate-spin" : ""} />
+
+          {isFetching ? "Refreshing..." : "Refresh"}
+        </button>
       </div>
 
       {/* Loading */}
@@ -45,18 +76,18 @@ export function DashboardPage() {
           {Array.from({ length: 2 }).map((_, index) => (
             <div
               key={index}
-              className="rounded-lg border border-gray-200 bg-white p-5 shadow-sm"
+              className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
             >
               <div className="flex items-start justify-between">
                 <div className="w-full">
                   <div className="h-4 w-28 animate-pulse rounded bg-gray-200" />
 
-                  <div className="mt-3 h-9 w-20 animate-pulse rounded bg-gray-200" />
+                  <div className="mt-3 h-10 w-20 animate-pulse rounded bg-gray-200" />
 
                   <div className="mt-2 h-3 w-40 animate-pulse rounded bg-gray-100" />
                 </div>
 
-                <div className="h-10 w-10 animate-pulse rounded-lg bg-gray-200" />
+                <div className="h-11 w-11 animate-pulse rounded-lg bg-gray-200" />
               </div>
             </div>
           ))}
@@ -66,29 +97,22 @@ export function DashboardPage() {
       {/* Error */}
       {isError && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-5">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-medium text-red-700">
-                Failed to load dashboard data.
-              </p>
+          <p className="text-sm font-medium text-red-700">
+            Failed to load dashboard data.
+          </p>
 
-              <p className="mt-1 text-xs text-red-500">Please try again.</p>
-            </div>
+          <p className="mt-1 text-xs text-red-500">
+            Please check the server connection and try again.
+          </p>
 
-            <button
-              type="button"
-              onClick={() => refetch()}
-              disabled={isFetching}
-              className="flex items-center gap-2 rounded-md border border-red-300 bg-white px-3 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <RefreshCw
-                size={14}
-                className={isFetching ? "animate-spin" : ""}
-              />
-
-              {isFetching ? "Retrying..." : "Retry"}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleRefresh}
+            disabled={isFetching}
+            className="mt-4 rounded-md border border-red-300 bg-white px-3 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+          >
+            Try Again
+          </button>
         </div>
       )}
 
@@ -138,7 +162,7 @@ export function DashboardPage() {
       {!isLoading && isFetching && !isError && (
         <div className="flex items-center justify-end gap-2 text-xs text-gray-400">
           <RefreshCw size={12} className="animate-spin" />
-          Updating...
+          Updating dashboard...
         </div>
       )}
     </div>

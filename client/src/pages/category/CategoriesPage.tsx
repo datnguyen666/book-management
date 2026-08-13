@@ -13,6 +13,8 @@ import { CategoryModal } from "@/components/categories/CategoryModal";
 
 import type { Category } from "@/api/category.api";
 import type { CreateCategoryFormData } from "@/schemas/category.schema";
+import { Edit } from "lucide-react";
+import { Trash } from "lucide-react";
 
 type ModalMode = "create" | "edit";
 
@@ -234,7 +236,7 @@ export function CategoriesPage() {
             <table className="w-full text-left text-sm">
               <thead className="border-b bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 font-semibold text-gray-600">ID</th>
+                  <th className="px-6 py-4 font-semibold text-gray-600">STT</th>
 
                   <th className="px-6 py-4 font-semibold text-gray-600">
                     Name
@@ -251,12 +253,12 @@ export function CategoriesPage() {
               </thead>
 
               <tbody className="divide-y divide-gray-100">
-                {categories.map((category) => (
+                {categories.map((category, index) => (
                   <tr
                     key={category.id}
                     className="transition-colors hover:bg-gray-50"
                   >
-                    <td className="px-6 py-4 text-gray-500">{category.id}</td>
+                    <td className="px-6 py-4 text-gray-500">{index + 1}</td>
 
                     <td className="px-6 py-4 font-medium text-gray-900">
                       {category.name}
@@ -272,18 +274,18 @@ export function CategoriesPage() {
                           type="button"
                           onClick={() => handleOpenEdit(category)}
                           disabled={deleteMutation.isPending}
-                          className="text-xs font-medium text-blue-600 hover:underline disabled:opacity-50"
+                          className="text-xs font-medium text-blue-600 disabled:opacity-50 cursor-pointer"
                         >
-                          Edit
+                          <Edit size={16} />
                         </button>
 
                         <button
                           type="button"
                           onClick={() => handleDelete(category)}
                           disabled={deleteMutation.isPending}
-                          className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50"
+                          className="text-xs font-medium text-red-600 disabled:opacity-50 cursor-pointer"
                         >
-                          {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                          <Trash size={16} />
                         </button>
                       </div>
                     </td>

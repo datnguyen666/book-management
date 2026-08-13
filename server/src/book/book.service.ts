@@ -66,7 +66,7 @@ export class BookService {
         skip,
         take: limit,
         orderBy: {
-          title: 'asc',
+          id: 'asc',
         },
         include: {
           category: {

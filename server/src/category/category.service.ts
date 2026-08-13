@@ -29,7 +29,7 @@ export class CategoryService {
   async findAll() {
     const categories = await this.prisma.category.findMany({
       orderBy: {
-        name: 'asc',
+        id: 'asc',
       },
     });
     return { data: categories };

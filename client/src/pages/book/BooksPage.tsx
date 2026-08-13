@@ -171,7 +171,7 @@ export function BooksPage() {
             <table className="w-full min-w-[900px] text-left text-sm">
               <thead className="border-b bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 font-semibold text-gray-600">ID</th>
+                  <th className="px-6 py-4 font-semibold text-gray-600">STT</th>
 
                   <th className="px-6 py-4 font-semibold text-gray-600">
                     Title
@@ -204,13 +204,13 @@ export function BooksPage() {
               </thead>
 
               <tbody className="divide-y divide-gray-100">
-                {books.map((book) => (
+                {books.map((book, index) => (
                   <tr
                     key={book.id}
                     className="transition-colors hover:bg-gray-50"
                   >
                     {/* ID */}
-                    <td className="px-6 py-4 text-gray-500">{book.id}</td>
+                    <td className="px-6 py-4 text-gray-500">{index + 1}</td>
 
                     {/* Title */}
                     <td className="max-w-[220px] px-6 py-4">

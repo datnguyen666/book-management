@@ -24,6 +24,9 @@ export function useCreateCategory() {
       queryClient.invalidateQueries({
         queryKey: ["categories"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["dashboard", "summary"],
+      });
     },
   });
 }
@@ -47,6 +50,9 @@ export function useUpdateCategory() {
       queryClient.invalidateQueries({
         queryKey: ["categories"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["dashboard", "summary"],
+      });
     },
   });
 }
@@ -60,6 +66,10 @@ export function useDeleteCategory() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["categories"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["dashboard", "summary"],
       });
     },
   });

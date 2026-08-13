@@ -43,6 +43,9 @@ export function useCreateBook() {
       queryClient.invalidateQueries({
         queryKey: ["books"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["dashboard", "summary"],
+      });
     },
   });
 }
@@ -61,6 +64,10 @@ export function useUpdateBook() {
 
       queryClient.invalidateQueries({
         queryKey: ["book", variables.id],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["dashboard", "summary"],
       });
     },
   });

@@ -11,6 +11,7 @@ import { DashboardPage } from "@/pages/dashboard/DashboardPage";
 import { BooksPage } from "@/pages/book/BooksPage";
 import { CategoriesPage } from "@/pages/category/CategoriesPage";
 import { BookDetailPage } from "@/pages/book/BookDetailPage";
+import { StaffPage } from "@/pages/staff/StaffPage";
 
 function NotFoundPage() {
   return <h1>404 Not Found</h1>;
@@ -42,6 +43,9 @@ export function AppRouter() {
 
             {/* Book Detail */}
             <Route path="/books/:id" element={<BookDetailPage />} />
+
+            {/* Staff */}
+            <Route path="/staff" element={<StaffPage />} />
           </Route>
         </Route>
 

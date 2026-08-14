@@ -1,7 +1,15 @@
-import { BookOpen, FolderOpen, LayoutDashboard } from "lucide-react";
+import { BookOpen, FolderOpen, LayoutDashboard, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useAuthStore } from "@/store/auth.store";
 
-const navigationItems = [
+interface NavigationItem {
+  label: string;
+  path: string;
+  icon: typeof LayoutDashboard;
+  adminOnly?: boolean;
+}
+
+const navigationItems: NavigationItem[] = [
   {
     label: "Dashboard",
     path: "/dashboard",
@@ -17,9 +25,23 @@ const navigationItems = [
     path: "/books",
     icon: BookOpen,
   },
+  {
+    label: "Staff",
+    path: "/staff",
+    icon: User,
+    adminOnly: true,
+  },
 ];
 
 export function Sidebar() {
+  const user = useAuthStore((state) => state.user);
+  const visibleNavigationItems = navigationItems.filter((item) => {
+    if (item.adminOnly) {
+      return user?.role === "ADMIN";
+    }
+
+    return true;
+  });
   return (
     <aside className="flex h-screen w-64 flex-col bg-slate-900 text-white">
       {/* Logo */}
@@ -29,7 +51,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-4">
-        {navigationItems.map((item) => {
+        {visibleNavigationItems.map((item) => {
           const Icon = item.icon;
 
           return (

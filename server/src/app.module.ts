@@ -9,6 +9,7 @@ import { BookModule } from './book/book.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'path';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { StaffModule } from './staff/staff.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     CategoryModule,
     BookModule,
     DashboardModule,
+    StaffModule,
   ],
   controllers: [AppController],
   providers: [AppService],

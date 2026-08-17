@@ -8,8 +8,15 @@ import {
   type CreateStaffFormData,
 } from "@/schemas/staff.schema";
 
+type ModalMode = "create" | "edit";
+
 interface StaffModalProps {
   isOpen: boolean;
+  mode: ModalMode;
+  initialData?: {
+    fullName: string;
+    email: string;
+  };
   onClose: () => void;
   onSubmit: (data: CreateStaffFormData) => Promise<void>;
   isSubmitting: boolean;
@@ -18,6 +25,8 @@ interface StaffModalProps {
 
 export function StaffModal({
   isOpen,
+  mode,
+  initialData,
   onClose,
   onSubmit,
   isSubmitting,
@@ -31,19 +40,19 @@ export function StaffModal({
   } = useForm<CreateStaffFormData>({
     resolver: zodResolver(createStaffSchema),
     defaultValues: {
-      fullName: "",
-      email: "",
+      fullName: initialData?.fullName ?? "",
+      email: initialData?.email ?? "",
     },
   });
 
   useEffect(() => {
     if (isOpen) {
       reset({
-        fullName: "",
-        email: "",
+        fullName: initialData?.fullName || "",
+        email: initialData?.email || "",
       });
     }
-  }, [isOpen, reset]);
+  }, [isOpen, initialData, reset]);
 
   if (!isOpen) {
     return null;
@@ -63,10 +72,14 @@ export function StaffModal({
         {/* Header */}
         <div className="flex items-center justify-between border-b px-6 py-4">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Add Staff</h2>
+            <h2 className="text-lg font-semibold text-gray-900">
+              {mode === "create" ? "Add Staff" : "Edit Staff"}
+            </h2>
 
             <p className="mt-1 text-sm text-gray-500">
-              Create a new staff account.
+              {mode === "create"
+                ? "Create a new staff account."
+                : "Update staff account information."}
             </p>
           </div>
 
@@ -131,10 +144,12 @@ export function StaffModal({
               )}
             </div>
 
-            <div className="rounded-md bg-gray-50 px-4 py-3 text-xs text-gray-500">
-              A username and temporary password will be generated automatically
-              for this staff account.
-            </div>
+            {mode === "create" && (
+              <div className="rounded-md bg-gray-50 px-4 py-3 text-xs text-gray-500">
+                A username and temporary password will be generated
+                automatically for this staff account.
+              </div>
+            )}
           </div>
 
           {/* Footer */}
@@ -157,7 +172,13 @@ export function StaffModal({
                 color: "#d4a853",
               }}
             >
-              {isSubmitting ? "Creating..." : "Create Staff"}
+              {isSubmitting
+                ? mode === "create"
+                  ? "Creating..."
+                  : "Saving..."
+                : mode === "create"
+                  ? "Create Staff"
+                  : "Save Changes"}
             </button>
           </div>
         </form>

@@ -1,38 +1,83 @@
 import { Users, Plus } from "lucide-react";
-import { useStaff, useCreateStaff } from "@/hooks/use-staff";
+import {
+  useStaff,
+  useCreateStaff,
+  useUpdateStaff,
+  useUpdateStaffStatus,
+} from "@/hooks/use-staff";
 import { useState } from "react";
 import axios from "axios";
 import { StaffModal } from "@/components/staff/StaffModal";
 import type { CreateStaffFormData } from "@/schemas/staff.schema";
 import { Edit } from "lucide-react";
 import { Eye, EyeOff } from "lucide-react";
+import type { Staff } from "@/api/staff.api";
 
 export function StaffPage() {
   const { data: staff = [], isLoading, isError } = useStaff();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const createMutation = useCreateStaff();
+  const updateMutation = useUpdateStaff();
+  const statusMutation = useUpdateStaffStatus();
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
+
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+  const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
+
+  const modalInitialData = selectedStaff
+    ? {
+        fullName: selectedStaff.fullName,
+        email: selectedStaff.email,
+      }
+    : undefined;
 
   const handleOpenCreate = () => {
     createMutation.reset();
+    updateMutation.reset();
+
+    setSelectedStaff(null);
+    setModalMode("create");
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEdit = (staff: Staff) => {
+    createMutation.reset();
+    updateMutation.reset();
+
+    setSelectedStaff(staff);
+    setModalMode("edit");
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
-    if (createMutation.isPending) {
+    if (createMutation.isPending || updateMutation.isPending) {
       return;
     }
 
     setIsModalOpen(false);
+    setSelectedStaff(null);
   };
 
   const handleSubmit = async (data: CreateStaffFormData) => {
     createMutation.reset();
+    updateMutation.reset();
 
     try {
-      await createMutation.mutateAsync({
-        fullName: data.fullName,
-        email: data.email,
-      });
+      if (modalMode === "create") {
+        await createMutation.mutateAsync({
+          fullName: data.fullName,
+          email: data.email,
+        });
+      } else if (selectedStaff) {
+        await updateMutation.mutateAsync({
+          id: selectedStaff.id,
+          data: {
+            fullName: data.fullName,
+            email: data.email,
+          },
+        });
+      }
 
       handleCloseModal();
     } catch {
@@ -40,8 +85,9 @@ export function StaffPage() {
     }
   };
 
-  const getCreateErrorMessage = () => {
-    const error = createMutation.error;
+  const getMutationError = () => {
+    const error =
+      modalMode === "edit" ? updateMutation.error : createMutation.error;
 
     if (!error) {
       return null;
@@ -51,11 +97,58 @@ export function StaffPage() {
       return "Email already exists.";
     }
 
-    if (axios.isAxiosError(error) && error.response?.status === 403) {
-      return "You do not have permission to create staff accounts.";
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return "Staff was not found.";
     }
 
-    return "Failed to create staff account. Please try again.";
+    if (axios.isAxiosError(error) && error.response?.status === 403) {
+      return "You do not have permission to modify staff accounts.";
+    }
+
+    return modalMode === "edit"
+      ? "Failed to update staff. Please try again."
+      : "Failed to create staff. Please try again.";
+  };
+
+  const handleToggleStatus = async (staff: Staff) => {
+    const nextStatus = !staff.isActive;
+
+    const action = nextStatus ? "activate" : "deactivate";
+
+    const confirmed = window.confirm(
+      `Are you sure you want to ${action} "${staff.fullName}"?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await statusMutation.mutateAsync({
+        id: staff.id,
+        isActive: nextStatus,
+      });
+    } catch {
+      // Error is handled below.
+    }
+  };
+
+  const getStatusErrorMessage = () => {
+    const error = statusMutation.error;
+
+    if (!error) {
+      return null;
+    }
+
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return "Staff was not found.";
+    }
+
+    if (axios.isAxiosError(error) && error.response?.status === 403) {
+      return "You do not have permission to change staff status.";
+    }
+
+    return "Failed to update staff status. Please try again.";
   };
 
   return (
@@ -64,7 +157,6 @@ export function StaffPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Staff Management</h1>
-
           <p className="mt-1 text-sm text-gray-500">
             Manage staff accounts and permissions.
           </p>
@@ -83,6 +175,13 @@ export function StaffPage() {
           Add Staff
         </button>
       </div>
+
+      {/* Status Error */}
+      {statusMutation.error && (
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {getStatusErrorMessage()}
+        </div>
+      )}
 
       {/* Loading */}
       {isLoading && (
@@ -188,14 +287,22 @@ export function StaffPage() {
                       <div className="flex justify-end gap-3">
                         <button
                           type="button"
-                          className="text-xs font-medium text-blue-600 hover:underline"
+                          onClick={() => handleOpenEdit(member)}
+                          disabled={statusMutation.isPending}
+                          className="text-xs font-medium text-blue-600 hover:underline disabled:opacity-50"
                         >
                           <Edit size={16} className="mr-1 inline" />
                         </button>
 
                         <button
                           type="button"
-                          className="text-xs font-medium text-red-600 hover:underline"
+                          onClick={() => handleToggleStatus(member)}
+                          disabled={statusMutation.isPending}
+                          className={
+                            member.isActive
+                              ? "text-xs font-medium text-red-600 hover:underline disabled:opacity-50"
+                              : "text-xs font-medium text-green-600 hover:underline disabled:opacity-50"
+                          }
                         >
                           {member.isActive ? (
                             <EyeOff size={16} className="mr-1 inline" />
@@ -214,10 +321,12 @@ export function StaffPage() {
       )}
       <StaffModal
         isOpen={isModalOpen}
+        mode={modalMode}
+        initialData={modalInitialData}
         onClose={handleCloseModal}
         onSubmit={handleSubmit}
-        isSubmitting={createMutation.isPending}
-        errorMessage={getCreateErrorMessage()}
+        isSubmitting={isSubmitting}
+        errorMessage={getMutationError()}
       />
     </div>
   );

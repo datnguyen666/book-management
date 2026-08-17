@@ -12,10 +12,8 @@ export interface Staff {
 }
 
 export interface CreateStaffPayload {
-  username: string;
   email: string;
   fullName: string;
-  password: string;
 }
 
 export interface UpdateStaffPayload {

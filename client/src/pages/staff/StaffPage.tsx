@@ -1,9 +1,62 @@
 import { Users, Plus } from "lucide-react";
-
-import { useStaff } from "@/hooks/use-staff";
+import { useStaff, useCreateStaff } from "@/hooks/use-staff";
+import { useState } from "react";
+import axios from "axios";
+import { StaffModal } from "@/components/staff/StaffModal";
+import type { CreateStaffFormData } from "@/schemas/staff.schema";
+import { Edit } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 export function StaffPage() {
   const { data: staff = [], isLoading, isError } = useStaff();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const createMutation = useCreateStaff();
+
+  const handleOpenCreate = () => {
+    createMutation.reset();
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    if (createMutation.isPending) {
+      return;
+    }
+
+    setIsModalOpen(false);
+  };
+
+  const handleSubmit = async (data: CreateStaffFormData) => {
+    createMutation.reset();
+
+    try {
+      await createMutation.mutateAsync({
+        fullName: data.fullName,
+        email: data.email,
+      });
+
+      handleCloseModal();
+    } catch {
+      // Error is displayed through mutation state.
+    }
+  };
+
+  const getCreateErrorMessage = () => {
+    const error = createMutation.error;
+
+    if (!error) {
+      return null;
+    }
+
+    if (axios.isAxiosError(error) && error.response?.status === 409) {
+      return "Email already exists.";
+    }
+
+    if (axios.isAxiosError(error) && error.response?.status === 403) {
+      return "You do not have permission to create staff accounts.";
+    }
+
+    return "Failed to create staff account. Please try again.";
+  };
 
   return (
     <div className="space-y-6">
@@ -19,6 +72,7 @@ export function StaffPage() {
 
         <button
           type="button"
+          onClick={handleOpenCreate}
           className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90"
           style={{
             backgroundColor: "#111827",
@@ -136,14 +190,18 @@ export function StaffPage() {
                           type="button"
                           className="text-xs font-medium text-blue-600 hover:underline"
                         >
-                          Edit
+                          <Edit size={16} className="mr-1 inline" />
                         </button>
 
                         <button
                           type="button"
                           className="text-xs font-medium text-red-600 hover:underline"
                         >
-                          {member.isActive ? "Deactivate" : "Activate"}
+                          {member.isActive ? (
+                            <EyeOff size={16} className="mr-1 inline" />
+                          ) : (
+                            <Eye size={16} className="mr-1 inline" />
+                          )}
                         </button>
                       </div>
                     </td>
@@ -154,6 +212,13 @@ export function StaffPage() {
           </div>
         </div>
       )}
+      <StaffModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmit}
+        isSubmitting={createMutation.isPending}
+        errorMessage={getCreateErrorMessage()}
+      />
     </div>
   );
 }

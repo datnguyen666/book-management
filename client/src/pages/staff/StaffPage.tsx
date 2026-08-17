@@ -289,7 +289,7 @@ export function StaffPage() {
                           type="button"
                           onClick={() => handleOpenEdit(member)}
                           disabled={statusMutation.isPending}
-                          className="text-xs font-medium text-blue-600 hover:underline disabled:opacity-50"
+                          className="text-xs font-medium text-blue-600 hover:underline disabled:opacity-50 cursor-pointer"
                         >
                           <Edit size={16} className="mr-1 inline" />
                         </button>
@@ -300,8 +300,8 @@ export function StaffPage() {
                           disabled={statusMutation.isPending}
                           className={
                             member.isActive
-                              ? "text-xs font-medium text-red-600 hover:underline disabled:opacity-50"
-                              : "text-xs font-medium text-green-600 hover:underline disabled:opacity-50"
+                              ? "text-xs font-medium text-red-600 hover:underline disabled:opacity-50 cursor-pointer"
+                              : "text-xs font-medium text-green-600 hover:underline disabled:opacity-50 cursor-pointer"
                           }
                         >
                           {member.isActive ? (

@@ -1,9 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
-import { UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
+import { createHash } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -42,6 +46,46 @@ export class AuthService {
 
     return {
       accessToken,
+    };
+  }
+
+  async setPassword(token: string, newPassword: string) {
+    const tokenHash = createHash('sha256').update(token).digest('hex');
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        passwordSetupTokenHash: tokenHash,
+        passwordSetupTokenExpiresAt: {
+          gt: new Date(),
+        },
+        isActive: true,
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid or expired password setup link');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+
+      data: {
+        password: hashedPassword,
+
+        mustChangePassword: false,
+
+        passwordSetupTokenHash: null,
+
+        passwordSetupTokenExpiresAt: null,
+      },
+    });
+
+    return {
+      message: 'Password has been set successfully',
     };
   }
 }

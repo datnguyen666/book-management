@@ -10,6 +10,7 @@ import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
+import { SetPasswordDto } from './dto/set-password.dto';
 
 interface AuthenticatedUser {
   id: number;
@@ -62,5 +63,10 @@ export class AuthController {
     return {
       message: 'Welcome Admin!',
     };
+  }
+
+  @Post('set-password')
+  async setPassword(@Body() dto: SetPasswordDto) {
+    return this.authService.setPassword(dto.token, dto.password);
   }
 }

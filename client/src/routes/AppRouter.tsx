@@ -12,6 +12,7 @@ import { BooksPage } from "@/pages/book/BooksPage";
 import { CategoriesPage } from "@/pages/category/CategoriesPage";
 import { BookDetailPage } from "@/pages/book/BookDetailPage";
 import { StaffPage } from "@/pages/staff/StaffPage";
+import { SetPasswordPage } from "@/pages/auth/SetPasswordPage";
 
 function NotFoundPage() {
   return <h1>404 Not Found</h1>;
@@ -46,6 +47,9 @@ export function AppRouter() {
 
             {/* Staff */}
             <Route path="/staff" element={<StaffPage />} />
+
+            {/* Set Password */}
+            <Route path="/set-password" element={<SetPasswordPage />} />
           </Route>
         </Route>
 

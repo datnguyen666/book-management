@@ -10,6 +10,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import * as path from 'path';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { StaffModule } from './staff/staff.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { StaffModule } from './staff/staff.module';
     BookModule,
     DashboardModule,
     StaffModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

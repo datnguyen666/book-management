@@ -9,10 +9,15 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateStaffDto } from './dto/create-staff.dto';
 import { UpdateStaffDto } from './dto/update-staff.dto';
+import { randomBytes, createHash } from 'crypto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class StaffService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mailService: MailService,
+  ) {}
 
   /**
    * Get all staff accounts.
@@ -66,6 +71,14 @@ export class StaffService {
 
     const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
 
+    const passwordSetupToken = this.generatePasswordSetupToken();
+
+    const passwordSetupTokenHash = this.hashToken(passwordSetupToken);
+
+    const passwordSetupTokenExpiresAt = new Date(
+      Date.now() + 24 * 60 * 60 * 1000,
+    );
+
     const staff = await this.prisma.user.create({
       data: {
         username,
@@ -74,6 +87,10 @@ export class StaffService {
         password: hashedPassword,
         role: 'STAFF',
         isActive: true,
+
+        mustChangePassword: true,
+        passwordSetupTokenHash,
+        passwordSetupTokenExpiresAt,
       },
 
       select: {
@@ -88,13 +105,13 @@ export class StaffService {
       },
     });
 
-    /*
-     * IMPORTANT:
-     * Do not return the password in the API response.
-     *
-     * Later, the temporary password will be sent
-     * through the staff invitation email.
-     */
+    await this.mailService.sendStaffInvitation({
+      email: dto.email,
+      fullName: dto.fullName,
+      username,
+      temporaryPassword,
+      setupToken: passwordSetupToken,
+    });
 
     return staff;
   }
@@ -251,5 +268,13 @@ export class StaffService {
     }
 
     return password;
+  }
+
+  private generatePasswordSetupToken() {
+    return randomBytes(32).toString('hex');
+  }
+
+  private hashToken(token: string) {
+    return createHash('sha256').update(token).digest('hex');
   }
 }

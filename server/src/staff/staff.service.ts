@@ -105,13 +105,17 @@ export class StaffService {
       },
     });
 
-    await this.mailService.sendStaffInvitation({
-      email: dto.email,
-      fullName: dto.fullName,
-      username,
-      temporaryPassword,
-      setupToken: passwordSetupToken,
-    });
+    this.mailService
+      .sendStaffInvitation({
+        email: dto.email,
+        fullName: dto.fullName,
+        username,
+        temporaryPassword,
+        setupToken: passwordSetupToken,
+      })
+      .catch((error) => {
+        console.error('Failed to send staff invitation email:', error);
+      });
 
     return staff;
   }

@@ -91,7 +91,7 @@ export function Header() {
           {/* Username + Role */}
           <div className="hidden sm:block">
             <p className="text-xs font-semibold" style={{ color: "#111827" }}>
-              {user?.username ?? "Unknown User"}
+              {user?.fullName || user?.username}
             </p>
 
             <p className="text-xs" style={{ color: "#94a8c2" }}>

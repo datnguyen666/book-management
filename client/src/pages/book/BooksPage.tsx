@@ -171,7 +171,9 @@ export function BooksPage() {
             <table className="w-full min-w-[900px] text-left text-sm">
               <thead className="border-b bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 font-semibold text-gray-600">STT</th>
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                    STT
+                  </th>
 
                   <th className="px-6 py-4 font-semibold text-gray-600">
                     Title
@@ -185,19 +187,19 @@ export function BooksPage() {
                     Author
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
                     Category
                   </th>
 
-                  <th className="px-6 py-4 text-right font-semibold text-gray-600">
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
                     Price
                   </th>
 
-                  <th className="px-6 py-4 text-right font-semibold text-gray-600">
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
                     Stock
                   </th>
 
-                  <th className="px-6 py-4 text-right font-semibold text-gray-600">
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
                     Actions
                   </th>
                 </tr>
@@ -210,7 +212,9 @@ export function BooksPage() {
                     className="transition-colors hover:bg-gray-50"
                   >
                     {/* ID */}
-                    <td className="px-6 py-4 text-gray-500">{index + 1}</td>
+                    <td className="px-6 py-4 text-center align-middle text-gray-500">
+                      {index + 1}
+                    </td>
 
                     {/* Title */}
                     <td className="max-w-[220px] px-6 py-4">
@@ -226,19 +230,19 @@ export function BooksPage() {
                     <td className="px-6 py-4 text-gray-700">{book.author}</td>
 
                     {/* Category */}
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-center align-middle">
                       <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
                         {book.category.name}
                       </span>
                     </td>
 
                     {/* Price */}
-                    <td className="px-6 py-4 text-right font-medium text-gray-900">
+                    <td className="px-6 py-4 text-center align-middle text-gray-900">
                       {Number(book.price).toFixed(2)}
                     </td>
 
                     {/* Stock */}
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-center align-middle text-gray-500">
                       <span
                         className={
                           book.stock === 0

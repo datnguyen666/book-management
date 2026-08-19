@@ -4,6 +4,7 @@ import {
   useCreateStaff,
   useUpdateStaff,
   useUpdateStaffStatus,
+  useDeleteStaff,
 } from "@/hooks/use-staff";
 import { useState } from "react";
 import axios from "axios";
@@ -12,6 +13,7 @@ import type { CreateStaffFormData } from "@/schemas/staff.schema";
 import { Edit } from "lucide-react";
 import { Eye, EyeOff } from "lucide-react";
 import type { Staff } from "@/api/staff.api";
+import { Trash2 } from "lucide-react";
 
 export function StaffPage() {
   const { data: staff = [], isLoading, isError } = useStaff();
@@ -19,7 +21,7 @@ export function StaffPage() {
   const createMutation = useCreateStaff();
   const updateMutation = useUpdateStaff();
   const statusMutation = useUpdateStaffStatus();
-
+  const deleteMutation = useDeleteStaff();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
@@ -133,6 +135,40 @@ export function StaffPage() {
     }
   };
 
+  const handleDelete = async (staff: Staff) => {
+    const confirmed = window.confirm(
+      `Bạn có chắc muốn xóa "${staff.fullName}"? Hành động này không thể hoàn tác.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteMutation.mutateAsync(staff.id);
+    } catch {
+      // Error is handled below.
+    }
+  };
+
+  const getDeleteErrorMessage = () => {
+    const error = deleteMutation.error;
+
+    if (!error) {
+      return null;
+    }
+
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return "Staff was not found.";
+    }
+
+    if (axios.isAxiosError(error) && error.response?.status === 403) {
+      return "You do not have permission to delete staff accounts.";
+    }
+
+    return "Failed to delete staff. Please try again.";
+  };
+
   const getStatusErrorMessage = () => {
     const error = statusMutation.error;
 
@@ -180,6 +216,13 @@ export function StaffPage() {
       {statusMutation.error && (
         <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
           {getStatusErrorMessage()}
+        </div>
+      )}
+
+      {/* Delete Error */}
+      {deleteMutation.error && (
+        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {getDeleteErrorMessage()}
         </div>
       )}
 
@@ -233,15 +276,15 @@ export function StaffPage() {
                     Username
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
                     Role
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
                     Status
                   </th>
 
-                  <th className="px-6 py-4 text-right font-semibold text-gray-600">
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
                     Actions
                   </th>
                 </tr>
@@ -265,13 +308,13 @@ export function StaffPage() {
                       {member.username}
                     </td>
 
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-center">
                       <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-600">
                         {member.role}
                       </span>
                     </td>
 
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-center">
                       {member.isActive ? (
                         <span className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-600">
                           Active
@@ -283,8 +326,8 @@ export function StaffPage() {
                       )}
                     </td>
 
-                    <td className="px-6 py-4">
-                      <div className="flex justify-end gap-3">
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex justify-center gap-3">
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(member)}
@@ -309,6 +352,19 @@ export function StaffPage() {
                           ) : (
                             <Eye size={16} className="mr-1 inline" />
                           )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(member)}
+                          disabled={
+                            member.isActive ||
+                            statusMutation.isPending ||
+                            deleteMutation.isPending
+                          }
+                          className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50 cursor-pointer"
+                        >
+                          <Trash2 size={16} className="mr-1 inline" />
                         </button>
                       </div>
                     </td>

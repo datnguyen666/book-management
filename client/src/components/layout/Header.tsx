@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export function Header() {
   const user = useAuthStore((state) => state.user);
@@ -53,14 +53,7 @@ export function Header() {
 
   const formattedDateTime = `${formattedDate} • ${formattedTime}`;
 
-  const location = useLocation();
-  const pageTitles: Record<string, string> = {
-    "/dashboard": "Dashboard",
-    "/categories": "Categories",
-    "/books": "Books",
-  };
-
-  const pageTitle = pageTitles[location.pathname] ?? "Book Management";
+  const pageTitle = "Book Management";
 
   return (
     <header className="flex h-16 items-center justify-between border-b bg-white px-6">

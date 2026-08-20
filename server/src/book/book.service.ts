@@ -19,7 +19,7 @@ import * as path from 'path';
 export class BookService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateBookDto): Promise<Book> {
+  async create(dto: CreateBookDto): Promise<{ data: Book }> {
     const category = await this.prisma.category.findUnique({
       where: {
         id: dto.categoryId,
@@ -31,7 +31,7 @@ export class BookService {
     }
 
     try {
-      return await this.prisma.book.create({
+      const book = await this.prisma.book.create({
         data: {
           title: dto.title,
           isbn: dto.isbn,
@@ -44,6 +44,9 @@ export class BookService {
           categoryId: dto.categoryId,
         },
       });
+      return {
+        data: book,
+      };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         switch (error.code) {

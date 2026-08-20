@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { FolderOpen, Plus } from "lucide-react";
+import { useAuthStore } from "@/store/auth.store";
 
 import {
   useCategories,
@@ -32,6 +33,9 @@ export function CategoriesPage() {
   const deleteMutation = useDeleteCategory();
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
+
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === "ADMIN";
 
   const handleOpenCreate = () => {
     createMutation.reset();
@@ -283,14 +287,16 @@ export function CategoriesPage() {
                           <Edit size={16} />
                         </button>
 
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(category)}
-                          disabled={deleteMutation.isPending}
-                          className="text-xs font-medium text-red-600 disabled:opacity-50 cursor-pointer"
-                        >
-                          <Trash size={16} />
-                        </button>
+                        {isAdmin && (
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(category)}
+                            disabled={deleteMutation.isPending}
+                            className="text-xs font-medium text-red-600 disabled:opacity-50 cursor-pointer"
+                          >
+                            <Trash size={16} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

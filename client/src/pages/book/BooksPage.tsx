@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuthStore } from "@/store/auth.store";
 import { BookOpen, ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 import {
@@ -53,6 +54,10 @@ export function BooksPage() {
 
     setPage(newPage);
   };
+
+  const user = useAuthStore((state) => state.user);
+
+  const isAdmin = user?.role === "ADMIN";
 
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -273,27 +278,29 @@ export function BooksPage() {
                           <Edit size={16} />
                         </button>
 
-                        <button
-                          type="button"
-                          className="text-xs font-medium text-red-600 cursor-pointer disabled:opacity-50"
-                          disabled={deleteMutation.isPending}
-                          onClick={async () => {
-                            const confirmed = window.confirm(
-                              `Are you sure you want to delete "${book.title}"?`,
-                            );
+                        {isAdmin && (
+                          <button
+                            type="button"
+                            className="text-xs font-medium text-red-600 cursor-pointer disabled:opacity-50"
+                            disabled={deleteMutation.isPending}
+                            onClick={async () => {
+                              const confirmed = window.confirm(
+                                `Are you sure you want to delete "${book.title}"?`,
+                              );
 
-                            if (!confirmed) {
-                              return;
-                            }
+                              if (!confirmed) {
+                                return;
+                              }
 
-                            await deleteMutation.mutateAsync(book.id);
-                            if (books.length === 1 && page > 1) {
-                              setPage((current) => current - 1);
-                            }
-                          }}
-                        >
-                          <Trash size={16} />
-                        </button>
+                              await deleteMutation.mutateAsync(book.id);
+                              if (books.length === 1 && page > 1) {
+                                setPage((current) => current - 1);
+                              }
+                            }}
+                          >
+                            <Trash size={16} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

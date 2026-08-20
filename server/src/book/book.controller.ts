@@ -46,7 +46,7 @@ export class BookController {
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.STAFF)
   @ApiOperation({
     summary: 'Create a new book',
   })
@@ -83,7 +83,7 @@ export class BookController {
 
   @Patch(':id')
   @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.STAFF)
   @ApiOperation({
     summary: 'Update book',
   })
@@ -112,7 +112,7 @@ export class BookController {
 
   @Post(':id/cover')
   @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.STAFF)
   @UseInterceptors(FileInterceptor('file', multerOptions))
   @ApiOperation({ summary: 'Upload book cover' })
   @ApiConsumes('multipart/form-data')

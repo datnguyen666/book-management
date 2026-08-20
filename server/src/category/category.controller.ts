@@ -34,7 +34,7 @@ export class CategoryController {
 
   @Post()
   @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.STAFF)
   @ApiOperation({
     summary: 'Create a new category',
   })
@@ -83,7 +83,7 @@ export class CategoryController {
 
   @Patch(':id')
   @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.STAFF)
   @ApiOperation({
     summary: 'Update category',
   })

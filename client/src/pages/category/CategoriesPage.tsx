@@ -277,7 +277,7 @@ export function CategoriesPage() {
                     </td>
 
                     <td className="px-6 py-4">
-                      <div className="flex justify-end gap-3">
+                      <div className="flex justify-center gap-3">
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(category)}

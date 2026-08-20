@@ -261,7 +261,7 @@ export function BooksPage() {
 
                     {/* Actions */}
                     <td className="px-5 py-5">
-                      <div className="flex justify-end gap-3">
+                      <div className="flex justify-center gap-3">
                         <button
                           type="button"
                           onClick={() => navigate(`/books/${book.id}`)}

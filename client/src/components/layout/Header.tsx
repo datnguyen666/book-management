@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Search, X } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 import { useNavigate } from "react-router-dom";
-import { api } from "@/api/axios";
 import { searchBooks } from "@/api/book.api";
 
 interface SearchBook {

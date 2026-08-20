@@ -10,7 +10,7 @@
     "concurrently": "^10.0.5"
   },
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix client\" \"npm run start:dev --prefix server\"",
+    "dev": "concurrently --prefix none \"npm run dev --prefix client\" \"npm run start:dev --prefix server\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

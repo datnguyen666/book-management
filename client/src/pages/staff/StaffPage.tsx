@@ -262,7 +262,9 @@ export function StaffPage() {
             <table className="w-full text-left text-sm">
               <thead className="border-b bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 font-semibold text-gray-600">STT</th>
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                    STT
+                  </th>
 
                   <th className="px-6 py-4 font-semibold text-gray-600">
                     Full Name
@@ -296,7 +298,9 @@ export function StaffPage() {
                     key={member.id}
                     className="transition-colors hover:bg-gray-50"
                   >
-                    <td className="px-6 py-4 text-gray-500">{index + 1}</td>
+                    <td className="px-6 py-4 text-center align-middle text-gray-500">
+                      {index + 1}
+                    </td>
 
                     <td className="px-6 py-4 font-medium text-gray-900">
                       {member.fullName}

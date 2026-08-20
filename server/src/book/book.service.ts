@@ -93,6 +93,36 @@ export class BookService {
     };
   }
 
+  async search(q: string) {
+    const query = q?.trim();
+
+    if (!query) {
+      return [];
+    }
+
+    const books = await this.prisma.book.findMany({
+      where: {
+        OR: [
+          { title: { contains: query, mode: 'insensitive' } },
+          { author: { contains: query, mode: 'insensitive' } },
+          { isbn: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+      select: {
+        id: true,
+        title: true,
+        author: true,
+        isbn: true,
+      },
+      take: 10,
+      orderBy: {
+        title: 'asc',
+      },
+    });
+
+    return books;
+  }
+
   async findOne(id: number) {
     const book = await this.prisma.book.findUnique({
       where: { id },

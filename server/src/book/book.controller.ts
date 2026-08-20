@@ -62,6 +62,14 @@ export class BookController {
     return this.bookService.findAll(query);
   }
 
+  @Get('search')
+  @ApiOperation({
+    summary: 'Search books by title, author or isbn',
+  })
+  search(@Query('q') q: string) {
+    return this.bookService.search(q);
+  }
+
   @Get(':id')
   @ApiOperation({
     summary: 'Get book by id',

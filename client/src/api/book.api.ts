@@ -65,6 +65,13 @@ export interface CreateBookPayload {
 
 export type UpdateBookPayload = Partial<CreateBookPayload>;
 
+export interface SearchBookResult {
+  id: number;
+  title: string;
+  author: string;
+  isbn: string;
+}
+
 export async function getBooks(
   params?: GetBooksParams,
 ): Promise<BookListResponse> {
@@ -111,4 +118,12 @@ export async function updateBook(
 
 export async function deleteBook(id: number): Promise<void> {
   await api.delete(`/books/${id}`);
+}
+
+export async function searchBooks(q: string): Promise<SearchBookResult[]> {
+  const response = await api.get<SearchBookResult[]>("/books/search", {
+    params: { q },
+  });
+
+  return response.data;
 }

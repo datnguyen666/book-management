@@ -15,6 +15,7 @@ export interface Book {
   description: string | null;
   price: string | number;
   quantity: number;
+  borrowedQuantity: number;
   coverImage: string | null;
   categoryId: number;
   category: BookCategory;

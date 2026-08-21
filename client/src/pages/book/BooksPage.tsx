@@ -204,6 +204,14 @@ export function BooksPage() {
                     Quantity
                   </th>
 
+                  <th className="px-6 py-4 font-semibold text-gray-600">
+                    Borrowed
+                  </th>
+
+                  <th className="px-6 py-4 font-semibold text-gray-600">
+                    Available
+                  </th>
+
                   <th className="px-6 py-4 text-center font-semibold text-gray-600">
                     Actions
                   </th>
@@ -248,15 +256,21 @@ export function BooksPage() {
 
                     {/* Quantity */}
                     <td className="px-6 py-4 text-center align-middle text-gray-500">
-                      <span
-                        className={
-                          book.quantity === 0
-                            ? "font-semibold text-red-600"
-                            : "text-gray-700"
-                        }
-                      >
-                        {book.quantity}
-                      </span>
+                      {book.quantity}
+                    </td>
+
+                    <td className="px-6 py-4 text-center align-middle text-gray-500">
+                      {book.borrowedQuantity}
+                    </td>
+
+                    <td
+                      className={`px-6 py-4 text-center font-semibold ${
+                        book.quantity - book.borrowedQuantity === 0
+                          ? "text-red-600"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {book.quantity - book.borrowedQuantity}
                     </td>
 
                     {/* Actions */}

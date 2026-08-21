@@ -41,6 +41,7 @@ export class BookService {
           description: dto.description,
           price: new Prisma.Decimal(dto.price),
           quantity: dto.quantity,
+          borrowedQuantity: 0,
           categoryId: dto.categoryId,
         },
       });

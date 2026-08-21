@@ -71,7 +71,7 @@ export class CreateBookDto {
   @Type(() => Number)
   @IsInt()
   @Min(0)
-  stock!: number;
+  quantity!: number;
 
   @ApiProperty({
     example: 1,

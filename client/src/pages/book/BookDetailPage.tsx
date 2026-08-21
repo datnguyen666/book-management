@@ -209,18 +209,18 @@ export function BookDetailPage() {
               </p>
             </div>
 
-            {/* Stock */}
+            {/* Quantity */}
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
-                Stock
+                Quantity
               </p>
 
               <p
                 className={`mt-1 text-sm font-semibold ${
-                  book.stock === 0 ? "text-red-600" : "text-gray-900"
+                  book.quantity === 0 ? "text-red-600" : "text-gray-900"
                 }`}
               >
-                {book.stock}
+                {book.quantity}
               </p>
             </div>
 

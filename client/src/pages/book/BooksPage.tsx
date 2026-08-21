@@ -201,7 +201,7 @@ export function BooksPage() {
                   </th>
 
                   <th className="px-6 py-4 text-center font-semibold text-gray-600">
-                    Stock
+                    Quantity
                   </th>
 
                   <th className="px-6 py-4 text-center font-semibold text-gray-600">
@@ -246,16 +246,16 @@ export function BooksPage() {
                       {Number(book.price).toFixed(2)}
                     </td>
 
-                    {/* Stock */}
+                    {/* Quantity */}
                     <td className="px-6 py-4 text-center align-middle text-gray-500">
                       <span
                         className={
-                          book.stock === 0
+                          book.quantity === 0
                             ? "font-semibold text-red-600"
                             : "text-gray-700"
                         }
                       >
-                        {book.stock}
+                        {book.quantity}
                       </span>
                     </td>
 

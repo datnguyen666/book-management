@@ -40,7 +40,7 @@ export class BookService {
           publishedDate: dto.publishedDate ? new Date(dto.publishedDate) : null,
           description: dto.description,
           price: new Prisma.Decimal(dto.price),
-          stock: dto.stock,
+          quantity: dto.quantity,
           categoryId: dto.categoryId,
         },
       });

@@ -14,7 +14,7 @@ export interface Book {
   publishedDate: string | null;
   description: string | null;
   price: string | number;
-  stock: number;
+  quantity: number;
   coverImage: string | null;
   categoryId: number;
   category: BookCategory;
@@ -59,7 +59,7 @@ export interface CreateBookPayload {
   publishedDate?: string;
   description?: string;
   price: number;
-  stock: number;
+  quantity: number;
   categoryId: number;
 }
 

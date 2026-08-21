@@ -55,7 +55,8 @@ model Book {
   publishedDate DateTime?
   description   String?
   price         Decimal   @db.Decimal(10, 2)
-  stock         Int       @default(0)
+  quantity      Int       @default(0)
+  borrowedQuantity Int       @default(0)
   coverImage    String?
 
   categoryId Int

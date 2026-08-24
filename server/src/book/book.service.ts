@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -151,6 +152,16 @@ export class BookService {
   }
 
   async update(id: number, dto: UpdateBookDto) {
+    const existingBook = await this.prisma.book.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!existingBook) {
+      throw new NotFoundException('Book not found');
+    }
+
     if (dto.categoryId !== undefined) {
       const category = await this.prisma.category.findUnique({
         where: {
@@ -163,24 +174,35 @@ export class BookService {
       }
     }
 
+    if (
+      dto.quantity !== undefined &&
+      dto.quantity < existingBook.borrowedQuantity
+    ) {
+      throw new BadRequestException(
+        `Quantity cannot be less than borrowed quantity (${existingBook.borrowedQuantity})`,
+      );
+    }
+
     try {
       const book = await this.prisma.book.update({
         where: {
           id,
         },
-
         data: {
-          ...dto,
-
-          price:
-            dto.price !== undefined ? new Prisma.Decimal(dto.price) : undefined,
-
+          title: dto.title,
+          isbn: dto.isbn,
+          author: dto.author,
+          publisher: dto.publisher,
           publishedDate:
             dto.publishedDate !== undefined
               ? new Date(dto.publishedDate)
               : undefined,
+          description: dto.description,
+          price:
+            dto.price !== undefined ? new Prisma.Decimal(dto.price) : undefined,
+          quantity: dto.quantity,
+          categoryId: dto.categoryId,
         },
-
         include: {
           category: {
             select: {

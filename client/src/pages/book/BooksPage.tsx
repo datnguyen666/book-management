@@ -172,7 +172,7 @@ export function BooksPage() {
       {/* Book Table */}
       {!isLoading && !isError && books.length > 0 && (
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto custom-scrollbar">
             <table className="w-full min-w-[900px] text-left text-sm">
               <thead className="border-b bg-gray-50">
                 <tr>
@@ -231,16 +231,20 @@ export function BooksPage() {
 
                     {/* Title */}
                     <td className="max-w-[220px] px-6 py-4">
-                      <div className="truncate font-medium text-gray-900">
+                      <div className="truncate font-medium text-gray-900 whitespace-nowrap">
                         {book.title}
                       </div>
                     </td>
 
                     {/* ISBN */}
-                    <td className="px-6 py-4 text-gray-500">{book.isbn}</td>
+                    <td className="px-6 py-4 text-gray-500 whitespace-nowrap">
+                      {book.isbn}
+                    </td>
 
                     {/* Author */}
-                    <td className="px-6 py-4 text-gray-700">{book.author}</td>
+                    <td className="px-6 py-4 text-gray-700 whitespace-nowrap">
+                      {book.author}
+                    </td>
 
                     {/* Category */}
                     <td className="px-6 py-4 text-center align-middle">

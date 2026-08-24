@@ -111,3 +111,27 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+.custom-scrollbar {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #adaaa7e8 #f3f4f6; /* Firefox: thumb track */
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px; /* độ mỏng cho scroll ngang */
+  width: 8px; /* độ mỏng cho scroll dọc nếu có */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #d4a853;
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #b8903f;
+}

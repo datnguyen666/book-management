@@ -11,6 +11,7 @@ import * as path from 'path';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { StaffModule } from './staff/staff.module';
 import { MailModule } from './mail/mail.module';
+import { BorrowModule } from './borrow/borrow.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { MailModule } from './mail/mail.module';
     DashboardModule,
     StaffModule,
     MailModule,
+    BorrowModule,
   ],
   controllers: [AppController],
   providers: [AppService],

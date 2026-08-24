@@ -17,19 +17,26 @@ enum Role {
   STAFF
 }
 
+enum BorrowStatus {
+  BORROWING
+  RETURNED
+}
+
 model User {
   id       Int    @id @default(autoincrement())
   username String @unique
   email    String @unique
   fullName String @default("")
   password String
-  
-  role     Role   @default(STAFF)
-  isActive  Boolean  @default(true)
 
-  mustChangePassword Boolean @default(false)
-  passwordSetupTokenHash String?
+  role     Role    @default(STAFF)
+  isActive Boolean @default(true)
+
+  mustChangePassword          Boolean   @default(false)
+  passwordSetupTokenHash      String?
   passwordSetupTokenExpiresAt DateTime?
+
+  processedBorrowRecords BorrowRecord[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -47,20 +54,22 @@ model Category {
 }
 
 model Book {
-  id            Int       @id @default(autoincrement())
-  title         String
-  isbn          String    @unique
-  author        String
-  publisher     String?
-  publishedDate DateTime?
-  description   String?
-  price         Decimal   @db.Decimal(10, 2)
-  quantity      Int       @default(0)
+  id               Int       @id @default(autoincrement())
+  title            String
+  isbn             String    @unique
+  author           String
+  publisher        String?
+  publishedDate    DateTime?
+  description      String?
+  price            Decimal   @db.Decimal(10, 2)
+  quantity         Int       @default(0)
   borrowedQuantity Int       @default(0)
-  coverImage    String?
+  coverImage       String?
 
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  borrowRecords BorrowRecord[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -68,4 +77,31 @@ model Book {
   @@index([title])
   @@index([author])
   @@index([categoryId])
+}
+
+model BorrowRecord {
+  id Int @id @default(autoincrement())
+
+  borrowerName String
+  borrowerCode String
+
+  bookId Int
+  book   Book @relation(fields: [bookId], references: [id], onDelete: Restrict)
+
+  borrowedAt DateTime  @default(now())
+  dueDate    DateTime
+  returnedAt DateTime?
+
+  status BorrowStatus @default(BORROWING)
+
+  processedById Int
+  processedBy   User @relation(fields: [processedById], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bookId])
+  @@index([borrowerCode])
+  @@index([processedById])
+  @@index([status])
 }

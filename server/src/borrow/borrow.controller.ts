@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Get, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Get,
+  Req,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -10,6 +18,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 
 import { BorrowService } from './borrow.service';
 import { CreateBorrowDto } from './dto/create-borrow.dto';
+import { QueryBorrowDto } from './dto/query-borrow.dto';
 
 @ApiTags('Borrows')
 @ApiBearerAuth('JWT')
@@ -26,5 +35,15 @@ export class BorrowController {
   })
   create(@Body() dto: CreateBorrowDto, @Req() req: any) {
     return this.borrowService.create(dto, req.user.id);
+  }
+
+  @Get()
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN, Role.STAFF)
+  @ApiOperation({
+    summary: 'Get borrow records',
+  })
+  findAll(@Query() query: QueryBorrowDto) {
+    return this.borrowService.findAll(query);
   }
 }

@@ -102,4 +102,95 @@ export class BorrowService {
       data: result,
     };
   }
+
+  async findAll(query: QueryBorrowDto) {
+    const { page, limit, search, status } = query;
+
+    const skip = (page - 1) * limit;
+
+    const where = {
+      ...(status !== undefined && {
+        status,
+      }),
+
+      ...(search?.trim() && {
+        OR: [
+          {
+            borrowerName: {
+              contains: search.trim(),
+              mode: 'insensitive' as const,
+            },
+          },
+          {
+            borrowerCode: {
+              contains: search.trim(),
+              mode: 'insensitive' as const,
+            },
+          },
+          {
+            book: {
+              title: {
+                contains: search.trim(),
+                mode: 'insensitive' as const,
+              },
+            },
+          },
+          {
+            book: {
+              isbn: {
+                contains: search.trim(),
+                mode: 'insensitive' as const,
+              },
+            },
+          },
+        ],
+      }),
+    };
+
+    const [records, total] = await this.prisma.$transaction([
+      this.prisma.borrowRecord.findMany({
+        where,
+        skip,
+        take: limit,
+
+        orderBy: {
+          borrowedAt: 'desc',
+        },
+
+        include: {
+          book: {
+            select: {
+              id: true,
+              title: true,
+              isbn: true,
+            },
+          },
+
+          processedBy: {
+            select: {
+              id: true,
+              username: true,
+              fullName: true,
+              role: true,
+            },
+          },
+        },
+      }),
+
+      this.prisma.borrowRecord.count({
+        where,
+      }),
+    ]);
+
+    return {
+      data: records,
+
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
 }

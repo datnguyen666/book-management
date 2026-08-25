@@ -40,13 +40,28 @@ export interface BorrowListResponse {
   };
 }
 
+export interface BorrowActionResponse {
+  message: string;
+  data: {
+    borrowRecord: BorrowRecord;
+    book: {
+      id: number;
+      title: string;
+      quantity: number;
+      borrowedQuantity: number;
+    };
+  };
+}
+
 export async function getBorrows(): Promise<BorrowRecord[]> {
   const response = await api.get<BorrowListResponse>("/borrows");
   return response.data.data;
 }
 
-export async function returnBorrow(id: number): Promise<BorrowRecord> {
-  const response = await api.patch<BorrowRecord>(`/borrows/${id}/return`);
+export async function returnBorrow(id: number): Promise<BorrowActionResponse> {
+  const response = await api.patch<BorrowActionResponse>(
+    `/borrows/${id}/return`,
+  );
 
   return response.data;
 }

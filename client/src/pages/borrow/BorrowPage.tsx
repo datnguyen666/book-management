@@ -78,7 +78,7 @@ export function BorrowPage() {
                     Borrower
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th className="px-6 py-4 font-semibold text-gray-600 whitespace-nowrap">
                     Borrowed At
                   </th>
 
@@ -86,7 +86,7 @@ export function BorrowPage() {
                     Due Date
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th className="px-6 py-4 font-semibold text-gray-600 whitespace-nowrap">
                     Returned At
                   </th>
 
@@ -94,7 +94,7 @@ export function BorrowPage() {
                     Status
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th className="px-6 py-4 font-semibold text-gray-600 whitespace-nowrap">
                     Processed By
                   </th>
 
@@ -121,14 +121,14 @@ export function BorrowPage() {
                         {borrow.book.title}
                       </div>
 
-                      <div className="mt-1 text-xs text-gray-400">
+                      <div className="mt-1 text-xs text-gray-400 whitespace-nowrap">
                         ISBN: {borrow.book.isbn}
                       </div>
                     </td>
 
                     {/* Borrower */}
                     <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-gray-900 whitespace-nowrap">
                         {borrow.borrowerName}
                       </div>
 
@@ -138,17 +138,17 @@ export function BorrowPage() {
                     </td>
 
                     {/* Borrowed At */}
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-700">
+                    <td className="px-6 py-4 text-center whitespace-nowrap text-gray-700">
                       {new Date(borrow.borrowedAt).toLocaleDateString()}
                     </td>
 
                     {/* Due Date */}
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-700">
+                    <td className="px-6 py-4 text-center whitespace-nowrap text-gray-700">
                       {new Date(borrow.dueDate).toLocaleDateString()}
                     </td>
 
                     {/* Returned At */}
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-700">
+                    <td className="px-6 py-4 text-center whitespace-nowrap text-gray-700">
                       {borrow.returnedAt
                         ? new Date(borrow.returnedAt).toLocaleDateString()
                         : "-"}
@@ -168,7 +168,7 @@ export function BorrowPage() {
                     </td>
 
                     {/* Processed By */}
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="font-medium text-gray-700">
                         {borrow.processedBy.fullName}
                       </div>

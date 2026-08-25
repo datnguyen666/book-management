@@ -6,6 +6,9 @@ import {
   Req,
   UseGuards,
   Query,
+  Patch,
+  Param,
+  ParseIntPipe,
 } from '@nestjs/common';
 
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -45,5 +48,15 @@ export class BorrowController {
   })
   findAll(@Query() query: QueryBorrowDto) {
     return this.borrowService.findAll(query);
+  }
+
+  @Patch(':id/return')
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN, Role.STAFF)
+  @ApiOperation({
+    summary: 'Return a borrowed book',
+  })
+  returnBook(@Param('id', ParseIntPipe) id: number) {
+    return this.borrowService.returnBook(id);
   }
 }

@@ -193,4 +193,77 @@ export class BorrowService {
       },
     };
   }
+
+  async returnBook(id: number) {
+    const borrowRecord = await this.prisma.borrowRecord.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!borrowRecord) {
+      throw new NotFoundException('Borrow record not found');
+    }
+
+    if (borrowRecord.status === BorrowStatus.RETURNED) {
+      throw new BadRequestException('This book has already been returned');
+    }
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      const returnedRecord = await tx.borrowRecord.update({
+        where: {
+          id,
+        },
+        data: {
+          status: BorrowStatus.RETURNED,
+          returnedAt: new Date(),
+        },
+        include: {
+          book: {
+            select: {
+              id: true,
+              title: true,
+              isbn: true,
+              quantity: true,
+              borrowedQuantity: true,
+            },
+          },
+          processedBy: {
+            select: {
+              id: true,
+              username: true,
+              fullName: true,
+            },
+          },
+        },
+      });
+
+      const updatedBook = await tx.book.update({
+        where: {
+          id: borrowRecord.bookId,
+        },
+        data: {
+          borrowedQuantity: {
+            decrement: 1,
+          },
+        },
+        select: {
+          id: true,
+          title: true,
+          quantity: true,
+          borrowedQuantity: true,
+        },
+      });
+
+      return {
+        borrowRecord: returnedRecord,
+        book: updatedBook,
+      };
+    });
+
+    return {
+      message: 'Book returned successfully',
+      data: result,
+    };
+  }
 }

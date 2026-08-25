@@ -31,6 +31,11 @@ const navigationItems: NavigationItem[] = [
     icon: User,
     adminOnly: true,
   },
+  {
+    label: "Borrow Records",
+    path: "/borrows",
+    icon: BookOpen,
+  },
 ];
 
 export function Sidebar() {

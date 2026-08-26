@@ -1,7 +1,14 @@
 import { useState } from "react";
-import { BookOpen, ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import {
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw,
+  ChevronDown,
+  Search,
+} from "lucide-react";
 
-import type { BorrowRecord } from "@/api/borrow.api";
+import type { BorrowRecord, BorrowStatus } from "@/api/borrow.api";
 
 import { useBorrows, useReturnBorrow } from "@/hooks/use-borrow";
 
@@ -9,11 +16,15 @@ const DEFAULT_LIMIT = 10;
 
 export function BorrowPage() {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<BorrowStatus | "">("");
 
-  const { data, isLoading, isError, isFetching } = useBorrows(
+  const { data, isLoading, isError, isFetching } = useBorrows({
     page,
-    DEFAULT_LIMIT,
-  );
+    limit: DEFAULT_LIMIT,
+    search,
+    status,
+  });
 
   const returnMutation = useReturnBorrow();
 
@@ -68,6 +79,49 @@ export function BorrowPage() {
         </p>
       </div>
 
+      {/* Filters */}
+      <div className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:flex-row">
+        {/* Search */}
+        <div className="relative flex-1">
+          <Search
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+
+          <input
+            type="text"
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
+            placeholder="Search borrower, code, book or ISBN..."
+            className="w-full rounded-md border border-gray-200 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-amber-600 focus:ring-1 focus:ring-amber-600"
+          />
+        </div>
+
+        {/* Status */}
+        <div className="relative">
+          <select
+            value={status}
+            onChange={(event) => {
+              setStatus(event.target.value as BorrowStatus | "");
+              setPage(1);
+            }}
+            className="w-full appearance-none rounded-md border border-gray-200 bg-white py-2.5 pl-4 pr-9 text-sm outline-none transition focus:border-amber-600 focus:ring-1 focus:ring-amber-600 sm:w-44"
+          >
+            <option value="">All Status</option>
+            <option value="BORROWING">Borrowing</option>
+            <option value="RETURNED">Returned</option>
+          </select>
+
+          <ChevronDown
+            size={16}
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+        </div>
+      </div>
+
       {/* Loading */}
       {isLoading && (
         <div className="rounded-lg border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
@@ -92,7 +146,9 @@ export function BorrowPage() {
           </p>
 
           <p className="mt-1 text-xs text-gray-400">
-            There are no borrow records to display.
+            {search || status
+              ? "Try adjusting your search or filter."
+              : "There are no borrow records to display."}
           </p>
         </div>
       )}
@@ -268,7 +324,7 @@ export function BorrowPage() {
             </table>
           </div>
 
-          {/* Pagination - giống BooksPage */}
+          {/* Pagination */}
           <div className="flex items-center justify-between border-t bg-white px-6 py-4">
             <p className="text-xs text-gray-500">
               {pagination

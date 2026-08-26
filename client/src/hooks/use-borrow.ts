@@ -2,10 +2,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { getBorrows, returnBorrow } from "@/api/borrow.api";
 
-export function useBorrows() {
+export function useBorrows(page: number, limit: number) {
   return useQuery({
-    queryKey: ["borrows"],
-    queryFn: getBorrows,
+    queryKey: ["borrows", page, limit],
+    queryFn: () =>
+      getBorrows({
+        page,
+        limit,
+      }),
   });
 }
 
@@ -20,8 +24,6 @@ export function useReturnBorrow() {
         queryKey: ["borrows"],
       });
 
-      // Quan trọng:
-      // borrowedQuantity của Book cũng thay đổi
       queryClient.invalidateQueries({
         queryKey: ["books"],
       });

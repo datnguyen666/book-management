@@ -14,6 +14,7 @@ export interface BorrowProcessedBy {
   id: number;
   username: string;
   fullName: string;
+  role?: "ADMIN" | "STAFF";
 }
 
 export interface BorrowRecord {
@@ -30,14 +31,23 @@ export interface BorrowRecord {
   processedBy: BorrowProcessedBy;
 }
 
+export interface BorrowPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 export interface BorrowListResponse {
   data: BorrowRecord[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
+  pagination: BorrowPagination;
+}
+
+export interface GetBorrowsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: BorrowStatus;
 }
 
 export interface BorrowActionResponse {
@@ -53,9 +63,14 @@ export interface BorrowActionResponse {
   };
 }
 
-export async function getBorrows(): Promise<BorrowRecord[]> {
-  const response = await api.get<BorrowListResponse>("/borrows");
-  return response.data.data;
+export async function getBorrows(
+  params?: GetBorrowsParams,
+): Promise<BorrowListResponse> {
+  const response = await api.get<BorrowListResponse>("/borrows", {
+    params,
+  });
+
+  return response.data;
 }
 
 export async function returnBorrow(id: number): Promise<BorrowActionResponse> {

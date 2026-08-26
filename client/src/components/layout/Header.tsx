@@ -151,7 +151,7 @@ export function Header() {
                   setShowSearchResults(true);
                 }
               }}
-              placeholder="Search books..."
+              placeholder="Search books, authors ..."
               className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-10 text-sm text-gray-900 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-1 focus:ring-amber-500"
               style={{
                 backgroundColor: "#faf8f3",

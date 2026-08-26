@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { getBorrows, returnBorrow, type BorrowStatus } from "@/api/borrow.api";
+import {
+  createBorrow,
+  getBorrows,
+  returnBorrow,
+  type BorrowStatus,
+  type CreateBorrowRequest,
+} from "@/api/borrow.api";
 
 interface UseBorrowsParams {
   page: number;
@@ -19,6 +25,24 @@ export function useBorrows({ page, limit, search, status }: UseBorrowsParams) {
         search: search || undefined,
         status: status || undefined,
       }),
+  });
+}
+
+export function useCreateBorrow() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: CreateBorrowRequest) => createBorrow(data),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["borrows"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["books"],
+      });
+    },
   });
 }
 

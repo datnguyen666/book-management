@@ -7,14 +7,23 @@ import {
   ChevronDown,
   Search,
 } from "lucide-react";
-
-import type { BorrowRecord, BorrowStatus } from "@/api/borrow.api";
-
-import { useBorrows, useReturnBorrow } from "@/hooks/use-borrow";
+import type {
+  BorrowRecord,
+  BorrowStatus,
+  CreateBorrowRequest,
+} from "@/api/borrow.api";
+import {
+  useBorrows,
+  useCreateBorrow,
+  useReturnBorrow,
+} from "@/hooks/use-borrow";
+import { CreateBorrowModal } from "./CreateBorrowModal";
 
 const DEFAULT_LIMIT = 10;
 
 export function BorrowPage() {
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const createMutation = useCreateBorrow();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<BorrowStatus | "">("");
@@ -33,6 +42,24 @@ export function BorrowPage() {
   const pagination = data?.pagination;
 
   const totalPages = pagination?.totalPages ?? 1;
+
+  const handleCreateBorrow = async (data: CreateBorrowRequest) => {
+    try {
+      await createMutation.mutateAsync(data);
+
+      setIsCreateOpen(false);
+
+      // Quay về page 1 để thấy record mới
+      setPage(1);
+
+      window.alert("Book borrowed successfully.");
+    } catch (error) {
+      console.error("Failed to create borrow record:", error);
+
+      window.alert("Failed to create borrow record. Please try again.");
+      throw error;
+    }
+  };
 
   const handleReturn = async (borrow: BorrowRecord) => {
     const confirmed = window.confirm(
@@ -71,12 +98,22 @@ export function BorrowPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Borrow Records</h1>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Borrow Records</h1>
 
-        <p className="mt-1 text-sm text-gray-500">
-          Manage book borrowing and return records.
-        </p>
+          <p className="mt-1 text-sm text-gray-500">
+            Manage book borrowing and return records.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsCreateOpen(true)}
+          className="shrink-0 rounded-md bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
+        >
+          + Create Borrow
+        </button>
       </div>
 
       {/* Filters */}
@@ -377,6 +414,13 @@ export function BorrowPage() {
       {isFetching && !isLoading && (
         <p className="text-right text-xs text-gray-400">Updating...</p>
       )}
+
+      <CreateBorrowModal
+        isOpen={isCreateOpen}
+        isSubmitting={createMutation.isPending}
+        onClose={() => setIsCreateOpen(false)}
+        onSubmit={handleCreateBorrow}
+      />
     </div>
   );
 }

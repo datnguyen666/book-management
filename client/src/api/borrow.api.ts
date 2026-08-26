@@ -50,6 +50,13 @@ export interface GetBorrowsParams {
   status?: BorrowStatus;
 }
 
+export interface CreateBorrowRequest {
+  borrowerName: string;
+  borrowerCode: string;
+  bookId: number;
+  dueDate: string;
+}
+
 export interface BorrowActionResponse {
   message: string;
   data: {
@@ -69,6 +76,14 @@ export async function getBorrows(
   const response = await api.get<BorrowListResponse>("/borrows", {
     params,
   });
+
+  return response.data;
+}
+
+export async function createBorrow(
+  data: CreateBorrowRequest,
+): Promise<BorrowActionResponse> {
+  const response = await api.post<BorrowActionResponse>("/borrows", data);
 
   return response.data;
 }

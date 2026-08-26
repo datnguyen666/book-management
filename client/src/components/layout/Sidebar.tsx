@@ -1,4 +1,10 @@
-import { BookOpen, FolderOpen, LayoutDashboard, User } from "lucide-react";
+import {
+  BookOpen,
+  FolderOpen,
+  LayoutDashboard,
+  User,
+  BookUser,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuthStore } from "@/store/auth.store";
 
@@ -34,7 +40,7 @@ const navigationItems: NavigationItem[] = [
   {
     label: "Borrow Records",
     path: "/borrows",
-    icon: BookOpen,
+    icon: BookUser,
   },
 ];
 

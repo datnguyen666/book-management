@@ -21,6 +21,20 @@ import { CreateBorrowModal } from "./CreateBorrowModal";
 
 const DEFAULT_LIMIT = 10;
 
+function isOverdue(dueDate: string, status: BorrowStatus) {
+  if (status !== "BORROWING") {
+    return false;
+  }
+
+  const today = new Date();
+  const due = new Date(dueDate);
+
+  today.setHours(0, 0, 0, 0);
+  due.setHours(0, 0, 0, 0);
+
+  return due < today;
+}
+
 export function BorrowPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const createMutation = useCreateBorrow();
@@ -243,8 +257,7 @@ export function BorrowPage() {
                     returnMutation.isPending &&
                     returnMutation.variables === borrow.id;
 
-                  const isOverdue =
-                    isBorrowing && new Date(borrow.dueDate) < new Date();
+                  const overdue = isOverdue(borrow.dueDate, borrow.status);
 
                   return (
                     <tr
@@ -286,14 +299,14 @@ export function BorrowPage() {
                       {/* Due Date */}
                       <td
                         className={`px-6 py-4 text-center whitespace-nowrap ${
-                          isOverdue
+                          overdue
                             ? "font-semibold text-red-600"
                             : "text-gray-700"
                         }`}
                       >
                         {new Date(borrow.dueDate).toLocaleDateString()}
 
-                        {isOverdue && (
+                        {overdue && (
                           <div className="mt-1 text-xs text-red-500">
                             Overdue
                           </div>

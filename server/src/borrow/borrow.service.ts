@@ -15,22 +15,6 @@ export class BorrowService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateBorrowDto, processedById: number) {
-    const book = await this.prisma.book.findUnique({
-      where: {
-        id: dto.bookId,
-      },
-    });
-
-    if (!book) {
-      throw new NotFoundException('Book not found');
-    }
-
-    const availableQuantity = book.quantity - book.borrowedQuantity;
-
-    if (availableQuantity <= 0) {
-      throw new BadRequestException('No available copies of this book');
-    }
-
     const dueDate = new Date(dto.dueDate);
 
     if (Number.isNaN(dueDate.getTime())) {
@@ -44,6 +28,39 @@ export class BorrowService {
     }
 
     const result = await this.prisma.$transaction(async (tx) => {
+      // 1. Kiểm tra Book tồn tại
+      const book = await tx.book.findUnique({
+        where: {
+          id: dto.bookId,
+        },
+      });
+
+      if (!book) {
+        throw new NotFoundException('Book not found');
+      }
+
+      // 2. Atomically tăng borrowedQuantity
+      //    nhưng chỉ khi vẫn còn sách available
+      const updatedBookResult = await tx.book.updateMany({
+        where: {
+          id: dto.bookId,
+          borrowedQuantity: {
+            lt: book.quantity,
+          },
+        },
+        data: {
+          borrowedQuantity: {
+            increment: 1,
+          },
+        },
+      });
+
+      // 3. Không còn sách available
+      if (updatedBookResult.count === 0) {
+        throw new BadRequestException('No available copies of this book');
+      }
+
+      // 4. Tạo Borrow Record
       const borrowRecord = await tx.borrowRecord.create({
         data: {
           borrowerName: dto.borrowerName.trim(),
@@ -54,6 +71,7 @@ export class BorrowService {
           status: BorrowStatus.BORROWING,
           processedById,
         },
+
         include: {
           book: {
             select: {
@@ -64,6 +82,7 @@ export class BorrowService {
               borrowedQuantity: true,
             },
           },
+
           processedBy: {
             select: {
               id: true,
@@ -74,15 +93,12 @@ export class BorrowService {
         },
       });
 
-      const updatedBook = await tx.book.update({
+      // 5. Lấy Book sau khi update
+      const updatedBook = await tx.book.findUnique({
         where: {
           id: dto.bookId,
         },
-        data: {
-          borrowedQuantity: {
-            increment: 1,
-          },
-        },
+
         select: {
           id: true,
           title: true,
@@ -210,14 +226,37 @@ export class BorrowService {
     }
 
     const result = await this.prisma.$transaction(async (tx) => {
+      // 1. Giảm borrowedQuantity nếu vẫn > 0
+      const updatedBookResult = await tx.book.updateMany({
+        where: {
+          id: borrowRecord.bookId,
+          borrowedQuantity: {
+            gt: 0,
+          },
+        },
+
+        data: {
+          borrowedQuantity: {
+            decrement: 1,
+          },
+        },
+      });
+
+      if (updatedBookResult.count === 0) {
+        throw new BadRequestException('Book borrowed quantity is already zero');
+      }
+
+      // 2. Đánh dấu Borrow Record đã trả
       const returnedRecord = await tx.borrowRecord.update({
         where: {
           id,
         },
+
         data: {
           status: BorrowStatus.RETURNED,
           returnedAt: new Date(),
         },
+
         include: {
           book: {
             select: {
@@ -228,6 +267,7 @@ export class BorrowService {
               borrowedQuantity: true,
             },
           },
+
           processedBy: {
             select: {
               id: true,
@@ -238,15 +278,12 @@ export class BorrowService {
         },
       });
 
-      const updatedBook = await tx.book.update({
+      // 3. Lấy Book sau khi decrement
+      const updatedBook = await tx.book.findUnique({
         where: {
           id: borrowRecord.bookId,
         },
-        data: {
-          borrowedQuantity: {
-            decrement: 1,
-          },
-        },
+
         select: {
           id: true,
           title: true,

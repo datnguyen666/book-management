@@ -118,6 +118,7 @@ export class BookService {
         title: true,
         author: true,
         isbn: true,
+        coverImage: true,
       },
       take: 10,
       orderBy: {

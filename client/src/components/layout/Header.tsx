@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
-import { Search, X } from "lucide-react";
+import { BookOpen, Search, X } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { searchBooks } from "@/api/book.api";
+import { getMediaUrl } from "@/lib/media";
 
 interface SearchBook {
   id: number;
   title: string;
   author: string;
   isbn: string;
+  coverImage?: string | null;
 }
 
 export function Header() {
@@ -195,19 +197,35 @@ export function Header() {
                       key={book.id}
                       type="button"
                       onClick={() => handleSelectBook(book)}
-                      className="block w-full border-b border-gray-100 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-gray-50"
+                      className="flex w-full items-center gap-3 border-b border-gray-100 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-gray-50"
                     >
-                      <p className="text-sm font-semibold text-gray-900">
-                        {book.title}
-                      </p>
+                      <div className="h-14 w-10 flex-shrink-0 overflow-hidden rounded bg-gray-100">
+                        {book.coverImage ? (
+                          <img
+                            src={getMediaUrl(book.coverImage)}
+                            alt={book.title}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <BookOpen size={16} className="text-gray-300" />
+                          </div>
+                        )}
+                      </div>
 
-                      <p className="mt-1 text-xs text-gray-500">
-                        {book.author}
-                      </p>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-gray-900">
+                          {book.title}
+                        </p>
 
-                      <p className="mt-1 text-xs text-gray-400">
-                        ISBN: {book.isbn}
-                      </p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          {book.author}
+                        </p>
+
+                        <p className="mt-1 text-xs text-gray-400">
+                          ISBN: {book.isbn}
+                        </p>
+                      </div>
                     </button>
                   ))}
                 </div>

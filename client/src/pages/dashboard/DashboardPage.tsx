@@ -159,7 +159,7 @@ export function DashboardPage() {
       {!isLoading && !isError && data && (
         <>
           {/* Summary cards */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {summaryCards.map((card) => {
               const Icon = card.icon;
 
@@ -169,7 +169,7 @@ export function DashboardPage() {
                   className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <div className="flex items-start justify-between">
-                    <div>
+                    <div className="pr-12">
                       <p className="text-sm font-medium text-gray-500">
                         {card.title}
                       </p>
@@ -184,7 +184,7 @@ export function DashboardPage() {
                     </div>
 
                     <div
-                      className="flex h-11 w-11 items-center justify-center rounded-lg"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg"
                       style={{
                         backgroundColor: "#111827",
                         color: "#d4a853",

@@ -20,6 +20,10 @@ export class DashboardService {
       totalCategories,
       currentlyBorrowed,
       overdue,
+      borrowingStatus,
+      borrowsThisYear,
+      topBorrowedBooks,
+
       booksThisYear,
       categoryBreakdown,
       recentBooks,
@@ -45,6 +49,41 @@ export class DashboardService {
             lt: now,
           },
         },
+      }),
+
+      // Borrowing status
+      this.prisma.borrowRecord.groupBy({
+        by: ['status'],
+        _count: {
+          _all: true,
+        },
+      }),
+
+      // Borrow records during current year
+      this.prisma.borrowRecord.findMany({
+        where: {
+          borrowedAt: {
+            gte: startOfYear,
+            lt: startOfNextYear,
+          },
+        },
+        select: {
+          borrowedAt: true,
+        },
+      }),
+
+      // Top borrowed books
+      this.prisma.borrowRecord.groupBy({
+        by: ['bookId'],
+        _count: {
+          _all: true,
+        },
+        orderBy: {
+          _count: {
+            bookId: 'desc',
+          },
+        },
+        take: 5,
       }),
 
       // Books added during current year
@@ -93,31 +132,125 @@ export class DashboardService {
       }),
     ]);
 
-    // Initialize all 12 months
+    // =========================================================
+    // Monthly acquisitions
+    // =========================================================
+
     const monthlyAcquisitions = Array.from({ length: 12 }, (_, index) => ({
       month: index + 1,
       count: 0,
     }));
 
-    // Count books by month
     for (const book of booksThisYear) {
       const month = book.createdAt.getMonth();
 
       monthlyAcquisitions[month].count++;
     }
 
-    // Format category breakdown
+    // =========================================================
+    // Monthly borrowings
+    // =========================================================
+
+    const monthlyBorrowings = Array.from({ length: 12 }, (_, index) => ({
+      month: index + 1,
+      count: 0,
+    }));
+
+    for (const borrow of borrowsThisYear) {
+      const month = borrow.borrowedAt.getMonth();
+
+      monthlyBorrowings[month].count++;
+    }
+
+    // =========================================================
+    // Borrowing status
+    // =========================================================
+
+    const borrowingStatusSummary = {
+      borrowing: 0,
+      returned: 0,
+    };
+
+    for (const item of borrowingStatus) {
+      if (item.status === 'BORROWING') {
+        borrowingStatusSummary.borrowing = item._count._all;
+      }
+
+      if (item.status === 'RETURNED') {
+        borrowingStatusSummary.returned = item._count._all;
+      }
+    }
+
+    // =========================================================
+    // Top borrowed books
+    // =========================================================
+
+    const topBorrowedBookIds = topBorrowedBooks.map((item) => item.bookId);
+
+    const topBorrowedBookDetails =
+      topBorrowedBookIds.length > 0
+        ? await this.prisma.book.findMany({
+            where: {
+              id: {
+                in: topBorrowedBookIds,
+              },
+            },
+            select: {
+              id: true,
+              title: true,
+              isbn: true,
+            },
+          })
+        : [];
+
+    const topBorrowedBooksSummary = topBorrowedBooks
+      .map((item) => {
+        const book = topBorrowedBookDetails.find(
+          (book) => book.id === item.bookId,
+        );
+
+        if (!book) {
+          return null;
+        }
+
+        return {
+          bookId: book.id,
+          title: book.title,
+          isbn: book.isbn,
+          count: item._count._all,
+        };
+      })
+      .filter((item) => item !== null);
+
+    // =========================================================
+    // Category breakdown
+    // =========================================================
+
     const breakdown = categoryBreakdown.map((category) => ({
       categoryId: category.id,
       categoryName: category.name,
       count: category._count.books,
     }));
 
+    // =========================================================
+    // Final response
+    // =========================================================
+
     return {
       totalBooks,
       totalCategories,
+
       currentlyBorrowed,
       overdue,
+
+      borrowingStatus: borrowingStatusSummary,
+
+      monthlyBorrowings: {
+        year: currentYear,
+        data: monthlyBorrowings,
+      },
+
+      topBorrowedBooks: topBorrowedBooksSummary,
 
       monthlyAcquisitions: {
         year: currentYear,

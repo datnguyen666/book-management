@@ -10,6 +10,28 @@ export interface MonthlyAcquisitions {
   data: MonthlyAcquisition[];
 }
 
+export interface MonthlyBorrowing {
+  month: number;
+  count: number;
+}
+
+export interface MonthlyBorrowings {
+  year: number;
+  data: MonthlyBorrowing[];
+}
+
+export interface BorrowingStatus {
+  borrowing: number;
+  returned: number;
+}
+
+export interface TopBorrowedBook {
+  bookId: number;
+  title: string;
+  isbn: string;
+  count: number;
+}
+
 export interface CategoryBreakdown {
   categoryId: number;
   categoryName: string;
@@ -34,10 +56,20 @@ export interface RecentBook {
 export interface DashboardSummary {
   totalBooks: number;
   totalCategories: number;
+
   currentlyBorrowed: number;
   overdue: number;
+
+  borrowingStatus: BorrowingStatus;
+
+  monthlyBorrowings: MonthlyBorrowings;
+
+  topBorrowedBooks: TopBorrowedBook[];
+
   monthlyAcquisitions: MonthlyAcquisitions;
+
   categoryBreakdown: CategoryBreakdown[];
+
   recentBooks: RecentBook[];
 }
 

@@ -16,6 +16,7 @@ export class DashboardController {
 
   @Get('summary')
   @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN, Role.STAFF)
   @ApiOperation({
     summary: 'Dashboard summary',
   })

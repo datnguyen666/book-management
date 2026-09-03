@@ -34,6 +34,8 @@ export interface RecentBook {
 export interface DashboardSummary {
   totalBooks: number;
   totalCategories: number;
+  currentlyBorrowed: number;
+  overdue: number;
   monthlyAcquisitions: MonthlyAcquisitions;
   categoryBreakdown: CategoryBreakdown[];
   recentBooks: RecentBook[];

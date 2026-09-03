@@ -18,6 +18,8 @@ export class DashboardService {
     const [
       totalBooks,
       totalCategories,
+      currentlyBorrowed,
+      overdue,
       booksThisYear,
       categoryBreakdown,
       recentBooks,
@@ -27,6 +29,23 @@ export class DashboardService {
 
       // Total categories
       this.prisma.category.count(),
+
+      // Currently borrowed
+      this.prisma.borrowRecord.count({
+        where: {
+          status: 'BORROWING',
+        },
+      }),
+
+      // Overdue
+      this.prisma.borrowRecord.count({
+        where: {
+          status: 'BORROWING',
+          dueDate: {
+            lt: now,
+          },
+        },
+      }),
 
       // Books added during current year
       this.prisma.book.findMany({
@@ -97,6 +116,8 @@ export class DashboardService {
     return {
       totalBooks,
       totalCategories,
+      currentlyBorrowed,
+      overdue,
 
       monthlyAcquisitions: {
         year: currentYear,

@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { BookOpen, FolderOpen, RefreshCw, CalendarDays } from "lucide-react";
+import {
+  BookOpen,
+  FolderOpen,
+  RefreshCw,
+  CalendarDays,
+  BookMarked,
+  AlertCircle,
+} from "lucide-react";
 
 import { useDashboardSummary } from "@/hooks/use-dashboard";
 
@@ -52,6 +59,18 @@ export function DashboardPage() {
       description: "Categories available",
       icon: FolderOpen,
     },
+    {
+      title: "Currently Borrowed",
+      value: data?.currentlyBorrowed ?? 0,
+      description: "Books currently borrowed",
+      icon: BookMarked,
+    },
+    {
+      title: "Overdue",
+      value: data?.overdue ?? 0,
+      description: "Books past their due date",
+      icon: AlertCircle,
+    },
   ];
 
   const monthlyData = data?.monthlyAcquisitions?.data ?? [];
@@ -100,8 +119,8 @@ export function DashboardPage() {
       {isLoading && (
         <>
           {/* Summary loading */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {Array.from({ length: 2 }).map((_, index) => (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => (
               <div
                 key={index}
                 className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
@@ -159,7 +178,7 @@ export function DashboardPage() {
       {!isLoading && !isError && data && (
         <>
           {/* Summary cards */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
             {summaryCards.map((card) => {
               const Icon = card.icon;
 

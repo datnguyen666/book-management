@@ -248,7 +248,7 @@ export function BooksPage() {
 
                     {/* Category */}
                     <td className="px-6 py-4 text-center align-middle">
-                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700 whitespace-nowrap">
                         {book.category.name}
                       </span>
                     </td>

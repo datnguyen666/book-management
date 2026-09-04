@@ -235,7 +235,7 @@ export function DashboardPage() {
                     </div>
 
                     <div
-                      className="flex h-9 w-9 items-center justify-center rounded-lg"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg -mr-2"
                       style={{
                         backgroundColor: "#111827",
                         color: "#d4a853",
@@ -265,7 +265,7 @@ export function DashboardPage() {
                 </div>
 
                 <div
-                  className="flex h-9 w-9 items-center justify-center rounded-lg"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg -mr-2"
                   style={{
                     backgroundColor: "#111827",
                     color: "#d4a853",
@@ -325,7 +325,7 @@ export function DashboardPage() {
                 </div>
 
                 <div
-                  className="flex h-9 w-9 items-center justify-center rounded-lg"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg -mr-2"
                   style={{
                     backgroundColor: "#111827",
                     color: "#d4a853",
@@ -392,7 +392,7 @@ export function DashboardPage() {
                 </div>
 
                 <div
-                  className="flex h-9 w-9 items-center justify-center rounded-lg"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg -mr-2"
                   style={{
                     backgroundColor: "#111827",
                     color: "#d4a853",
@@ -455,7 +455,7 @@ export function DashboardPage() {
                 </div>
 
                 <div
-                  className="flex h-9 w-9 items-center justify-center rounded-lg"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg -mr-2"
                   style={{
                     backgroundColor: "#111827",
                     color: "#d4a853",

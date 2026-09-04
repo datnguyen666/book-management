@@ -10,6 +10,9 @@ export class DashboardService {
     const now = new Date();
 
     // Current year
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+
     const currentYear = now.getFullYear();
 
     const startOfYear = new Date(currentYear, 0, 1);
@@ -46,7 +49,7 @@ export class DashboardService {
         where: {
           status: 'BORROWING',
           dueDate: {
-            lt: now,
+            lt: startOfToday,
           },
         },
       }),

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BookOpen, Search, X } from "lucide-react";
+import { BookOpen, Search, Menu, X } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { searchBooks } from "@/api/book.api";
@@ -13,7 +13,11 @@ interface SearchBook {
   coverImage?: string | null;
 }
 
-export function Header() {
+interface HeaderProps {
+  onMenuClick: () => void;
+}
+
+export function Header({ onMenuClick }: HeaderProps) {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
 
@@ -126,12 +130,25 @@ export function Header() {
   const pageTitle = "Book Management";
 
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-white px-6">
-      {/* Page title + Date/Time */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900">{pageTitle}</h2>
+    <header className="flex h-16 items-center justify-between gap-3 border-b bg-white px-4 sm:px-6">
+      {/* Hamburger - mobile only */}
+      <button
+        type="button"
+        onClick={onMenuClick}
+        className="shrink-0 text-gray-600 hover:text-gray-900 lg:hidden"
+      >
+        <Menu size={22} />
+      </button>
 
-        <p className="mt-0.5 text-xs" style={{ color: "#94a8c2" }}>
+      {/* Page title + Date/Time */}
+      <div className="min-w-0 flex-1 lg:flex-none">
+        <h2 className="truncate text-lg font-semibold text-gray-900 sm:text-xl">
+          {pageTitle}
+        </h2>
+        <p
+          className="mt-0.5 hidden truncate text-xs sm:block"
+          style={{ color: "#94a8c2" }}
+        >
           {formattedDateTime}
         </p>
       </div>

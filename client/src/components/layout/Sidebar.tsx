@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   User,
   BookUser,
+  X,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuthStore } from "@/store/auth.store";
@@ -44,7 +45,12 @@ const navigationItems: NavigationItem[] = [
   },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const user = useAuthStore((state) => state.user);
   const visibleNavigationItems = navigationItems.filter((item) => {
     if (item.adminOnly) {
@@ -54,37 +60,61 @@ export function Sidebar() {
     return true;
   });
   return (
-    <aside className="flex h-screen w-64 flex-col bg-slate-900 text-white">
-      {/* Logo */}
-      <div className="border-b border-slate-700 p-6">
-        <h1 className="text-xl font-bold">Book Management</h1>
-      </div>
+    <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      <aside
+        className={[
+          "fixed inset-y-0 left-0 z-50 flex h-screen w-64 flex-col bg-slate-900 text-white",
+          "transition-transform duration-300 ease-in-out",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+          "lg:static lg:translate-x-0",
+        ].join(" ")}
+      >
+        {/* Logo */}
+        <div className="flex items-center justify-between gap-2 border-b border-slate-700 p-6">
+          <h1 className="truncate text-xl font-bold">Book Management</h1>
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-4">
-        {visibleNavigationItems.map((item) => {
-          const Icon = item.icon;
+          <button
+            type="button"
+            onClick={onClose}
+            className="shrink-0 text-slate-400 hover:text-white lg:hidden"
+          >
+            <X size={22} />
+          </button>
+        </div>
 
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) =>
-                [
-                  "flex items-center gap-3 rounded-lg px-4 py-3",
-                  "text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-slate-700 text-white"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white",
-                ].join(" ")
-              }
-            >
-              <Icon size={18} />
-              <span>{item.label}</span>
-            </NavLink>
-          );
-        })}
-      </nav>
-    </aside>
+        {/* Navigation */}
+        <nav className="flex-1 space-y-1 p-4">
+          {visibleNavigationItems.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  [
+                    "flex items-center gap-3 rounded-lg px-4 py-3",
+                    "text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-slate-700 text-white"
+                      : "text-slate-300 hover:bg-slate-800 hover:text-white",
+                  ].join(" ")
+                }
+              >
+                <Icon size={18} />
+                <span>{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
+      </aside>
+    </>
   );
 }

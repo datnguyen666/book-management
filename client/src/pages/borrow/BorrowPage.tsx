@@ -6,6 +6,7 @@ import {
   RotateCcw,
   ChevronDown,
   Search,
+  Plus,
 } from "lucide-react";
 import type {
   BorrowRecord,
@@ -124,9 +125,14 @@ export function BorrowPage() {
         <button
           type="button"
           onClick={() => setIsCreateOpen(true)}
-          className="shrink-0 rounded-md bg-gray-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
+          className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90"
+          style={{
+            backgroundColor: "#111827",
+            color: "#d4a853",
+          }}
         >
-          + Create Borrow
+          <Plus size={16} />
+          Create Borrow
         </button>
       </div>
 

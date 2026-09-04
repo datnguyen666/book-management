@@ -15,6 +15,7 @@ import { UpdateBookDto } from './dto/update-book.dto';
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class BookService {
@@ -246,10 +247,12 @@ export class BookService {
       };
     } catch (error) {
       if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2003'
       ) {
-        throw new NotFoundException('Book not found');
+        throw new ConflictException(
+          'Cannot delete this book because it has borrow records.',
+        );
       }
 
       throw error;

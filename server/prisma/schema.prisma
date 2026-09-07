@@ -36,6 +36,9 @@ model User {
   passwordSetupTokenHash      String?
   passwordSetupTokenExpiresAt DateTime?
 
+  passwordResetTokenHash      String?
+  passwordResetTokenExpiresAt DateTime?
+
   processedBorrowRecords BorrowRecord[]
 
   createdAt DateTime @default(now())

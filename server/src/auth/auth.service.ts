@@ -7,13 +7,15 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
   async validateUser(username: string, password: string) {
     const user = await this.prisma.user.findUnique({
@@ -46,6 +48,94 @@ export class AuthService {
 
     return {
       accessToken,
+    };
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    // Do not reveal whether the email exists
+    if (!user) {
+      return {
+        message: 'Please check your email',
+      };
+    }
+
+    // Do not allow inactive accounts to reset password
+    if (!user.isActive) {
+      return {
+        message: 'Please check your email',
+      };
+    }
+
+    const resetToken = randomBytes(32).toString('hex');
+
+    const resetTokenHash = createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    const resetTokenExpiresAt = new Date(Date.now() + 1000 * 60 * 60);
+
+    await this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        passwordResetTokenHash: resetTokenHash,
+        passwordResetTokenExpiresAt: resetTokenExpiresAt,
+      },
+    });
+
+    await this.mailService.sendPasswordReset({
+      email: user.email,
+      fullName: user.fullName,
+      resetToken,
+    });
+
+    return {
+      message: 'Please check your email',
+    };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const tokenHash = createHash('sha256').update(token).digest('hex');
+
+    const user = await this.prisma.user.findFirst({
+      where: {
+        passwordResetTokenHash: tokenHash,
+        passwordResetTokenExpiresAt: {
+          gt: new Date(),
+        },
+        isActive: true,
+      },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Invalid or expired password reset link');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        password: hashedPassword,
+
+        mustChangePassword: false,
+
+        passwordResetTokenHash: null,
+        passwordResetTokenExpiresAt: null,
+      },
+    });
+
+    return {
+      message: 'Password has been reset successfully',
     };
   }
 

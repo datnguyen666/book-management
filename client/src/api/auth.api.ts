@@ -7,6 +7,15 @@ export interface SetPasswordRequest {
   password: string;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  password: string;
+}
+
 export async function setPassword(
   data: SetPasswordRequest,
 ): Promise<{ message: string }> {
@@ -26,6 +35,28 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
 
 export async function getProfile(): Promise<User> {
   const response = await api.get<User>("/auth/profile");
+
+  return response.data;
+}
+
+export async function forgotPassword(
+  data: ForgotPasswordRequest,
+): Promise<{ message: string }> {
+  const response = await api.post<{ message: string }>(
+    "/auth/forgot-password",
+    data,
+  );
+
+  return response.data;
+}
+
+export async function resetPassword(
+  data: ResetPasswordRequest,
+): Promise<{ message: string }> {
+  const response = await api.post<{ message: string }>(
+    "/auth/reset-password",
+    data,
+  );
 
   return response.data;
 }

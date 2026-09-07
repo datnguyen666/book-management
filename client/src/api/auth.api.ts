@@ -4,6 +4,7 @@ import type { LoginRequest, LoginResponse, User } from "@/types/auth";
 
 export interface SetPasswordRequest {
   token: string;
+  currentPassword: string;
   password: string;
 }
 

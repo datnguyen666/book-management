@@ -31,6 +31,9 @@ export function AppRouter() {
           <Route path="/login" element={<LoginPage />} />
         </Route>
 
+        {/* Set Password */}
+        <Route path="/set-password" element={<SetPasswordPage />} />
+
         {/* Protected */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AdminLayout />}>
@@ -48,9 +51,6 @@ export function AppRouter() {
 
             {/* Staff */}
             <Route path="/staff" element={<StaffPage />} />
-
-            {/* Set Password */}
-            <Route path="/set-password" element={<SetPasswordPage />} />
 
             <Route path="/borrows" element={<BorrowPage />} />
           </Route>

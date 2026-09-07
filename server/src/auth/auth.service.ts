@@ -139,7 +139,11 @@ export class AuthService {
     };
   }
 
-  async setPassword(token: string, newPassword: string) {
+  async setPassword(
+    token: string,
+    currentPassword: string,
+    newPassword: string,
+  ) {
     const tokenHash = createHash('sha256').update(token).digest('hex');
 
     const user = await this.prisma.user.findFirst({
@@ -154,6 +158,15 @@ export class AuthService {
 
     if (!user) {
       throw new BadRequestException('Invalid or expired password setup link');
+    }
+
+    const isCurrentPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
+
+    if (!isCurrentPasswordValid) {
+      throw new BadRequestException('Temporary password is incorrect');
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);

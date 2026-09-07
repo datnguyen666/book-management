@@ -69,7 +69,11 @@ export class AuthController {
 
   @Post('set-password')
   async setPassword(@Body() dto: SetPasswordDto) {
-    return this.authService.setPassword(dto.token, dto.password);
+    return this.authService.setPassword(
+      dto.token,
+      dto.currentPassword,
+      dto.password,
+    );
   }
 
   @Post('forgot-password')

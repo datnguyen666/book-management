@@ -10,9 +10,11 @@ export function SetPasswordPage() {
 
   const token = searchParams.get("token");
 
+  const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPasswordValue] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -26,6 +28,11 @@ export function SetPasswordPage() {
 
     if (!token) {
       setError("Invalid password setup link.");
+      return;
+    }
+
+    if (!currentPassword) {
+      setError("Please enter your temporary password.");
       return;
     }
 
@@ -44,6 +51,7 @@ export function SetPasswordPage() {
 
       await setPassword({
         token,
+        currentPassword,
         password,
       });
 
@@ -53,7 +61,9 @@ export function SetPasswordPage() {
     } catch (error) {
       console.error(error);
 
-      setError("This password setup link is invalid or has expired.");
+      setError(
+        "Temporary password is incorrect, or this link is invalid or has expired.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -77,6 +87,30 @@ export function SetPasswordPage() {
         )}
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-5">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700">
+              Current Password
+            </label>
+
+            <div className="relative">
+              <input
+                type={showCurrentPassword ? "text" : "password"}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full rounded-lg border border-gray-200 bg-white p-3 pr-11 text-sm outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-600"
+                placeholder="Enter the temporary password from your email"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword((prev) => !prev)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+              >
+                {showCurrentPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+              </button>
+            </div>
+          </div>
+
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700">
               New Password

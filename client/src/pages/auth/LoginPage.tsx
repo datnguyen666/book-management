@@ -82,14 +82,27 @@ export function LoginPage() {
             Sign in to manage your book collection
           </p>
 
-          <LoginForm />
+          <div className="mt-6 mb-8 flex items-center gap-3">
+            <div className="h-px flex-1" style={{ background: "#e8e1d8" }} />
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 10 10"
+              fill="#c9a87a"
+              opacity="0.5"
+            >
+              <rect
+                x="3"
+                y="0"
+                width="4"
+                height="4"
+                transform="rotate(45 5 2)"
+              />
+            </svg>
+            <div className="h-px flex-1" style={{ background: "#e8e1d8" }} />
+          </div>
 
-          <p className="mt-8 text-center text-sm text-gray-500">
-            Need access?{" "}
-            <a href="#" className="font-medium text-amber-700 hover:underline">
-              Contact your administrator
-            </a>
-          </p>
+          <LoginForm />
         </div>
       </div>
     </div>

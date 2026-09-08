@@ -275,39 +275,41 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              <div className="mt-8 flex h-56 items-end gap-2 sm:gap-3">
-                {monthlyData.map((item) => {
-                  const height =
-                    item.count === 0
-                      ? 4
-                      : Math.max((item.count / maxMonthlyCount) * 100, 8);
+              <div className="mt-8 overflow-x-auto">
+                <div className="mt-8 flex h-56 items-end gap-2 sm:gap-3">
+                  {monthlyData.map((item) => {
+                    const height =
+                      item.count === 0
+                        ? 4
+                        : Math.max((item.count / maxMonthlyCount) * 100, 8);
 
-                  return (
-                    <div
-                      key={item.month}
-                      className="flex h-full flex-1 flex-col items-center justify-end gap-2"
-                    >
-                      <span className="text-[10px] font-medium text-gray-500">
-                        {item.count}
-                      </span>
+                    return (
+                      <div
+                        key={item.month}
+                        className="flex h-full flex-1 flex-col items-center justify-end gap-2"
+                      >
+                        <span className="text-[10px] font-medium text-gray-500">
+                          {item.count}
+                        </span>
 
-                      <div className="flex h-full w-full items-end">
-                        <div
-                          className="w-full rounded-t-md transition-all duration-300"
-                          style={{
-                            height: `${height}%`,
-                            backgroundColor: "#111827",
-                            minHeight: "4px",
-                          }}
-                        />
+                        <div className="flex h-full w-full items-end">
+                          <div
+                            className="w-full rounded-t-md transition-all duration-300"
+                            style={{
+                              height: `${height}%`,
+                              backgroundColor: "#111827",
+                              minHeight: "4px",
+                            }}
+                          />
+                        </div>
+
+                        <span className="text-[10px] text-gray-400">
+                          {MONTH_LABELS[item.month - 1] ?? item.month}
+                        </span>
                       </div>
-
-                      <span className="text-[10px] text-gray-400">
-                        {MONTH_LABELS[item.month - 1] ?? item.month}
-                      </span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -402,42 +404,44 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              <div className="mt-8 flex h-56 items-end gap-2 sm:gap-3">
-                {borrowingMonthlyData.map((item) => {
-                  const height =
-                    item.count === 0
-                      ? 4
-                      : Math.max(
-                          (item.count / maxBorrowingMonthlyCount) * 100,
-                          8,
-                        );
+              <div className="mt-8 overflow-x-auto">
+                <div className="mt-8 flex h-56 items-end gap-2 sm:gap-3">
+                  {borrowingMonthlyData.map((item) => {
+                    const height =
+                      item.count === 0
+                        ? 4
+                        : Math.max(
+                            (item.count / maxBorrowingMonthlyCount) * 100,
+                            8,
+                          );
 
-                  return (
-                    <div
-                      key={item.month}
-                      className="flex h-full flex-1 flex-col items-center justify-end gap-2"
-                    >
-                      <span className="text-[10px] font-medium text-gray-500">
-                        {item.count}
-                      </span>
+                    return (
+                      <div
+                        key={item.month}
+                        className="flex h-full flex-1 flex-col items-center justify-end gap-2"
+                      >
+                        <span className="text-[10px] font-medium text-gray-500">
+                          {item.count}
+                        </span>
 
-                      <div className="flex h-full w-full items-end">
-                        <div
-                          className="w-full rounded-t-md transition-all duration-300"
-                          style={{
-                            height: `${height}%`,
-                            backgroundColor: "#111827",
-                            minHeight: "4px",
-                          }}
-                        />
+                        <div className="flex h-full w-full items-end">
+                          <div
+                            className="w-full rounded-t-md transition-all duration-300"
+                            style={{
+                              height: `${height}%`,
+                              backgroundColor: "#111827",
+                              minHeight: "4px",
+                            }}
+                          />
+                        </div>
+
+                        <span className="text-[10px] text-gray-400">
+                          {MONTH_LABELS[item.month - 1] ?? item.month}
+                        </span>
                       </div>
-
-                      <span className="text-[10px] text-gray-400">
-                        {MONTH_LABELS[item.month - 1] ?? item.month}
-                      </span>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
 

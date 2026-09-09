@@ -12,6 +12,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { StaffModule } from './staff/staff.module';
 import { MailModule } from './mail/mail.module';
 import { BorrowModule } from './borrow/borrow.module';
+import { AssetModule } from './asset/asset.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { BorrowModule } from './borrow/borrow.module';
     StaffModule,
     MailModule,
     BorrowModule,
+    AssetModule,
   ],
   controllers: [AppController],
   providers: [AppService],

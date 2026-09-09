@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { useDashboardSummary } from "@/hooks/use-dashboard";
+import { useNavigate } from "react-router-dom";
 
 interface SummaryCard {
   title: string;
@@ -73,6 +74,8 @@ export function DashboardPage() {
     },
   ];
 
+  const navigate = useNavigate();
+
   // Books added per month
   const monthlyData = data?.monthlyAcquisitions?.data ?? [];
 
@@ -87,7 +90,9 @@ export function DashboardPage() {
   );
 
   // Category breakdown
-  const categoryData = data?.categoryBreakdown ?? [];
+  const categoryData = [...(data?.categoryBreakdown ?? [])]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
 
   const maxCategoryCount = Math.max(
     ...categoryData.map((item) => item.count),
@@ -327,7 +332,8 @@ export function DashboardPage() {
                 </div>
 
                 <div
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg -mr-2"
+                  onClick={() => navigate("/categories")}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg -mr-2 cursor-pointer transition hover:bg-gray-100"
                   style={{
                     backgroundColor: "#111827",
                     color: "#d4a853",
@@ -469,80 +475,118 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              <div className="mt-8 space-y-6">
-                {/* Borrowing */}
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">
-                      Currently Borrowed
-                    </span>
-
-                    <span className="text-sm font-semibold text-gray-900">
-                      {borrowingStatus.borrowing}
-                    </span>
-                  </div>
-
-                  <div className="h-3 overflow-hidden rounded-full bg-gray-100">
+              {totalBorrowRecords === 0 ? (
+                <div className="flex h-56 items-center justify-center text-sm text-gray-400">
+                  No borrowing records yet.
+                </div>
+              ) : (
+                <>
+                  {/* Combined proportion bar */}
+                  <div className="mt-8 flex h-4 w-full overflow-hidden rounded-full bg-gray-100">
                     <div
-                      className="h-full rounded-full transition-all duration-300"
+                      className="h-full transition-all duration-300"
                       style={{
-                        width:
-                          totalBorrowRecords === 0
-                            ? "0%"
-                            : `${
-                                (borrowingStatus.borrowing /
-                                  totalBorrowRecords) *
-                                100
-                              }%`,
+                        width: `${(borrowingStatus.borrowing / totalBorrowRecords) * 100}%`,
                         backgroundColor: "#111827",
                       }}
                     />
-                  </div>
-                </div>
 
-                {/* Returned */}
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">
-                      Returned
-                    </span>
-
-                    <span className="text-sm font-semibold text-gray-900">
-                      {borrowingStatus.returned}
-                    </span>
-                  </div>
-
-                  <div className="h-3 overflow-hidden rounded-full bg-gray-100">
                     <div
-                      className="h-full rounded-full transition-all duration-300"
+                      className="h-full transition-all duration-300"
                       style={{
-                        width:
-                          totalBorrowRecords === 0
-                            ? "0%"
-                            : `${
-                                (borrowingStatus.returned /
-                                  totalBorrowRecords) *
-                                100
-                              }%`,
+                        width: `${(borrowingStatus.returned / totalBorrowRecords) * 100}%`,
                         backgroundColor: "#d4a853",
                       }}
                     />
                   </div>
-                </div>
 
-                {/* Total */}
-                <div className="border-t pt-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-400">
-                      Total borrow records
-                    </span>
+                  {/* Stat breakdown */}
+                  <div className="mt-6 grid grid-cols-2 gap-4">
+                    <div className="rounded-lg bg-gray-50 p-4">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: "#111827" }}
+                        />
 
-                    <span className="text-lg font-bold text-gray-900">
-                      {totalBorrowRecords}
-                    </span>
+                        <span className="text-xs font-medium text-gray-500">
+                          Currently Borrowed
+                        </span>
+                      </div>
+
+                      <p className="mt-2 text-2xl font-bold text-gray-900">
+                        {borrowingStatus.borrowing}
+                      </p>
+
+                      <p className="mt-1 text-xs text-gray-400">
+                        {(
+                          (borrowingStatus.borrowing / totalBorrowRecords) *
+                          100
+                        ).toFixed(0)}
+                        % of total
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg bg-gray-50 p-4">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: "#d4a853" }}
+                        />
+
+                        <span className="text-xs font-medium text-gray-500">
+                          Returned
+                        </span>
+                      </div>
+
+                      <p className="mt-2 text-2xl font-bold text-gray-900">
+                        {borrowingStatus.returned}
+                      </p>
+
+                      <p className="mt-1 text-xs text-gray-400">
+                        {(
+                          (borrowingStatus.returned / totalBorrowRecords) *
+                          100
+                        ).toFixed(0)}
+                        % of total
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </div>
+
+                  {/* Overdue + total */}
+                  <div className="mt-6 flex items-center justify-between border-t pt-5">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle
+                        size={16}
+                        className={
+                          data.overdue > 0 ? "text-red-500" : "text-gray-300"
+                        }
+                      />
+
+                      <span
+                        className={`text-xs ${
+                          data.overdue > 0
+                            ? "font-medium text-red-500"
+                            : "text-gray-400"
+                        }`}
+                      >
+                        {data.overdue > 0
+                          ? `${data.overdue} book${data.overdue > 1 ? "s" : ""} overdue`
+                          : "No overdue books"}
+                      </span>
+                    </div>
+
+                    <div className="text-right">
+                      <span className="text-xs text-gray-400">
+                        Total records
+                      </span>{" "}
+                      <span className="text-lg font-bold text-gray-900">
+                        {totalBorrowRecords}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
-import { BookOpen, ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import {
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  Wallet,
+} from "lucide-react";
 
 import {
   useBooks,
@@ -125,19 +131,29 @@ export function BooksPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90"
-          style={{
-            backgroundColor: "#111827",
-            color: "#d4a853",
-          }}
-          onClick={handleCreate}
-          disabled={isCategoriesLoading || isCategoriesError}
-        >
-          <Plus size={16} />
-          Add Book
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 cursor-pointer"
+            onClick={() => navigate("/assets")}
+          >
+            <Wallet size={16} />
+            View Assets
+          </button>
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 cursor-pointer disabled:opacity-50"
+            style={{
+              backgroundColor: "#111827",
+              color: "#d4a853",
+            }}
+            onClick={handleCreate}
+            disabled={isCategoriesLoading || isCategoriesError}
+          >
+            <Plus size={16} />
+            Add Book
+          </button>
+        </div>
       </div>
 
       {/* Loading */}

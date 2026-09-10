@@ -21,7 +21,7 @@ export function BookDetailPage() {
         <button
           type="button"
           onClick={handleBack}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
         >
           <ArrowLeft size={16} />
           Back to Books
@@ -40,7 +40,7 @@ export function BookDetailPage() {
         <button
           type="button"
           onClick={handleBack}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
         >
           <ArrowLeft size={16} />
           Back to Books
@@ -62,7 +62,7 @@ export function BookDetailPage() {
           <button
             type="button"
             onClick={handleBack}
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
           >
             <ArrowLeft size={16} />
             Back to Books
@@ -79,7 +79,7 @@ export function BookDetailPage() {
         <button
           type="button"
           onClick={handleBack}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
         >
           <ArrowLeft size={16} />
           Back to Books
@@ -100,7 +100,7 @@ export function BookDetailPage() {
           <button
             type="button"
             onClick={handleBack}
-            className="mb-3 flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900"
+            className="mb-3 flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900 cursor-pointer"
           >
             <ArrowLeft size={16} />
             Back to Books

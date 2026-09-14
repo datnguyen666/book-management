@@ -74,19 +74,37 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       )}
       <aside
         className={[
-          "fixed inset-y-0 left-0 z-50 flex h-screen w-64 flex-col bg-slate-950 text-white",
+          "fixed inset-y-0 left-0 z-50 flex h-screen w-64 flex-col text-white",
           "transition-transform duration-300 ease-in-out",
           isOpen ? "translate-x-0" : "-translate-x-full",
           "lg:static lg:translate-x-0",
         ].join(" ")}
+        style={{ backgroundColor: "#12192B" }}
       >
+        {/* Spine accent */}
+        <div
+          className="h-[3px] w-full"
+          style={{ backgroundColor: "#B8863B" }}
+        />
+
         {/* Logo */}
-        <div className="flex items-center justify-between gap-2 border-b border-slate-800 px-3 py-5">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-400/10">
-              <BookOpen size={17} className="text-amber-400" />
+        <div
+          className="flex items-center justify-between gap-2 px-5 py-5"
+          style={{ borderBottom: "1px solid rgba(184,134,59,0.18)" }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-full"
+              style={{ border: "1px solid #B8863B" }}
+            >
+              <BookOpen size={15} style={{ color: "#B8863B" }} />
             </div>
-            <h1 className="truncate text-lg font-bold">Book Management</h1>
+            <h1
+              className="truncate text-[17px] font-semibold tracking-tight"
+              style={{ fontFamily: "'Source Serif 4', serif" }}
+            >
+              Book Management
+            </h1>
           </div>
 
           <button
@@ -99,10 +117,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-6 overflow-y-auto px-4 py-6">
+        <nav className="flex-1 space-y-7 overflow-y-auto px-3 py-7">
           {visibleGroups.map((group) => (
             <div key={group.label}>
-              <p className="mb-2 px-3 text-[11px] font-medium text-slate-500">
+              <p
+                className="mb-2.5 px-3 text-[11px] font-medium"
+                style={{ color: "#5C6B85", letterSpacing: "0.02em" }}
+              >
                 {group.label}
               </p>
               <div className="space-y-0.5">
@@ -116,23 +137,33 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                       onClick={onClose}
                       className={({ isActive }) =>
                         [
-                          "group flex items-center gap-3 rounded-md border-l-2 px-3 py-2.5",
+                          "group relative flex items-center gap-3 rounded-md px-3 py-2.5 pl-4",
                           "text-sm font-medium transition-colors",
                           isActive
-                            ? "border-amber-400 bg-amber-400/10 text-white"
-                            : "border-transparent text-slate-400 hover:bg-slate-900 hover:text-white",
+                            ? "text-white"
+                            : "text-slate-400 hover:bg-white/[0.03] hover:text-slate-200",
                         ].join(" ")
                       }
+                      style={({ isActive }) => ({
+                        backgroundColor: isActive
+                          ? "rgba(184,134,59,0.10)"
+                          : "transparent",
+                      })}
                     >
                       {({ isActive }) => (
                         <>
+                          {isActive && (
+                            <span
+                              className="absolute left-0 top-1/2 h-4 w-[2px] -translate-y-1/2"
+                              style={{ backgroundColor: "#B8863B" }}
+                            />
+                          )}
                           <Icon
-                            size={17}
+                            size={16}
                             className={
-                              isActive
-                                ? "text-amber-400"
-                                : "text-slate-500 group-hover:text-slate-300"
+                              isActive ? "" : "group-hover:text-slate-300"
                             }
+                            style={{ color: isActive ? "#C89B3C" : undefined }}
                           />
                           <span>{item.label}</span>
                         </>
@@ -146,16 +177,28 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         </nav>
 
         {/* User footer */}
-        <div className="border-t border-slate-800 p-4">
+        <div
+          className="p-4"
+          style={{ borderTop: "1px solid rgba(184,134,59,0.18)" }}
+        >
           <div className="flex items-center gap-3 rounded-md px-2 py-2">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-400/15 text-xs font-semibold text-amber-400">
+            <div
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+              style={{
+                backgroundColor: "rgba(184,134,59,0.12)",
+                color: "#C89B3C",
+                border: "1px solid rgba(184,134,59,0.35)",
+              }}
+            >
               {initials || <User size={16} />}
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-white">
                 {user?.fullName ?? "—"}
               </p>
-              <p className="truncate text-xs text-slate-500">{user?.role}</p>
+              <p className="truncate text-xs" style={{ color: "#5C6B85" }}>
+                {user?.role}
+              </p>
             </div>
           </div>
         </div>

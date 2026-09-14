@@ -130,7 +130,10 @@ export function Header({ onMenuClick }: HeaderProps) {
   const pageTitle = "Book Management";
 
   return (
-    <header className="flex h-16 items-center justify-between gap-3 border-b bg-white px-4 sm:px-6">
+    <header
+      className="flex h-16 items-center justify-between gap-3 bg-white px-4 sm:px-6"
+      style={{ borderBottom: "1px solid #E6DFCE" }}
+    >
       {/* Hamburger - mobile only */}
       <button
         type="button"
@@ -142,12 +145,18 @@ export function Header({ onMenuClick }: HeaderProps) {
 
       {/* Page title + Date/Time */}
       <div className="min-w-0 flex-1 lg:flex-none">
-        <h2 className="truncate text-lg font-semibold text-gray-900 sm:text-xl">
+        <h2
+          className="truncate text-lg font-semibold sm:text-xl"
+          style={{ fontFamily: "'Source Serif 4', serif", color: "#12192B" }}
+        >
           {pageTitle}
         </h2>
         <p
           className="mt-0.5 hidden truncate text-xs sm:block"
-          style={{ color: "#94a8c2" }}
+          style={{
+            color: "#8A93A6",
+            fontFamily: "'JetBrains Mono', monospace",
+          }}
         >
           {formattedDateTime}
         </p>
@@ -158,7 +167,8 @@ export function Header({ onMenuClick }: HeaderProps) {
           <div className="relative">
             <Search
               size={18}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2"
+              style={{ color: "#9AA3B5" }}
             />
 
             <input
@@ -171,11 +181,19 @@ export function Header({ onMenuClick }: HeaderProps) {
                 }
               }}
               placeholder="Search books, authors ..."
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-10 text-sm text-gray-900 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-1 focus:ring-amber-500"
+              className="w-full rounded-md py-2.5 pl-10 pr-10 text-sm outline-none transition"
               style={{
-                backgroundColor: "#faf8f3",
-                border: "1px solid #ede6d4",
-                color: "#111827",
+                backgroundColor: "#F7F2E7",
+                border: "1px solid #E6DFCE",
+                color: "#12192B",
+              }}
+              onFocusCapture={(e) => {
+                e.currentTarget.style.borderColor = "#B8863B";
+                e.currentTarget.style.backgroundColor = "#FFFFFF";
+              }}
+              onBlurCapture={(e) => {
+                e.currentTarget.style.borderColor = "#E6DFCE";
+                e.currentTarget.style.backgroundColor = "#F7F2E7";
               }}
             />
 
@@ -192,7 +210,10 @@ export function Header({ onMenuClick }: HeaderProps) {
 
           {/* Search results */}
           {showSearchResults && (
-            <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-lg">
+            <div
+              className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-md bg-white shadow-lg"
+              style={{ border: "1px solid #E6DFCE" }}
+            >
               {isSearching && (
                 <div className="px-4 py-4 text-sm text-gray-500">
                   Searching...
@@ -214,7 +235,8 @@ export function Header({ onMenuClick }: HeaderProps) {
                       key={book.id}
                       type="button"
                       onClick={() => handleSelectBook(book)}
-                      className="flex w-full items-center gap-3 border-b border-gray-100 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-gray-50"
+                      className="flex w-full items-center gap-3 border-b px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-[#F7F2E7]"
+                      style={{ borderColor: "#EFE9DA" }}
                     >
                       <div className="h-14 w-10 flex-shrink-0 overflow-hidden rounded bg-gray-100">
                         {book.coverImage ? (
@@ -260,8 +282,8 @@ export function Header({ onMenuClick }: HeaderProps) {
           <div
             className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold"
             style={{
-              backgroundColor: "#111827",
-              color: "#d4a853",
+              backgroundColor: "#12192B",
+              color: "#C89B3C",
             }}
           >
             {avatarText}
@@ -269,11 +291,11 @@ export function Header({ onMenuClick }: HeaderProps) {
 
           {/* Username + Role */}
           <div className="hidden sm:block">
-            <p className="text-xs font-semibold" style={{ color: "#111827" }}>
+            <p className="text-xs font-semibold" style={{ color: "#12192B" }}>
               {user?.fullName || user?.username}
             </p>
 
-            <p className="text-xs" style={{ color: "#94a8c2" }}>
+            <p className="text-xs" style={{ color: "#8A93A6" }}>
               {displayRole}
             </p>
           </div>
@@ -282,12 +304,12 @@ export function Header({ onMenuClick }: HeaderProps) {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="rounded-md px-4 py-2 text-xs font-semibold transition-all duration-150 hover:opacity-90 active:scale-95"
+          className="rounded-md px-4 py-2 text-xs font-semibold transition-all duration-150 hover:opacity-85 active:scale-95"
           style={{
-            backgroundColor: "#111827",
-            color: "#d4a853",
-            border: "1px solid #d4a853",
-            fontFamily: "JetBrains Mono, monospace",
+            backgroundColor: "#12192B",
+            color: "#C89B3C",
+            border: "1px solid #B8863B",
+            fontFamily: "'JetBrains Mono', monospace",
             letterSpacing: "0.04em",
           }}
         >

@@ -19,6 +19,12 @@ import { Trash } from "lucide-react";
 
 type ModalMode = "create" | "edit";
 
+const INK = "#12192B";
+const BRASS = "#B8863B";
+const BORDER = "#E6DFCE";
+const MUTED = "#8A93A6";
+const OVERDUE = "#A6432C";
+
 export function CategoriesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>("create");
@@ -178,9 +184,16 @@ export function CategoriesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Categories</h1>
+          <h1
+            className="text-2xl font-semibold"
+            style={{ fontFamily: "'Source Serif 4', serif", color: INK }}
+          >
+            Categories
+          </h1>
 
-          <p className="mt-1 text-sm text-gray-500">Manage book categories.</p>
+          <p className="mt-1 text-sm" style={{ color: MUTED }}>
+            Manage book categories.
+          </p>
         </div>
 
         <button
@@ -188,8 +201,8 @@ export function CategoriesPage() {
           onClick={handleOpenCreate}
           className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90"
           style={{
-            backgroundColor: "#111827",
-            color: "#d4a853",
+            backgroundColor: INK,
+            color: "#C89B3C",
           }}
         >
           <Plus size={16} />
@@ -199,35 +212,60 @@ export function CategoriesPage() {
 
       {/* Delete error */}
       {deleteError && (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div
+          className="rounded-md px-4 py-3 text-sm"
+          style={{
+            border: `1px solid ${OVERDUE}33`,
+            backgroundColor: "#FBEFEC",
+            color: OVERDUE,
+          }}
+        >
           {getDeleteErrorMessage()}
         </div>
       )}
 
       {/* Loading */}
       {isLoading && (
-        <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-500">
+        <div
+          className="rounded-lg bg-white p-6 text-sm"
+          style={{ border: `1px solid ${BORDER}`, color: MUTED }}
+        >
           Loading categories...
         </div>
       )}
 
       {/* Load error */}
       {isError && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-600">
+        <div
+          className="rounded-lg p-6 text-sm"
+          style={{
+            border: `1px solid ${OVERDUE}33`,
+            backgroundColor: "#FBEFEC",
+            color: OVERDUE,
+          }}
+        >
           Failed to load categories.
         </div>
       )}
 
       {/* Empty */}
       {!isLoading && !isError && categories.length === 0 && (
-        <div className="rounded-lg border border-gray-200 bg-white p-10 text-center">
-          <FolderOpen className="mx-auto text-gray-400" size={40} />
+        <div
+          className="rounded-lg bg-white p-10 text-center"
+          style={{ border: `1px solid ${BORDER}` }}
+        >
+          <div
+            className="mx-auto flex h-12 w-12 items-center justify-center rounded-full"
+            style={{ border: `1px solid ${BRASS}55` }}
+          >
+            <FolderOpen size={20} style={{ color: BRASS }} />
+          </div>
 
-          <p className="mt-3 text-sm font-medium text-gray-700">
+          <p className="mt-3 text-sm font-medium" style={{ color: INK }}>
             No categories found
           </p>
 
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs" style={{ color: "#B0B7C4" }}>
             Create your first category to get started.
           </p>
         </div>
@@ -235,56 +273,85 @@ export function CategoriesPage() {
 
       {/* Table */}
       {!isLoading && !isError && categories.length > 0 && (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div
+          className="overflow-hidden rounded-lg bg-white shadow-[0_1px_3px_rgba(18,25,43,0.06),0_8px_24px_-12px_rgba(18,25,43,0.14)]"
+          style={{ border: "1px solid #D8CEB2" }}
+        >
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b bg-gray-50">
+              <thead style={{ backgroundColor: "#F7F2E7" }}>
                 <tr>
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: MUTED }}
+                  >
                     STT
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: MUTED }}
+                  >
                     Name
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: MUTED }}
+                  >
                     Description
                   </th>
 
-                  <th className="px-6 py-4 text-right font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: MUTED }}
+                  >
                     Actions
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-gray-100">
+              <tbody>
                 {categories.map((category, index) => (
                   <tr
                     key={category.id}
-                    className="transition-colors hover:bg-gray-50"
+                    className="transition-colors hover:bg-[#FAF7EF]"
+                    style={{ borderTop: `1px solid ${BORDER}` }}
                   >
-                    <td className="px-6 py-4 text-center align-middle text-gray-500">
+                    <td
+                      className="px-6 py-4 text-center align-middle tabular-nums"
+                      style={{ color: "#B0B7C4" }}
+                    >
                       {index + 1}
                     </td>
 
-                    <td className="px-6 py-4 font-medium text-gray-900">
+                    <td
+                      className="px-6 py-4 font-medium"
+                      style={{ color: INK }}
+                    >
                       {category.name}
                     </td>
 
-                    <td className="px-6 py-4 text-gray-500">
+                    <td
+                      className="px-6 py-4"
+                      style={{ color: "#6B7280", maxWidth: 420 }}
+                    >
                       {category.description || "—"}
                     </td>
 
                     <td className="px-6 py-4">
-                      <div className="flex justify-center gap-3">
+                      <div className="flex justify-end gap-2">
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(category)}
                           disabled={deleteMutation.isPending}
-                          className="text-xs font-medium text-blue-600 disabled:opacity-50 cursor-pointer"
+                          className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#F7F2E7] disabled:opacity-50 cursor-pointer"
+                          style={{
+                            border: `1px solid ${BRASS}55`,
+                            color: BRASS,
+                          }}
                         >
-                          <Edit size={16} />
+                          <Edit size={14} />
                         </button>
 
                         {isAdmin && (
@@ -292,9 +359,13 @@ export function CategoriesPage() {
                             type="button"
                             onClick={() => handleDelete(category)}
                             disabled={deleteMutation.isPending}
-                            className="text-xs font-medium text-red-600 disabled:opacity-50 cursor-pointer"
+                            className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#FBEFEC] disabled:opacity-50 cursor-pointer"
+                            style={{
+                              border: `1px solid ${OVERDUE}55`,
+                              color: OVERDUE,
+                            }}
                           >
-                            <Trash size={16} />
+                            <Trash size={14} />
                           </button>
                         )}
                       </div>

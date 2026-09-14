@@ -49,7 +49,7 @@ export function DashboardPage() {
 
   const summaryCards: SummaryCard[] = [
     {
-      title: "Total Books",
+      title: "Total Title Books",
       value: data?.totalBooks ?? 0,
       description: "Books managed in the library",
       icon: BookOpen,
@@ -225,7 +225,7 @@ export function DashboardPage() {
                   className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <div className="flex items-start justify-between">
-                    <div className="pr-12">
+                    <div className="pr-6">
                       <p className="text-sm font-medium text-gray-500">
                         {card.title}
                       </p>

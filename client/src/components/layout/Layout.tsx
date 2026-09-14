@@ -4,7 +4,7 @@ import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { useState } from "react";
 
-export function AdminLayout() {
+export function Layout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (

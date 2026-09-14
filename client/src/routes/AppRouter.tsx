@@ -5,7 +5,7 @@ import { ProtectedRoute } from "./ProtectedRoute";
 import { HomeRedirect } from "@/routes/HomeRedirect";
 import { GuestRoute } from "./GuestRoute";
 
-import { AdminLayout } from "@/components/layout/AdminLayout";
+import { Layout } from "@/components/layout/Layout";
 
 import { DashboardPage } from "@/pages/dashboard/DashboardPage";
 import { BooksPage } from "@/pages/book/BooksPage";
@@ -37,7 +37,7 @@ export function AppRouter() {
 
         {/* Protected */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<AdminLayout />}>
+          <Route element={<Layout />}>
             {/* Dashboard */}
             <Route path="/dashboard" element={<DashboardPage />} />
 

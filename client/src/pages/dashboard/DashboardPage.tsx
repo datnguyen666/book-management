@@ -267,13 +267,13 @@ export function DashboardPage() {
               return (
                 <div
                   key={card.title}
-                  className="rounded-lg bg-white p-6 transition-colors"
+                  className="flex h-full flex-col rounded-lg bg-white p-6 transition-colors"
                   style={{
                     border: `1px solid ${BORDER}`,
                     borderTop: `2px solid ${isOverdue ? OVERDUE : BRASS}`,
                   }}
                 >
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-center justify-between">
                     <div className="pr-6">
                       <p
                         className="text-sm font-medium"
@@ -291,13 +291,6 @@ export function DashboardPage() {
                       >
                         {card.value}
                       </p>
-
-                      <p
-                        className="mt-2 truncate text-xs"
-                        style={{ color: "#B0B7C4" }}
-                      >
-                        {card.description}
-                      </p>
                     </div>
 
                     <div
@@ -310,6 +303,13 @@ export function DashboardPage() {
                       <Icon size={18} />
                     </div>
                   </div>
+
+                  <p
+                    className="mt-3 truncate text-xs"
+                    style={{ color: "#B0B7C4" }}
+                  >
+                    {card.description}
+                  </p>
                 </div>
               );
             })}

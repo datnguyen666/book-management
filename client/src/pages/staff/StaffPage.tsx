@@ -192,8 +192,13 @@ export function StaffPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Staff Management</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1
+            className="text-2xl font-semibold"
+            style={{ fontFamily: "'Source Serif 4', serif", color: "#12192B" }}
+          >
+            Staff Management
+          </h1>
+          <p className="mt-1 text-sm" style={{ color: "#8A93A6" }}>
             Manage staff accounts and permissions.
           </p>
         </div>
@@ -203,8 +208,8 @@ export function StaffPage() {
           onClick={handleOpenCreate}
           className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90"
           style={{
-            backgroundColor: "#111827",
-            color: "#d4a853",
+            backgroundColor: "#12192B",
+            color: "#C89B3C",
           }}
         >
           <Plus size={16} />
@@ -214,42 +219,74 @@ export function StaffPage() {
 
       {/* Status Error */}
       {statusMutation.error && (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div
+          className="rounded-md px-4 py-3 text-sm"
+          style={{
+            border: "1px solid #A6432C33",
+            backgroundColor: "#FBEFEC",
+            color: "#A6432C",
+          }}
+        >
           {getStatusErrorMessage()}
         </div>
       )}
 
       {/* Delete Error */}
       {deleteMutation.error && (
-        <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div
+          className="rounded-md px-4 py-3 text-sm"
+          style={{
+            border: "1px solid #A6432C33",
+            backgroundColor: "#FBEFEC",
+            color: "#A6432C",
+          }}
+        >
           {getDeleteErrorMessage()}
         </div>
       )}
 
       {/* Loading */}
       {isLoading && (
-        <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-500">
+        <div
+          className="rounded-lg bg-white p-6 text-sm"
+          style={{ border: "1px solid #E6DFCE", color: "#8A93A6" }}
+        >
           Loading staff...
         </div>
       )}
 
       {/* Error */}
       {isError && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-600">
+        <div
+          className="rounded-lg p-6 text-sm"
+          style={{
+            border: "1px solid #A6432C33",
+            backgroundColor: "#FBEFEC",
+            color: "#A6432C",
+          }}
+        >
           Failed to load staff.
         </div>
       )}
 
       {/* Empty */}
       {!isLoading && !isError && staff.length === 0 && (
-        <div className="rounded-lg border border-gray-200 bg-white p-10 text-center">
-          <Users className="mx-auto text-gray-400" size={40} />
+        <div
+          className="rounded-lg bg-white p-10 text-center"
+          style={{ border: "1px solid #E6DFCE" }}
+        >
+          <div
+            className="mx-auto flex h-12 w-12 items-center justify-center rounded-full"
+            style={{ border: "1px solid #B8863B55" }}
+          >
+            <Users size={20} style={{ color: "#B8863B" }} />
+          </div>
 
-          <p className="mt-3 text-sm font-medium text-gray-700">
+          <p className="mt-3 text-sm font-medium" style={{ color: "#12192B" }}>
             No staff found
           </p>
 
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs" style={{ color: "#B0B7C4" }}>
             Create a staff account to get started.
           </p>
         </div>
@@ -257,104 +294,186 @@ export function StaffPage() {
 
       {/* Table */}
       {!isLoading && !isError && staff.length > 0 && (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div
+          className="overflow-hidden rounded-lg bg-white shadow-[0_1px_3px_rgba(18,25,43,0.06),0_8px_24px_-12px_rgba(18,25,43,0.14)]"
+          style={{ border: "1px solid #D8CEB2" }}
+        >
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="border-b bg-gray-50">
+              <thead
+                style={{
+                  backgroundColor: "#EFE3C4",
+                  borderBottom: "1px solid #D8CEB2",
+                }}
+              >
                 <tr>
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     STT
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Full Name
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Email
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Username
                   </th>
 
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Role
                   </th>
 
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Status
                   </th>
 
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Actions
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-gray-100">
+              <tbody>
                 {staff.map((member, index) => (
                   <tr
                     key={member.id}
-                    className="transition-colors hover:bg-gray-50"
+                    className="transition-colors hover:bg-[#FAF7EF]"
+                    style={{ borderTop: "1px solid #E6DFCE" }}
                   >
-                    <td className="px-6 py-4 text-center align-middle text-gray-500">
+                    <td
+                      className="px-6 py-4 text-center align-middle tabular-nums"
+                      style={{ color: "#B0B7C4" }}
+                    >
                       {index + 1}
                     </td>
 
-                    <td className="px-6 py-4 font-medium text-gray-900">
+                    <td
+                      className="px-6 py-4 font-medium"
+                      style={{ color: "#12192B" }}
+                    >
                       {member.fullName}
                     </td>
 
-                    <td className="px-6 py-4 text-gray-500">{member.email}</td>
+                    <td className="px-6 py-4" style={{ color: "#6B7280" }}>
+                      {member.email}
+                    </td>
 
-                    <td className="px-6 py-4 text-gray-500">
+                    <td className="px-6 py-4" style={{ color: "#6B7280" }}>
                       {member.username}
                     </td>
 
                     <td className="px-6 py-4 text-center">
-                      <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-600">
+                      <span
+                        className="rounded-full px-2.5 py-1 text-xs font-medium"
+                        style={{ backgroundColor: "#F0EADA", color: "#8A6B2C" }}
+                      >
                         {member.role}
                       </span>
                     </td>
 
                     <td className="px-6 py-4 text-center">
                       {member.isActive ? (
-                        <span className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-600">
+                        <span
+                          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+                          style={{
+                            backgroundColor: "#EAF2E9",
+                            color: "#3F6B44",
+                          }}
+                        >
+                          <span
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={{ backgroundColor: "#3F6B44" }}
+                          />
                           Active
                         </span>
                       ) : (
-                        <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500">
+                        <span
+                          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
+                          style={{
+                            backgroundColor: "#F1F0EC",
+                            color: "#8A93A6",
+                          }}
+                        >
+                          <span
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={{ backgroundColor: "#B0B7C4" }}
+                          />
                           Inactive
                         </span>
                       )}
                     </td>
 
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex justify-center gap-3">
+                    <td className="px-6 py-4">
+                      <div className="flex justify-center gap-2">
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(member)}
                           disabled={statusMutation.isPending}
-                          className="text-xs font-medium text-blue-600 hover:underline disabled:opacity-50 cursor-pointer"
+                          className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#F7F2E7] disabled:opacity-50 cursor-pointer"
+                          style={{
+                            border: "1px solid #B8863B55",
+                            color: "#B8863B",
+                          }}
                         >
-                          <Edit size={16} className="mr-1 inline" />
+                          <Edit size={14} />
                         </button>
 
                         <button
                           type="button"
                           onClick={() => handleToggleStatus(member)}
                           disabled={statusMutation.isPending}
-                          className={
+                          className="flex h-8 w-8 items-center justify-center rounded-full transition disabled:opacity-50 cursor-pointer"
+                          style={
                             member.isActive
-                              ? "text-xs font-medium text-red-600 hover:underline disabled:opacity-50 cursor-pointer"
-                              : "text-xs font-medium text-green-600 hover:underline disabled:opacity-50 cursor-pointer"
+                              ? {
+                                  border: "1px solid #A6432C55",
+                                  color: "#A6432C",
+                                  backgroundColor: "transparent",
+                                }
+                              : {
+                                  border: "1px solid #3F6B4455",
+                                  color: "#3F6B44",
+                                  backgroundColor: "transparent",
+                                }
                           }
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor =
+                              member.isActive ? "#FBEFEC" : "#EAF2E9";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor =
+                              "transparent";
+                          }}
                         >
                           {member.isActive ? (
-                            <EyeOff size={16} className="mr-1 inline" />
+                            <EyeOff size={14} />
                           ) : (
-                            <Eye size={16} className="mr-1 inline" />
+                            <Eye size={14} />
                           )}
                         </button>
 
@@ -366,9 +485,13 @@ export function StaffPage() {
                             statusMutation.isPending ||
                             deleteMutation.isPending
                           }
-                          className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50 cursor-pointer"
+                          className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#FBEFEC] disabled:opacity-40 cursor-pointer"
+                          style={{
+                            border: "1px solid #A6432C55",
+                            color: "#A6432C",
+                          }}
                         >
-                          <Trash2 size={16} className="mr-1 inline" />
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </td>

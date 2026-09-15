@@ -748,32 +748,37 @@ export function DashboardPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead style={{ backgroundColor: "#F7F2E7" }}>
+                  <thead
+                    style={{
+                      backgroundColor: "#EFE3C4",
+                      borderBottom: "1px solid #D8CEB2",
+                    }}
+                  >
                     <tr>
                       <th
                         className="px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: MUTED }}
+                        style={{ color: "#7A6A46" }}
                       >
                         #
                       </th>
 
                       <th
                         className="px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: MUTED }}
+                        style={{ color: "#7A6A46" }}
                       >
                         Book
                       </th>
 
                       <th
                         className="px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: MUTED }}
+                        style={{ color: "#7A6A46" }}
                       >
                         ISBN
                       </th>
 
                       <th
                         className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: MUTED }}
+                        style={{ color: "#7A6A46" }}
                       >
                         Borrow Count
                       </th>
@@ -852,32 +857,37 @@ export function DashboardPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[700px] text-left text-sm">
-                  <thead style={{ backgroundColor: "#F7F2E7" }}>
+                  <thead
+                    style={{
+                      backgroundColor: "#EFE3C4",
+                      borderBottom: "1px solid #D8CEB2",
+                    }}
+                  >
                     <tr>
                       <th
                         className="px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: MUTED }}
+                        style={{ color: "#7A6A46" }}
                       >
                         Title
                       </th>
 
                       <th
                         className="px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: MUTED }}
+                        style={{ color: "#7A6A46" }}
                       >
                         Author
                       </th>
 
                       <th
                         className="px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: MUTED }}
+                        style={{ color: "#7A6A46" }}
                       >
                         Category
                       </th>
 
                       <th
                         className="px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: MUTED }}
+                        style={{ color: "#7A6A46" }}
                       >
                         Added
                       </th>

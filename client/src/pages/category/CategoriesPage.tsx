@@ -279,32 +279,37 @@ export function CategoriesPage() {
         >
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead style={{ backgroundColor: "#F7F2E7" }}>
+              <thead
+                style={{
+                  backgroundColor: "#EFE3C4",
+                  borderBottom: "1px solid #D8CEB2",
+                }}
+              >
                 <tr>
                   <th
                     className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: MUTED }}
+                    style={{ color: "#7A6A46" }}
                   >
                     STT
                   </th>
 
                   <th
                     className="px-6 py-4 text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: MUTED }}
+                    style={{ color: "#7A6A46" }}
                   >
                     Name
                   </th>
 
                   <th
                     className="px-6 py-4 text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: MUTED }}
+                    style={{ color: "#7A6A46" }}
                   >
                     Description
                   </th>
 
                   <th
                     className="px-6 py-4 text-right text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: MUTED }}
+                    style={{ color: "#7A6A46" }}
                   >
                     Actions
                   </th>

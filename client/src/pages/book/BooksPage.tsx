@@ -124,9 +124,14 @@ export function BooksPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Books</h1>
+          <h1
+            className="text-2xl font-semibold"
+            style={{ fontFamily: "'Source Serif 4', serif", color: "#12192B" }}
+          >
+            Books
+          </h1>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm" style={{ color: "#8A93A6" }}>
             Manage books in the library.
           </p>
         </div>
@@ -134,7 +139,8 @@ export function BooksPage() {
         <div className="flex items-center gap-3">
           <button
             type="button"
-            className="flex items-center gap-2 rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 cursor-pointer"
+            className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition hover:bg-[#F7F2E7] cursor-pointer"
+            style={{ border: "1px solid #E6DFCE", color: "#12192B" }}
             onClick={() => navigate("/assets")}
           >
             <Wallet size={16} />
@@ -144,8 +150,8 @@ export function BooksPage() {
             type="button"
             className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 cursor-pointer disabled:opacity-50"
             style={{
-              backgroundColor: "#111827",
-              color: "#d4a853",
+              backgroundColor: "#12192B",
+              color: "#C89B3C",
             }}
             onClick={handleCreate}
             disabled={isCategoriesLoading || isCategoriesError}
@@ -158,28 +164,46 @@ export function BooksPage() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="rounded-lg border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
+        <div
+          className="rounded-lg bg-white p-8 text-center text-sm"
+          style={{ border: "1px solid #E6DFCE", color: "#8A93A6" }}
+        >
           Loading books...
         </div>
       )}
 
       {/* Error */}
       {isError && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-600">
+        <div
+          className="rounded-lg p-6 text-sm"
+          style={{
+            border: "1px solid #A6432C33",
+            backgroundColor: "#FBEFEC",
+            color: "#A6432C",
+          }}
+        >
           Failed to load books. Please try again.
         </div>
       )}
 
       {/* Empty */}
       {!isLoading && !isError && books.length === 0 && (
-        <div className="rounded-lg border border-gray-200 bg-white p-10 text-center">
-          <BookOpen className="mx-auto text-gray-400" size={40} />
+        <div
+          className="rounded-lg bg-white p-10 text-center"
+          style={{ border: "1px solid #E6DFCE" }}
+        >
+          <div
+            className="mx-auto flex h-12 w-12 items-center justify-center rounded-full"
+            style={{ border: "1px solid #B8863B55" }}
+          >
+            <BookOpen size={20} style={{ color: "#B8863B" }} />
+          </div>
 
-          <p className="mt-3 text-sm font-medium text-gray-700">
+          <p className="mt-3 text-sm font-medium" style={{ color: "#12192B" }}>
             No books found
           </p>
 
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs" style={{ color: "#B0B7C4" }}>
             There are no books to display.
           </p>
         </div>
@@ -187,165 +211,249 @@ export function BooksPage() {
 
       {/* Book Table */}
       {!isLoading && !isError && books.length > 0 && (
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div
+          className="overflow-hidden rounded-lg bg-white shadow-[0_1px_3px_rgba(18,25,43,0.06),0_8px_24px_-12px_rgba(18,25,43,0.14)]"
+          style={{ border: "1px solid #D8CEB2" }}
+        >
           <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full min-w-[900px] text-left text-sm">
-              <thead className="border-b bg-gray-50">
+            <table className="w-full min-w-[960px] text-left text-sm">
+              <thead
+                style={{
+                  backgroundColor: "#EFE3C4",
+                  borderBottom: "1px solid #D8CEB2",
+                }}
+              >
                 <tr>
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     STT
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Title
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     ISBN
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Author
                   </th>
 
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Category
                   </th>
 
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Price
                   </th>
 
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Quantity
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Borrowed
                   </th>
 
-                  <th className="px-6 py-4 font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Available
                   </th>
 
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th
+                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
                     Actions
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-gray-100">
-                {books.map((book, index) => (
-                  <tr
-                    key={book.id}
-                    className="transition-colors hover:bg-gray-50"
-                  >
-                    {/* ID */}
-                    <td className="px-6 py-4 text-center align-middle text-gray-500">
-                      {index + 1}
-                    </td>
+              <tbody>
+                {books.map((book, index) => {
+                  const available = book.quantity - book.borrowedQuantity;
 
-                    {/* Title */}
-                    <td className="max-w-[220px] px-6 py-4">
-                      <div className="truncate font-medium text-gray-900 whitespace-nowrap">
-                        {book.title}
-                      </div>
-                    </td>
-
-                    {/* ISBN */}
-                    <td className="px-6 py-4 text-gray-500 whitespace-nowrap">
-                      {book.isbn}
-                    </td>
-
-                    {/* Author */}
-                    <td className="px-6 py-4 text-gray-700 whitespace-nowrap">
-                      {book.author}
-                    </td>
-
-                    {/* Category */}
-                    <td className="px-6 py-4 text-center align-middle">
-                      <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700 whitespace-nowrap">
-                        {book.category.name}
-                      </span>
-                    </td>
-
-                    {/* Price */}
-                    <td className="px-6 py-4 text-center align-middle text-gray-900">
-                      {Number(book.price).toFixed(2)}
-                    </td>
-
-                    {/* Quantity */}
-                    <td className="px-6 py-4 text-center align-middle text-gray-500">
-                      {book.quantity}
-                    </td>
-
-                    <td className="px-6 py-4 text-center align-middle text-gray-500">
-                      {book.borrowedQuantity}
-                    </td>
-
-                    <td
-                      className={`px-6 py-4 text-center font-semibold ${
-                        book.quantity - book.borrowedQuantity === 0
-                          ? "text-red-600"
-                          : "text-gray-500"
-                      }`}
+                  return (
+                    <tr
+                      key={book.id}
+                      className="transition-colors hover:bg-[#FAF7EF]"
+                      style={{ borderTop: "1px solid #E6DFCE" }}
                     >
-                      {book.quantity - book.borrowedQuantity}
-                    </td>
+                      {/* ID */}
+                      <td
+                        className="px-6 py-4 text-center align-middle tabular-nums"
+                        style={{ color: "#B0B7C4" }}
+                      >
+                        {index + 1}
+                      </td>
 
-                    {/* Actions */}
-                    <td className="px-5 py-5">
-                      <div className="flex justify-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => navigate(`/books/${book.id}`)}
-                          className="text-xs font-medium text-blue-600 cursor-pointer"
+                      {/* Title */}
+                      <td className="max-w-[220px] px-6 py-4">
+                        <div
+                          className="truncate font-medium whitespace-nowrap"
+                          style={{ color: "#12192B" }}
                         >
-                          <Eye size={16} />
-                        </button>
+                          {book.title}
+                        </div>
+                      </td>
 
-                        <button
-                          type="button"
-                          className="text-xs font-medium text-gray-600 cursor-pointer"
-                          onClick={() => handleEdit(book)}
+                      {/* ISBN */}
+                      <td
+                        className="px-6 py-4 whitespace-nowrap"
+                        style={{ color: "#6B7280" }}
+                      >
+                        {book.isbn}
+                      </td>
+
+                      {/* Author */}
+                      <td
+                        className="px-6 py-4 whitespace-nowrap"
+                        style={{ color: "#374151" }}
+                      >
+                        {book.author}
+                      </td>
+
+                      {/* Category */}
+                      <td className="px-6 py-4 text-center align-middle">
+                        <span
+                          className="rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap"
+                          style={{
+                            backgroundColor: "#F7F2E7",
+                            color: "#5C5240",
+                          }}
                         >
-                          <Edit size={16} />
-                        </button>
+                          {book.category.name}
+                        </span>
+                      </td>
 
-                        {isAdmin && (
+                      {/* Price */}
+                      <td
+                        className="px-6 py-4 text-center align-middle tabular-nums"
+                        style={{ color: "#12192B" }}
+                      >
+                        {Number(book.price).toFixed(2)}
+                      </td>
+
+                      {/* Quantity */}
+                      <td
+                        className="px-6 py-4 text-center align-middle tabular-nums"
+                        style={{ color: "#8A93A6" }}
+                      >
+                        {book.quantity}
+                      </td>
+
+                      <td
+                        className="px-6 py-4 text-center align-middle tabular-nums"
+                        style={{ color: "#8A93A6" }}
+                      >
+                        {book.borrowedQuantity}
+                      </td>
+
+                      <td
+                        className="px-6 py-4 text-center align-middle font-semibold tabular-nums"
+                        style={{
+                          color: available === 0 ? "#A6432C" : "#8A93A6",
+                        }}
+                      >
+                        {available}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-5 py-4">
+                        <div className="flex justify-center gap-2">
                           <button
                             type="button"
-                            className="text-xs font-medium text-red-600 cursor-pointer disabled:opacity-50"
-                            disabled={deleteMutation.isPending}
-                            onClick={async () => {
-                              const confirmed = window.confirm(
-                                `Are you sure you want to delete "${book.title}"?`,
-                              );
-
-                              if (!confirmed) {
-                                return;
-                              }
-
-                              await deleteMutation.mutateAsync(book.id);
-                              if (books.length === 1 && page > 1) {
-                                setPage((current) => current - 1);
-                              }
+                            onClick={() => navigate(`/books/${book.id}`)}
+                            className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#F7F2E7] cursor-pointer"
+                            style={{
+                              border: "1px solid #E6DFCE",
+                              color: "#5C6B85",
                             }}
                           >
-                            <Trash size={16} />
+                            <Eye size={14} />
                           </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+
+                          <button
+                            type="button"
+                            className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#F7F2E7] cursor-pointer"
+                            style={{
+                              border: "1px solid #B8863B55",
+                              color: "#B8863B",
+                            }}
+                            onClick={() => handleEdit(book)}
+                          >
+                            <Edit size={14} />
+                          </button>
+
+                          {isAdmin && (
+                            <button
+                              type="button"
+                              className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#FBEFEC] cursor-pointer disabled:opacity-50"
+                              style={{
+                                border: "1px solid #A6432C55",
+                                color: "#A6432C",
+                              }}
+                              disabled={deleteMutation.isPending}
+                              onClick={async () => {
+                                const confirmed = window.confirm(
+                                  `Are you sure you want to delete "${book.title}"?`,
+                                );
+
+                                if (!confirmed) {
+                                  return;
+                                }
+
+                                await deleteMutation.mutateAsync(book.id);
+                                if (books.length === 1 && page > 1) {
+                                  setPage((current) => current - 1);
+                                }
+                              }}
+                            >
+                              <Trash size={14} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between border-t bg-white px-6 py-4">
-            <p className="text-xs text-gray-500">
+          <div
+            className="flex items-center justify-between bg-white px-6 py-4"
+            style={{ borderTop: "1px solid #E6DFCE" }}
+          >
+            <p className="text-xs" style={{ color: "#8A93A6" }}>
               {pagination
                 ? `Showing page ${pagination.page} of ${pagination.totalPages} (${pagination.total} books)`
                 : "Loading..."}
@@ -356,34 +464,40 @@ export function BooksPage() {
                 type="button"
                 onClick={handlePrevious}
                 disabled={page === 1 || isFetching}
-                className="rounded-md border border-gray-200 p-2 text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-md p-2 transition hover:bg-[#F7F2E7] disabled:cursor-not-allowed disabled:opacity-40"
+                style={{ border: "1px solid #E6DFCE", color: "#5C6B85" }}
               >
                 <ChevronLeft size={16} />
               </button>
 
               {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                (pageNumber) => (
-                  <button
-                    key={pageNumber}
-                    type="button"
-                    onClick={() => handlePageChange(pageNumber)}
-                    disabled={isFetching}
-                    className={`min-w-8 rounded-md px-2 py-1.5 text-xs font-medium transition ${
-                      pageNumber === page
-                        ? "bg-gray-900 text-white"
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    {pageNumber}
-                  </button>
-                ),
+                (pageNumber) => {
+                  const isActive = pageNumber === page;
+
+                  return (
+                    <button
+                      key={pageNumber}
+                      type="button"
+                      onClick={() => handlePageChange(pageNumber)}
+                      disabled={isFetching}
+                      className="min-w-8 rounded-md px-2 py-1.5 text-xs font-medium tabular-nums transition"
+                      style={{
+                        backgroundColor: isActive ? "#12192B" : "transparent",
+                        color: isActive ? "#C89B3C" : "#5C6B85",
+                      }}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                },
               )}
 
               <button
                 type="button"
                 onClick={handleNext}
                 disabled={page >= totalPages || isFetching}
-                className="rounded-md border border-gray-200 p-2 text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-md p-2 transition hover:bg-[#F7F2E7] disabled:cursor-not-allowed disabled:opacity-40"
+                style={{ border: "1px solid #E6DFCE", color: "#5C6B85" }}
               >
                 <ChevronRight size={16} />
               </button>
@@ -394,18 +508,32 @@ export function BooksPage() {
 
       {/* Background fetching indicator */}
       {isFetching && !isLoading && (
-        <p className="text-right text-xs text-gray-400">Updating...</p>
+        <p className="text-right text-xs" style={{ color: "#B0B7C4" }}>
+          Updating...
+        </p>
       )}
 
       {isFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-            <div className="mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">
+          <div
+            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl"
+            style={{ border: "1px solid #E6DFCE" }}
+          >
+            <div
+              className="mb-6"
+              style={{ borderBottom: "1px solid #E6DFCE", paddingBottom: 16 }}
+            >
+              <h2
+                className="text-xl font-semibold"
+                style={{
+                  fontFamily: "'Source Serif 4', serif",
+                  color: "#12192B",
+                }}
+              >
                 {formMode === "create" ? "Create Book" : "Update Book"}
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm" style={{ color: "#8A93A6" }}>
                 {formMode === "create"
                   ? "Create a new book."
                   : "Update book information."}

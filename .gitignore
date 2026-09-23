@@ -25,3 +25,5 @@ Thumbs.db
 
 # VSCode
 .vscode/settings.json
+
+**/certs/

@@ -115,10 +115,22 @@ export function BookForm({
     }
   }, [mode, book, reset]);
 
+  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+  const ALLOWED_EXT = /\.(jpg|jpeg|png|webp)$/i;
+
   const handleCoverChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
     if (!file) {
+      return;
+    }
+
+    const isValidType =
+      ALLOWED_TYPES.includes(file.type) && ALLOWED_EXT.test(file.name);
+
+    if (!isValidType) {
+      alert("Only JPG, PNG or WebP files are allowed.");
+      event.target.value = "";
       return;
     }
 
@@ -318,12 +330,12 @@ export function BookForm({
 
           <input
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,image/jpg,image/jfif,image/webp"
             onChange={handleCoverChange}
             className="block w-full text-sm text-gray-600 file:mr-4 file:rounded-md file:border-0 file:bg-gray-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gray-700 hover:file:bg-gray-200"
           />
 
-          <p className="text-xs text-gray-400">JPG, PNG or WebP.</p>
+          <p className="text-xs text-gray-400">JPG, PNG, JFIF, JPEG or WebP.</p>
         </div>
       </div>
 

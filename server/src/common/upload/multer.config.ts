@@ -31,12 +31,12 @@ export const multerOptions = {
   },
 
   fileFilter: (req, file, callback) => {
-    const allowedExtensions = /\.(jpg|jpeg|png|webp)$/i;
+    const allowedExtensions = /\.(jpg|jpeg|png|webp|jfif)$/i;
 
     if (!allowedExtensions.test(file.originalname)) {
       return callback(
         new BadRequestException(
-          'Only jpg, jpeg, png and webp files are allowed',
+          'Only jpg, jpeg, png, webp and jfif files are allowed',
         ),
         false,
       );

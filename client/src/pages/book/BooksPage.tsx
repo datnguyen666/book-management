@@ -311,7 +311,7 @@ export function BooksPage() {
                         className="px-6 py-4 text-center align-middle tabular-nums"
                         style={{ color: "#B0B7C4" }}
                       >
-                        {index + 1}
+                        {(page - 1) * DEFAULT_LIMIT + index + 1}
                       </td>
 
                       {/* Title */}

@@ -115,8 +115,14 @@ export function BookForm({
     }
   }, [mode, book, reset]);
 
-  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-  const ALLOWED_EXT = /\.(jpg|jpeg|png|webp)$/i;
+  const ALLOWED_TYPES = [
+    "image/jpeg",
+    "image/jpg",
+    "image/png",
+    "image/webp",
+    "image/jfif",
+  ];
+  const ALLOWED_EXT = /\.(jpg|jpeg|png|webp|jfif)$/i;
 
   const handleCoverChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -129,7 +135,7 @@ export function BookForm({
       ALLOWED_TYPES.includes(file.type) && ALLOWED_EXT.test(file.name);
 
     if (!isValidType) {
-      alert("Only JPG, PNG or WebP files are allowed.");
+      alert("Only JPG, PNG, JFIF, JPEG or WebP files are allowed.");
       event.target.value = "";
       return;
     }

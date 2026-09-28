@@ -335,8 +335,12 @@ export function DashboardPage() {
                     Books added during {data.monthlyAcquisitions.year}
                   </p>
                 </div>
-
-                <BookOpen size={18} style={{ color: BRASS }} />
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                  style={{ border: `1px solid ${BORDER}`, color: BRASS }}
+                >
+                  <BookOpen size={18} style={{ color: BRASS }} />
+                </div>
               </div>
 
               <div className="mt-8 overflow-x-auto">
@@ -487,8 +491,12 @@ export function DashboardPage() {
                     Books borrowed during {data.monthlyBorrowings.year}
                   </p>
                 </div>
-
-                <BookMarked size={18} style={{ color: BRASS }} />
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                  style={{ border: `1px solid ${BORDER}`, color: BRASS }}
+                >
+                  <BookMarked size={18} style={{ color: BRASS }} />
+                </div>
               </div>
 
               <div className="mt-8 overflow-x-auto">
@@ -558,8 +566,12 @@ export function DashboardPage() {
                     Current status of all borrow records
                   </p>
                 </div>
-
-                <BookMarked size={18} style={{ color: BRASS }} />
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                  style={{ border: `1px solid ${BORDER}`, color: BRASS }}
+                >
+                  <BookMarked size={18} style={{ color: BRASS }} />
+                </div>
               </div>
 
               {totalBorrowRecords === 0 ? (
@@ -734,8 +746,12 @@ export function DashboardPage() {
                   Most borrowed books in the library
                 </p>
               </div>
-
-              <BookMarked size={18} style={{ color: BRASS }} />
+              <div
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                style={{ border: `1px solid ${BORDER}`, color: BRASS }}
+              >
+                <BookMarked size={18} style={{ color: BRASS }} />
+              </div>
             </div>
 
             {topBorrowedBooks.length === 0 ? (
@@ -844,7 +860,12 @@ export function DashboardPage() {
                 </p>
               </div>
 
-              <CalendarDays size={18} style={{ color: BRASS }} />
+              <div
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                style={{ border: `1px solid ${BORDER}`, color: BRASS }}
+              >
+                <CalendarDays size={18} style={{ color: BRASS }} />
+              </div>
             </div>
 
             {data.recentBooks.length === 0 ? (

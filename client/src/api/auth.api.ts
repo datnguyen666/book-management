@@ -18,6 +18,7 @@ export interface ResetPasswordRequest {
 }
 
 export interface UpdateProfileRequest {
+  username: string;
   fullName: string;
   email: string;
   currentPassword?: string;

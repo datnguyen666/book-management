@@ -97,6 +97,10 @@ export class AuthService {
 
     const data: Prisma.UserUpdateInput = {};
 
+    if (dto.username !== undefined) {
+      data.username = dto.username.trim();
+    }
+
     if (dto.fullName !== undefined) {
       data.fullName = dto.fullName.trim();
     }
@@ -168,7 +172,17 @@ export class AuthService {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
-        throw new ConflictException('Email already exists');
+        const target = error.meta?.target;
+
+        if (Array.isArray(target) && target.includes('username')) {
+          throw new ConflictException('Tên đăng nhập đã được sử dụng.');
+        }
+
+        if (Array.isArray(target) && target.includes('email')) {
+          throw new ConflictException('Email already exists');
+        }
+
+        throw new ConflictException('Username or email already exists');
       }
 
       throw error;

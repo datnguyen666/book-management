@@ -27,6 +27,12 @@ import { useAuthStore } from "@/store/auth.store";
 
 const updateProfileSchema = z
   .object({
+    username: z
+      .string()
+      .trim()
+      .min(1, "Tên đăng nhập là bắt buộc.")
+      .max(50, "Tên đăng nhập không được vượt quá 50 ký tự."),
+
     fullName: z
       .string()
       .trim()
@@ -122,6 +128,7 @@ export function UpdateProfilePage() {
     resolver: zodResolver(updateProfileSchema),
 
     defaultValues: {
+      username: "",
       fullName: "",
       email: "",
       currentPassword: "",
@@ -136,6 +143,7 @@ export function UpdateProfilePage() {
     }
 
     reset({
+      username: user.username,
       fullName: user.fullName,
       email: user.email,
       currentPassword: "",
@@ -152,7 +160,7 @@ export function UpdateProfilePage() {
     onSuccess: (updatedUser) => {
       setUser(updatedUser);
 
-      queryClient.setQueryData(["profile"], updatedUser);
+      queryClient.setQueryData(["profile", updatedUser.id], updatedUser);
 
       navigate("/profile", {
         replace: true,
@@ -162,6 +170,7 @@ export function UpdateProfilePage() {
 
   const onSubmit = (data: UpdateProfileFormData) => {
     const payload: UpdateProfileRequest = {
+      username: data.username.trim(),
       fullName: data.fullName.trim(),
       email: data.email.trim(),
     };
@@ -255,11 +264,19 @@ export function UpdateProfilePage() {
 
           <div className="mt-7 grid gap-6 md:grid-cols-2">
             {/* Username */}
-            <ReadOnlyField
+            <FormField
               icon={AtSign}
               label="Tên đăng nhập"
-              value={user.username}
-            />
+              error={errors.username?.message}
+            >
+              <input
+                id="username"
+                type="text"
+                {...register("username")}
+                className={inputClassName(Boolean(errors.username))}
+                autoComplete="username"
+              />
+            </FormField>
 
             {/* Full name */}
             <FormField

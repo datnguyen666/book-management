@@ -17,6 +17,13 @@ export interface ResetPasswordRequest {
   password: string;
 }
 
+export interface UpdateProfileRequest {
+  fullName: string;
+  email: string;
+  currentPassword?: string;
+  newPassword?: string;
+}
+
 export async function setPassword(
   data: SetPasswordRequest,
 ): Promise<{ message: string }> {
@@ -58,6 +65,12 @@ export async function resetPassword(
     "/auth/reset-password",
     data,
   );
+
+  return response.data;
+}
+
+export async function updateProfile(data: UpdateProfileRequest): Promise<User> {
+  const response = await api.patch<User>("/auth/profile", data);
 
   return response.data;
 }

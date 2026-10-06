@@ -1,14 +1,16 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { createHash, randomBytes } from 'crypto';
 import { MailService } from 'src/mail/mail.service';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -49,6 +51,128 @@ export class AuthService {
     return {
       accessToken,
     };
+  }
+
+  async getProfile(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('This account is inactive');
+    }
+
+    return {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      fullName: user.fullName,
+      role: user.role,
+      isActive: user.isActive,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
+  async updateProfile(userId: number, dto: UpdateProfileDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('This account is inactive');
+    }
+
+    const data: Prisma.UserUpdateInput = {};
+
+    if (dto.fullName !== undefined) {
+      data.fullName = dto.fullName.trim();
+    }
+
+    if (dto.email !== undefined) {
+      data.email = dto.email.trim();
+    }
+
+    if (dto.newPassword !== undefined) {
+      if (!dto.currentPassword) {
+        throw new BadRequestException(
+          'Current password is required to change password',
+        );
+      }
+
+      const isCurrentPasswordValid = await bcrypt.compare(
+        dto.currentPassword,
+        user.password,
+      );
+
+      if (!isCurrentPasswordValid) {
+        throw new BadRequestException('Current password is incorrect');
+      }
+
+      data.password = await bcrypt.hash(dto.newPassword, 10);
+
+      data.mustChangePassword = false;
+
+      data.passwordSetupTokenHash = null;
+      data.passwordSetupTokenExpiresAt = null;
+
+      data.passwordResetTokenHash = null;
+      data.passwordResetTokenExpiresAt = null;
+    }
+
+    if (Object.keys(data).length === 0) {
+      return {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role,
+        isActive: user.isActive,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      };
+    }
+
+    try {
+      const updatedUser = await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data,
+      });
+
+      return {
+        id: updatedUser.id,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        fullName: updatedUser.fullName,
+        role: updatedUser.role,
+        isActive: updatedUser.isActive,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
+      };
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Email already exists');
+      }
+
+      throw error;
+    }
   }
 
   async forgotPassword(email: string) {

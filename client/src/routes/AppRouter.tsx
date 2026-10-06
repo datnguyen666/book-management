@@ -15,6 +15,8 @@ import { StaffPage } from "@/pages/staff/StaffPage";
 import { SetPasswordPage } from "@/pages/auth/SetPasswordPage";
 import { BorrowPage } from "@/pages/borrow/BorrowPage";
 import { LibraryAssetsPage } from "@/pages/assets/LibraryAssetsPage";
+import { ProfilePage } from "@/pages/profile/ProfilePage";
+import { UpdateProfilePage } from "@/pages/profile/UpdateProfilePage";
 
 function NotFoundPage() {
   return <h1>404 Not Found</h1>;
@@ -56,6 +58,9 @@ export function AppRouter() {
             <Route path="/borrows" element={<BorrowPage />} />
 
             <Route path="/assets" element={<LibraryAssetsPage />} />
+
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/edit" element={<UpdateProfilePage />} />
           </Route>
         </Route>
 

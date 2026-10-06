@@ -14,4 +14,6 @@ export interface User {
   fullName: string;
   role: "ADMIN" | "STAFF";
   isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

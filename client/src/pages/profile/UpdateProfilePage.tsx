@@ -222,28 +222,19 @@ export function UpdateProfilePage() {
       </button>
 
       {/* Page heading */}
-      <div className="mb-6">
-        <p
-          className="text-[11px] font-semibold uppercase tracking-[0.12em]"
-          style={{
-            color: "#A87324",
-          }}
-        >
-          Tài khoản / Hồ sơ
-        </p>
-
+      <div className="mb-5 sm:mb-6">
         <h1
-          className="mt-2 text-4xl font-semibold leading-tight"
+          className="mt-2 text-3xl font-semibold leading-tight sm:text-4xl"
           style={{
             fontFamily: "'Source Serif 4', serif",
             color: "#12192B",
           }}
         >
-          Cập nhật thông tin cá nhân
+          Cập nhật hồ sơ
         </h1>
 
         <p className="mt-1 text-sm text-gray-500">
-          Chỉnh sửa thông tin hồ sơ và bảo mật tài khoản.
+          Chỉnh sửa thông tin cá nhân và bảo mật tài khoản.
         </p>
       </div>
 
@@ -255,14 +246,14 @@ export function UpdateProfilePage() {
         {/* ====================================================== */}
         {/* Profile information */}
         {/* ====================================================== */}
-        <section className="p-8">
+        <section className="p-5 sm:p-8">
           <SectionHeading
             icon={UserRound}
             title="Thông tin hồ sơ"
             description="Cập nhật thông tin nhận diện và liên hệ của bạn."
           />
 
-          <div className="mt-7 grid gap-6 md:grid-cols-2">
+          <div className="mt-5 grid gap-5 sm:mt-7 sm:gap-6 md:grid-cols-2">
             {/* Username */}
             <FormField
               icon={AtSign}
@@ -321,14 +312,14 @@ export function UpdateProfilePage() {
         {/* ====================================================== */}
         {/* Password */}
         {/* ====================================================== */}
-        <section className="border-t border-[#EEE8DB] p-8">
+        <section className="border-t border-[#EEE8DB] p-5 sm:p-8">
           <SectionHeading
             icon={LockKeyhole}
             title="Thay đổi mật khẩu"
             description="Để trống nếu bạn không muốn thay đổi mật khẩu hiện tại."
           />
 
-          <div className="mt-7 grid gap-6 md:grid-cols-3">
+          <div className="mt-5 grid gap-5 sm:mt-7 sm:gap-6 md:grid-cols-3">
             {/* Current password */}
             <PasswordField
               label="Mật khẩu hiện tại"
@@ -368,12 +359,12 @@ export function UpdateProfilePage() {
         {/* ====================================================== */}
         {/* Footer */}
         {/* ====================================================== */}
-        <div className="flex items-center justify-end gap-3 border-t border-[#EEE8DB] px-8 py-5">
+        <div className="flex flex-col-reverse gap-3 border-t border-[#EEE8DB] px-5 py-5 sm:flex-row sm:items-center sm:justify-end sm:px-8">
           <button
             type="button"
             onClick={() => navigate("/profile")}
             disabled={mutation.isPending}
-            className="rounded-lg border border-[#DED7C8] px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-lg border border-[#DED7C8] px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             Hủy
           </button>
@@ -381,13 +372,10 @@ export function UpdateProfilePage() {
           <button
             type="submit"
             disabled={mutation.isPending}
-            className="flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-            style={{
-              backgroundColor: "#12192B",
-            }}
+            className="flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+            style={{ backgroundColor: "#12192B" }}
           >
             <Save size={16} />
-
             {mutation.isPending ? "Đang lưu..." : "Lưu thay đổi"}
           </button>
         </div>
@@ -410,9 +398,9 @@ function SectionHeading({
   description: string;
 }) {
   return (
-    <div className="flex items-start gap-4">
+    <div className="flex items-center gap-3 sm:gap-4">
       <div
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg sm:h-11 sm:w-11"
         style={{
           backgroundColor: "#FFF8E8",
           color: "#B8863B",
@@ -424,7 +412,7 @@ function SectionHeading({
 
       <div className="min-w-0">
         <h2
-          className="text-2xl font-semibold"
+          className="text-xl font-semibold leading-snug sm:text-2xl"
           style={{
             fontFamily: "'Source Serif 4', serif",
             color: "#12192B",

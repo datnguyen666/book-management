@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { useBook } from "@/hooks/use-books";
+import { usePageTitle } from "@/hooks/use-page-title";
 import { getMediaUrl } from "@/lib/media";
 
 export function BookDetailPage() {
@@ -10,6 +11,9 @@ export function BookDetailPage() {
   const bookId = Number(id);
 
   const { data: book, isLoading, isError } = useBook(bookId);
+
+  // Ghi đè tên tab mặc định ("Book Details") khi đã có dữ liệu sách
+  usePageTitle(book?.title);
 
   const handleBack = () => {
     navigate("/books");

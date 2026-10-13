@@ -4,6 +4,7 @@ import { LoginPage } from "@/pages/auth/LoginPage";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { HomeRedirect } from "@/routes/HomeRedirect";
 import { GuestRoute } from "./GuestRoute";
+import { DocumentTitle } from "./DocumentTitle";
 
 import { Layout } from "@/components/layout/Layout";
 
@@ -25,6 +26,8 @@ function NotFoundPage() {
 export function AppRouter() {
   return (
     <BrowserRouter>
+      <DocumentTitle />
+
       <Routes>
         {/* Root */}
         <Route path="/" element={<HomeRedirect />} />

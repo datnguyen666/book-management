@@ -22,6 +22,7 @@ import { useCategories } from "@/hooks/use-categories";
 import { Eye } from "lucide-react";
 import { Edit } from "lucide-react";
 import { Trash } from "lucide-react";
+import { RequestBorrowModal } from "@/components/borrow/RequestBorrowModal";
 
 const DEFAULT_LIMIT = 10;
 
@@ -64,6 +65,10 @@ export function BooksPage() {
   const user = useAuthStore((state) => state.user);
 
   const isAdmin = user?.role === "ADMIN";
+  const isMember = user?.role === "MEMBER";
+
+  const [selectedBorrowBook, setSelectedBorrowBook] = useState<Book | null>(null);
+  const [isBorrowModalOpen, setIsBorrowModalOpen] = useState(false);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -136,30 +141,41 @@ export function BooksPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        {isMember ? (
           <button
             type="button"
-            className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition hover:bg-[#F7F2E7] cursor-pointer"
-            style={{ border: "1px solid #E6DFCE", color: "#12192B" }}
-            onClick={() => navigate("/assets")}
+            className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition hover:opacity-90 cursor-pointer text-white bg-[#8A5A1E]"
+            onClick={() => navigate("/my-borrows")}
           >
-            <Wallet size={16} />
-            View Assets
+            <BookOpen size={16} />
+            Tủ sách của tôi
           </button>
-          <button
-            type="button"
-            className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 cursor-pointer disabled:opacity-50"
-            style={{
-              backgroundColor: "#12192B",
-              color: "#C89B3C",
-            }}
-            onClick={handleCreate}
-            disabled={isCategoriesLoading || isCategoriesError}
-          >
-            <Plus size={16} />
-            Add Book
-          </button>
-        </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition hover:bg-[#F7F2E7] cursor-pointer"
+              style={{ border: "1px solid #E6DFCE", color: "#12192B" }}
+              onClick={() => navigate("/assets")}
+            >
+              <Wallet size={16} />
+              View Assets
+            </button>
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 cursor-pointer disabled:opacity-50"
+              style={{
+                backgroundColor: "#12192B",
+                color: "#C89B3C",
+              }}
+              onClick={handleCreate}
+              disabled={isCategoriesLoading || isCategoriesError}
+            >
+              <Plus size={16} />
+              Add Book
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Loading */}
@@ -258,13 +274,14 @@ export function BooksPage() {
                   >
                     Category
                   </th>
-
-                  <th
-                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "#7A6A46" }}
-                  >
-                    Price
-                  </th>
+                  {!isMember && (
+                    <th
+                      className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                      style={{ color: "#7A6A46" }}
+                    >
+                      Price
+                    </th>
+                  )}
 
                   <th
                     className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
@@ -354,12 +371,14 @@ export function BooksPage() {
                       </td>
 
                       {/* Price */}
-                      <td
-                        className="px-6 py-4 text-center align-middle tabular-nums"
-                        style={{ color: "#12192B" }}
-                      >
-                        {Number(book.price).toFixed(2)}
-                      </td>
+                      {!isMember && (
+                        <td
+                          className="px-6 py-4 text-center align-middle tabular-nums"
+                          style={{ color: "#12192B" }}
+                        >
+                          {Number(book.price).toFixed(2)}
+                        </td>
+                      )}
 
                       {/* Quantity */}
                       <td
@@ -391,6 +410,7 @@ export function BooksPage() {
                           <button
                             type="button"
                             onClick={() => navigate(`/books/${book.id}`)}
+                            title="Xem chi tiết"
                             className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#F7F2E7] cursor-pointer"
                             style={{
                               border: "1px solid #E6DFCE",
@@ -400,44 +420,65 @@ export function BooksPage() {
                             <Eye size={14} />
                           </button>
 
-                          <button
-                            type="button"
-                            className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#F7F2E7] cursor-pointer"
-                            style={{
-                              border: "1px solid #B8863B55",
-                              color: "#B8863B",
-                            }}
-                            onClick={() => handleEdit(book)}
-                          >
-                            <Edit size={14} />
-                          </button>
-
-                          {isAdmin && (
+                          {isMember ? (
                             <button
                               type="button"
-                              className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#FBEFEC] cursor-pointer disabled:opacity-50"
-                              style={{
-                                border: "1px solid #A6432C55",
-                                color: "#A6432C",
+                              onClick={() => {
+                                setSelectedBorrowBook(book);
+                                setIsBorrowModalOpen(true);
                               }}
-                              disabled={deleteMutation.isPending}
-                              onClick={async () => {
-                                const confirmed = window.confirm(
-                                  `Are you sure you want to delete "${book.title}"?`,
-                                );
-
-                                if (!confirmed) {
-                                  return;
-                                }
-
-                                await deleteMutation.mutateAsync(book.id);
-                                if (books.length === 1 && page > 1) {
-                                  setPage((current) => current - 1);
-                                }
-                              }}
+                              disabled={book.quantity - book.borrowedQuantity <= 0}
+                              title={
+                                book.quantity - book.borrowedQuantity <= 0
+                                  ? "Hết sách"
+                                  : "Mượn sách"
+                              }
+                              className="flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold text-white bg-[#8A5A1E] hover:bg-[#724814] disabled:cursor-not-allowed disabled:opacity-40 transition"
                             >
-                              <Trash size={14} />
+                              <BookOpen size={13} />
                             </button>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#F7F2E7] cursor-pointer"
+                                style={{
+                                  border: "1px solid #B8863B55",
+                                  color: "#B8863B",
+                                }}
+                                onClick={() => handleEdit(book)}
+                              >
+                                <Edit size={14} />
+                              </button>
+
+                              {isAdmin && (
+                                <button
+                                  type="button"
+                                  className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#FBEFEC] cursor-pointer disabled:opacity-50"
+                                  style={{
+                                    border: "1px solid #A6432C55",
+                                    color: "#A6432C",
+                                  }}
+                                  disabled={deleteMutation.isPending}
+                                  onClick={async () => {
+                                    const confirmed = window.confirm(
+                                      `Are you sure you want to delete "${book.title}"?`,
+                                    );
+
+                                    if (!confirmed) {
+                                      return;
+                                    }
+
+                                    await deleteMutation.mutateAsync(book.id);
+                                    if (books.length === 1 && page > 1) {
+                                      setPage((current) => current - 1);
+                                    }
+                                  }}
+                                >
+                                  <Trash size={14} />
+                                </button>
+                              )}
+                            </>
                           )}
                         </div>
                       </td>
@@ -558,6 +599,15 @@ export function BooksPage() {
           </div>
         </div>
       )}
+
+      <RequestBorrowModal
+        isOpen={isBorrowModalOpen}
+        book={selectedBorrowBook}
+        onClose={() => {
+          setIsBorrowModalOpen(false);
+          setSelectedBorrowBook(null);
+        }}
+      />
     </div>
   );
 }

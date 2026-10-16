@@ -1,6 +1,12 @@
 import { api } from "@/api/axios";
 
-import type { LoginRequest, LoginResponse, User } from "@/types/auth";
+import type {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+  User,
+} from "@/types/auth";
 
 export interface SetPasswordRequest {
   token: string;
@@ -23,6 +29,14 @@ export interface UpdateProfileRequest {
   email: string;
   currentPassword?: string;
   newPassword?: string;
+}
+
+export async function registerUser(
+  data: RegisterRequest,
+): Promise<RegisterResponse> {
+  const response = await api.post<RegisterResponse>("/auth/register", data);
+
+  return response.data;
 }
 
 export async function setPassword(

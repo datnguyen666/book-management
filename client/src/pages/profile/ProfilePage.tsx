@@ -13,6 +13,8 @@ import { useNavigate } from "react-router-dom";
 import { getProfile } from "@/api/auth.api";
 import { useAuthStore } from "@/store/auth.store";
 
+import type { Role } from "@/types/auth";
+
 function getInitials(fullName: string, username: string) {
   const source = fullName.trim() || username.trim();
 
@@ -25,8 +27,10 @@ function getInitials(fullName: string, username: string) {
   return source.slice(0, 2).toUpperCase();
 }
 
-function getRoleLabel(role: "ADMIN" | "STAFF") {
-  return role === "ADMIN" ? "Quản trị viên" : "Nhân viên thư viện";
+function getRoleLabel(role: Role) {
+  if (role === "ADMIN") return "Quản trị viên";
+  if (role === "STAFF") return "Nhân viên thư viện";
+  return "Độc giả";
 }
 
 function formatJoinedDate(date: string) {
@@ -167,6 +171,13 @@ export function ProfilePage() {
 
         {/* Details */}
         <div className="grid md:grid-cols-2">
+          {user.memberCode && (
+            <ProfileItem
+              icon={CheckCircle2}
+              label="Mã độc giả"
+              value={user.memberCode}
+            />
+          )}
           <ProfileItem
             icon={AtSign}
             label="Tên đăng nhập"
@@ -178,6 +189,9 @@ export function ProfilePage() {
             value={user.fullName || "—"}
           />
           <ProfileItem icon={Mail} label="Địa chỉ email" value={user.email} />
+          {user.phone && (
+            <ProfileItem icon={UserRound} label="Số điện thoại" value={user.phone} />
+          )}
           <ProfileItem
             icon={CalendarDays}
             label="Ngày tham gia"

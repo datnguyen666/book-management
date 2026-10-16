@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { useBook } from "@/hooks/use-books";
 import { usePageTitle } from "@/hooks/use-page-title";
 import { getMediaUrl } from "@/lib/media";
+import { RequestBorrowModal } from "@/components/borrow/RequestBorrowModal";
 
 export function BookDetailPage() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [isBorrowOpen, setIsBorrowOpen] = useState(false);
 
   const bookId = Number(id);
 
@@ -58,26 +61,6 @@ export function BookDetailPage() {
   }
 
   if (isError || !book) {
-    let message = "Failed to load book. Please try again.";
-
-    if (isError || !book) {
-      return (
-        <div className="space-y-4">
-          <button
-            type="button"
-            onClick={handleBack}
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
-          >
-            <ArrowLeft size={16} />
-            Back to Books
-          </button>
-
-          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-600">
-            Failed to load book. Please try again.
-          </div>
-        </div>
-      );
-    }
     return (
       <div className="space-y-4">
         <button
@@ -90,16 +73,18 @@ export function BookDetailPage() {
         </button>
 
         <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-600">
-          {message}
+          Failed to load book. Please try again.
         </div>
       </div>
     );
   }
 
+  const availableQuantity = book.quantity - book.borrowedQuantity;
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <button
             type="button"
@@ -115,6 +100,20 @@ export function BookDetailPage() {
           <p className="mt-1 text-sm text-gray-500">
             View detailed information about this book.
           </p>
+        </div>
+
+        <div>
+          <button
+            type="button"
+            onClick={() => setIsBorrowOpen(true)}
+            disabled={availableQuantity <= 0}
+            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b2410] to-[#7a4b1e] px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <BookOpen size={16} />
+            <span>
+              {availableQuantity > 0 ? "Mượn sách" : "Tạm hết sách"}
+            </span>
+          </button>
         </div>
       </div>
 
@@ -228,6 +227,21 @@ export function BookDetailPage() {
               </p>
             </div>
 
+            {/* Available */}
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                Available
+              </p>
+
+              <p
+                className={`mt-1 text-sm font-semibold ${
+                  availableQuantity <= 0 ? "text-red-600" : "text-emerald-600"
+                }`}
+              >
+                {availableQuantity} cuốn khả dụng
+              </p>
+            </div>
+
             {/* Created */}
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
@@ -252,6 +266,12 @@ export function BookDetailPage() {
           </div>
         </div>
       </div>
+
+      <RequestBorrowModal
+        isOpen={isBorrowOpen}
+        book={book}
+        onClose={() => setIsBorrowOpen(false)}
+      />
     </div>
   );
 }

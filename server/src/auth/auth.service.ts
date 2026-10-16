@@ -7,10 +7,11 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, Role, User } from '@prisma/client';
 import { createHash, randomBytes } from 'crypto';
 import { MailService } from 'src/mail/mail.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -44,12 +45,98 @@ export class AuthService {
       email: user.email,
       fullName: user.fullName,
       role: user.role,
+      memberCode: user.memberCode,
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
 
     return {
       accessToken,
+    };
+  }
+
+  async register(dto: RegisterDto) {
+    const existingUsername = await this.prisma.user.findUnique({
+      where: {
+        username: dto.username.trim(),
+      },
+    });
+
+    if (existingUsername) {
+      throw new ConflictException('Username is already taken');
+    }
+
+    const existingEmail = await this.prisma.user.findUnique({
+      where: {
+        email: dto.email.trim().toLowerCase(),
+      },
+    });
+
+    if (existingEmail) {
+      throw new ConflictException('Email is already registered');
+    }
+
+    const memberCount = await this.prisma.user.count({
+      where: {
+        role: Role.MEMBER,
+      },
+    });
+
+    let suffix = memberCount + 1;
+    let memberCode = `MB-${String(suffix).padStart(5, '0')}`;
+
+    while (
+      await this.prisma.user.findUnique({
+        where: {
+          memberCode,
+        },
+      })
+    ) {
+      suffix++;
+      memberCode = `MB-${String(suffix).padStart(5, '0')}`;
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    const user = await this.prisma.user.create({
+      data: {
+        username: dto.username.trim(),
+        email: dto.email.trim().toLowerCase(),
+        fullName: dto.fullName.trim(),
+        phone: dto.phone?.trim() || null,
+        password: hashedPassword,
+        role: Role.MEMBER,
+        memberCode,
+        isActive: true,
+      },
+    });
+
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      email: user.email,
+      fullName: user.fullName,
+      role: user.role,
+      memberCode: user.memberCode,
+    };
+
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    return {
+      message: 'Registration successful',
+      accessToken,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        fullName: user.fullName,
+        phone: user.phone,
+        memberCode: user.memberCode,
+        role: user.role,
+        isActive: user.isActive,
+        createdAt: user.createdAt.toISOString(),
+        updatedAt: user.updatedAt.toISOString(),
+      },
     };
   }
 
@@ -73,6 +160,8 @@ export class AuthService {
       username: user.username,
       email: user.email,
       fullName: user.fullName,
+      phone: user.phone,
+      memberCode: user.memberCode,
       role: user.role,
       isActive: user.isActive,
       createdAt: user.createdAt,

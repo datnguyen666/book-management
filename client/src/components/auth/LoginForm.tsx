@@ -273,6 +273,17 @@ export function LoginForm() {
         >
           {isSubmitting ? "Signing in..." : "Sign In"}
         </button>
+
+        {/* Register link */}
+        <div className="pt-2 text-center text-sm text-gray-600">
+          Chưa có tài khoản độc giả?{" "}
+          <a
+            href="/register"
+            className="font-medium text-[#7a4b1e] hover:underline"
+          >
+            Đăng ký ngay
+          </a>
+        </div>
       </form>
 
       {/* =====================================================

@@ -109,7 +109,7 @@ export function Header({ onMenuClick }: HeaderProps) {
     : "??";
 
   // Role hiển thị
-  const displayRole = user?.role === "ADMIN" ? "Administrator" : "Staff";
+  const displayRole = user?.role === "ADMIN" ? "Administrator" : user?.role === "STAFF" ? "Staff" : "Member";
 
   // Format ngày + giờ
   const formattedDate = currentTime.toLocaleDateString("vi-VN", {

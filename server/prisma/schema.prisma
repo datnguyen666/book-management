@@ -15,11 +15,15 @@ datasource db {
 enum Role {
   ADMIN
   STAFF
+  MEMBER
 }
 
 enum BorrowStatus {
+  PENDING
   BORROWING
   RETURNED
+  REJECTED
+  CANCELLED
 }
 
 model User {
@@ -28,6 +32,9 @@ model User {
   email    String @unique
   fullName String @default("")
   password String
+  phone    String?
+
+  memberCode String? @unique
 
   role     Role    @default(STAFF)
   isActive Boolean @default(true)
@@ -39,7 +46,8 @@ model User {
   passwordResetTokenHash      String?
   passwordResetTokenExpiresAt DateTime?
 
-  processedBorrowRecords BorrowRecord[]
+  borrowRecords          BorrowRecord[] @relation("MemberBorrowRecords")
+  processedBorrowRecords BorrowRecord[] @relation("StaffBorrowRecords")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -88,6 +96,9 @@ model BorrowRecord {
   borrowerName String
   borrowerCode String
 
+  userId Int?
+  user   User? @relation("MemberBorrowRecords", fields: [userId], references: [id], onDelete: SetNull)
+
   bookId Int
   book   Book @relation(fields: [bookId], references: [id], onDelete: Restrict)
 
@@ -95,16 +106,20 @@ model BorrowRecord {
   dueDate    DateTime
   returnedAt DateTime?
 
-  status BorrowStatus @default(BORROWING)
+  status       BorrowStatus @default(PENDING)
+  notes        String?
+  rejectReason String?
+  renewCount   Int          @default(0)
 
-  processedById Int
-  processedBy   User @relation(fields: [processedById], references: [id], onDelete: Restrict)
+  processedById Int?
+  processedBy   User? @relation("StaffBorrowRecords", fields: [processedById], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([bookId])
   @@index([borrowerCode])
+  @@index([userId])
   @@index([processedById])
   @@index([status])
 }

@@ -1,6 +1,11 @@
 import { api } from "./axios";
 
-export type BorrowStatus = "BORROWING" | "RETURNED";
+export type BorrowStatus =
+  | "PENDING"
+  | "BORROWING"
+  | "RETURNED"
+  | "REJECTED"
+  | "CANCELLED";
 
 export interface BorrowBook {
   id: number;
@@ -8,6 +13,12 @@ export interface BorrowBook {
   isbn: string;
   quantity: number;
   borrowedQuantity: number;
+  author?: string;
+  coverImage?: string | null;
+  category?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface BorrowProcessedBy {
@@ -17,18 +28,32 @@ export interface BorrowProcessedBy {
   role?: "ADMIN" | "STAFF";
 }
 
+export interface BorrowUser {
+  id: number;
+  email: string;
+  phone?: string | null;
+  memberCode?: string | null;
+}
+
 export interface BorrowRecord {
   id: number;
   borrowerName: string;
   borrowerCode: string;
   bookId: number;
+  userId?: number | null;
   borrowedAt: string;
   dueDate: string;
   returnedAt: string | null;
   status: BorrowStatus;
-  processedById: number;
+  notes?: string | null;
+  rejectReason?: string | null;
+  renewCount: number;
+  processedById?: number | null;
   book: BorrowBook;
-  processedBy: BorrowProcessedBy;
+  processedBy?: BorrowProcessedBy | null;
+  user?: BorrowUser | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface BorrowPagination {
@@ -47,7 +72,7 @@ export interface GetBorrowsParams {
   page?: number;
   limit?: number;
   search?: string;
-  status?: BorrowStatus;
+  status?: BorrowStatus | "";
 }
 
 export interface CreateBorrowRequest {
@@ -57,11 +82,16 @@ export interface CreateBorrowRequest {
   dueDate: string;
 }
 
+export interface RequestBorrowPayload {
+  bookId: number;
+  notes?: string;
+}
+
 export interface BorrowActionResponse {
   message: string;
   data: {
     borrowRecord: BorrowRecord;
-    book: {
+    book?: {
       id: number;
       title: string;
       quantity: number;
@@ -76,6 +106,69 @@ export async function getBorrows(
   const response = await api.get<BorrowListResponse>("/borrows", {
     params,
   });
+
+  return response.data;
+}
+
+export async function getMyBorrows(
+  params?: GetBorrowsParams,
+): Promise<BorrowListResponse> {
+  const response = await api.get<BorrowListResponse>("/borrows/my-borrows", {
+    params,
+  });
+
+  return response.data;
+}
+
+export async function requestBorrow(
+  data: RequestBorrowPayload,
+): Promise<BorrowActionResponse> {
+  const response = await api.post<BorrowActionResponse>(
+    "/borrows/request",
+    data,
+  );
+
+  return response.data;
+}
+
+export async function cancelBorrow(
+  id: number,
+): Promise<BorrowActionResponse> {
+  const response = await api.patch<BorrowActionResponse>(
+    `/borrows/${id}/cancel`,
+  );
+
+  return response.data;
+}
+
+export async function renewBorrow(
+  id: number,
+): Promise<BorrowActionResponse> {
+  const response = await api.patch<BorrowActionResponse>(
+    `/borrows/${id}/renew`,
+  );
+
+  return response.data;
+}
+
+export async function approveBorrow(
+  id: number,
+): Promise<BorrowActionResponse> {
+  const response = await api.patch<BorrowActionResponse>(
+    `/borrows/${id}/approve`,
+  );
+
+  return response.data;
+}
+
+export async function rejectBorrow(
+  id: number,
+  reason?: string,
+): Promise<BorrowActionResponse> {
+  const response = await api.patch<BorrowActionResponse>(
+    `/borrows/${id}/reject`,
+    { reason },
+  );
 
   return response.data;
 }

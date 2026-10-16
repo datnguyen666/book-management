@@ -14,6 +14,7 @@ import { Role } from '@prisma/client';
 
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
@@ -28,6 +29,8 @@ interface AuthenticatedUser {
   username: string;
   email: string;
   fullName: string;
+  memberCode?: string;
+  phone?: string;
   role: Role;
 }
 
@@ -39,6 +42,14 @@ interface AuthenticatedRequest extends Request {
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Post('register')
+  @ApiOperation({
+    summary: 'Register a new member account',
+  })
+  async register(@Body() dto: RegisterDto) {
+    return this.authService.register(dto);
+  }
 
   @Post('login')
   @ApiOperation({

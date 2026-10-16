@@ -25,7 +25,7 @@ interface NavigationGroup {
   items: NavigationItem[];
 }
 
-const navigationGroups: NavigationGroup[] = [
+const staffNavigationGroups: NavigationGroup[] = [
   {
     label: "Tổng quan",
     items: [{ label: "Dashboard", path: "/dashboard", icon: LayoutDashboard }],
@@ -41,6 +41,17 @@ const navigationGroups: NavigationGroup[] = [
   {
     label: "Hoạt động",
     items: [{ label: "Borrow Records", path: "/borrows", icon: BookUser }],
+  },
+];
+
+const memberNavigationGroups: NavigationGroup[] = [
+  {
+    label: "Khám phá",
+    items: [{ label: "Books", path: "/books", icon: BookOpen }],
+  },
+  {
+    label: "Tủ sách của tôi",
+    items: [{ label: "Sách của tôi", path: "/my-borrows", icon: BookUser }],
   },
 ];
 
@@ -198,7 +209,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     if (isProfileRoute) setIsPersonalOpen(true);
   }, [isProfileRoute]);
 
-  const visibleGroups = navigationGroups
+  const isMember = user?.role === "MEMBER";
+  const activeNavigationGroups = isMember
+    ? memberNavigationGroups
+    : staffNavigationGroups;
+
+  const visibleGroups = activeNavigationGroups
     .map((group) => ({
       ...group,
       items: group.items.filter((item) =>

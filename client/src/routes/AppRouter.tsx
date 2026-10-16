@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import { LoginPage } from "@/pages/auth/LoginPage";
+import { RegisterPage } from "@/pages/auth/RegisterPage";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { RoleRoute } from "./RoleRoute";
 import { HomeRedirect } from "@/routes/HomeRedirect";
 import { GuestRoute } from "./GuestRoute";
 import { DocumentTitle } from "./DocumentTitle";
@@ -15,12 +17,24 @@ import { BookDetailPage } from "@/pages/book/BookDetailPage";
 import { StaffPage } from "@/pages/staff/StaffPage";
 import { SetPasswordPage } from "@/pages/auth/SetPasswordPage";
 import { BorrowPage } from "@/pages/borrow/BorrowPage";
+import { MyBorrowsPage } from "@/pages/borrow/MyBorrowsPage";
 import { LibraryAssetsPage } from "@/pages/assets/LibraryAssetsPage";
 import { ProfilePage } from "@/pages/profile/ProfilePage";
 import { UpdateProfilePage } from "@/pages/profile/UpdateProfilePage";
 
 function NotFoundPage() {
-  return <h1>404 Not Found</h1>;
+  return (
+    <div className="flex h-screen flex-col items-center justify-center p-6 text-center">
+      <h1 className="text-4xl font-bold text-gray-900 font-serif">404</h1>
+      <p className="mt-2 text-base text-gray-600">Trang bạn tìm kiếm không tồn tại.</p>
+      <a
+        href="/"
+        className="mt-4 rounded-lg bg-[#8A5A1E] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#724814]"
+      >
+        Về trang chủ
+      </a>
+    </div>
+  );
 }
 
 export function AppRouter() {
@@ -35,6 +49,7 @@ export function AppRouter() {
         {/* Guest only */}
         <Route element={<GuestRoute />}>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Route>
 
         {/* Set Password */}
@@ -43,25 +58,66 @@ export function AppRouter() {
         {/* Protected */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
-            {/* Dashboard */}
-            <Route path="/dashboard" element={<DashboardPage />} />
+            {/* Dashboard (Staff & Admin only) */}
+            <Route
+              path="/dashboard"
+              element={
+                <RoleRoute allowedRoles={["ADMIN", "STAFF"]}>
+                  <DashboardPage />
+                </RoleRoute>
+              }
+            />
 
-            {/* Categories */}
-            <Route path="/categories" element={<CategoriesPage />} />
+            {/* Categories (Staff & Admin only) */}
+            <Route
+              path="/categories"
+              element={
+                <RoleRoute allowedRoles={["ADMIN", "STAFF"]}>
+                  <CategoriesPage />
+                </RoleRoute>
+              }
+            />
 
-            {/* Books */}
+            {/* Books (All logged in users) */}
             <Route path="/books" element={<BooksPage />} />
 
-            {/* Book Detail */}
+            {/* Book Detail (All logged in users) */}
             <Route path="/books/:id" element={<BookDetailPage />} />
 
-            {/* Staff */}
-            <Route path="/staff" element={<StaffPage />} />
+            {/* My Borrows (Members, and available for all logged in users) */}
+            <Route path="/my-borrows" element={<MyBorrowsPage />} />
 
-            <Route path="/borrows" element={<BorrowPage />} />
+            {/* Staff Management (Admin only) */}
+            <Route
+              path="/staff"
+              element={
+                <RoleRoute allowedRoles={["ADMIN"]}>
+                  <StaffPage />
+                </RoleRoute>
+              }
+            />
 
-            <Route path="/assets" element={<LibraryAssetsPage />} />
+            {/* Staff Borrow Management (Staff & Admin only) */}
+            <Route
+              path="/borrows"
+              element={
+                <RoleRoute allowedRoles={["ADMIN", "STAFF"]}>
+                  <BorrowPage />
+                </RoleRoute>
+              }
+            />
 
+            {/* Library Assets (Staff & Admin only) */}
+            <Route
+              path="/assets"
+              element={
+                <RoleRoute allowedRoles={["ADMIN", "STAFF"]}>
+                  <LibraryAssetsPage />
+                </RoleRoute>
+              }
+            />
+
+            {/* Profile (All logged in users) */}
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/profile/edit" element={<UpdateProfilePage />} />
           </Route>

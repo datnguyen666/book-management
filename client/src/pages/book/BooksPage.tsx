@@ -275,34 +275,37 @@ export function BooksPage() {
                     Category
                   </th>
                   {!isMember && (
-                    <th
-                      className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                      style={{ color: "#7A6A46" }}
-                    >
-                      Price
-                    </th>
+                    <>
+                      <th
+                        className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                        style={{ color: "#7A6A46" }}
+                      >
+                        Price
+                      </th>
+
+
+                      <th
+                        className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                        style={{ color: "#7A6A46" }}
+                      >
+                        Quantity
+                      </th>
+
+                      <th
+                        className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                        style={{ color: "#7A6A46" }}
+                      >
+                        Borrowed
+                      </th>
+
+                      <th
+                        className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                        style={{ color: "#7A6A46" }}
+                      >
+                        Available
+                      </th>
+                    </>
                   )}
-
-                  <th
-                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "#7A6A46" }}
-                  >
-                    Quantity
-                  </th>
-
-                  <th
-                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "#7A6A46" }}
-                  >
-                    Borrowed
-                  </th>
-
-                  <th
-                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "#7A6A46" }}
-                  >
-                    Available
-                  </th>
 
                   <th
                     className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
@@ -372,37 +375,40 @@ export function BooksPage() {
 
                       {/* Price */}
                       {!isMember && (
-                        <td
-                          className="px-6 py-4 text-center align-middle tabular-nums"
-                          style={{ color: "#12192B" }}
-                        >
-                          {Number(book.price).toFixed(2)}
-                        </td>
+                        <>
+                          <td
+                            className="px-6 py-4 text-center align-middle tabular-nums"
+                            style={{ color: "#12192B" }}
+                          >
+                            {Number(book.price).toFixed(2)}
+                          </td>
+
+
+                          {/* Quantity */}
+                          <td
+                            className="px-6 py-4 text-center align-middle tabular-nums"
+                            style={{ color: "#8A93A6" }}
+                          >
+                            {book.quantity}
+                          </td>
+
+                          <td
+                            className="px-6 py-4 text-center align-middle tabular-nums"
+                            style={{ color: "#8A93A6" }}
+                          >
+                            {book.borrowedQuantity}
+                          </td>
+
+                          <td
+                            className="px-6 py-4 text-center align-middle font-semibold tabular-nums"
+                            style={{
+                              color: available === 0 ? "#A6432C" : "#8A93A6",
+                            }}
+                          >
+                            {available}
+                          </td>
+                        </>
                       )}
-
-                      {/* Quantity */}
-                      <td
-                        className="px-6 py-4 text-center align-middle tabular-nums"
-                        style={{ color: "#8A93A6" }}
-                      >
-                        {book.quantity}
-                      </td>
-
-                      <td
-                        className="px-6 py-4 text-center align-middle tabular-nums"
-                        style={{ color: "#8A93A6" }}
-                      >
-                        {book.borrowedQuantity}
-                      </td>
-
-                      <td
-                        className="px-6 py-4 text-center align-middle font-semibold tabular-nums"
-                        style={{
-                          color: available === 0 ? "#A6432C" : "#8A93A6",
-                        }}
-                      >
-                        {available}
-                      </td>
 
                       {/* Actions */}
                       <td className="px-5 py-4">

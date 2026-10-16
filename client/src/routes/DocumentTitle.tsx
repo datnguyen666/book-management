@@ -13,6 +13,7 @@ const ROUTE_TITLES: Record<string, string | null> = {
   "/books/:id": "Book Details",
   "/staff": "Staff Management",
   "/borrows": "Borrow Records",
+  "/my-borrows": "My Borrowed Books",
   "/assets": "Library Assets",
   "/profile": "Profile",
   "/profile/edit": "Update Profile",

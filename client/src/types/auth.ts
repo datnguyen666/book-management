@@ -1,8 +1,11 @@
 export type Role = "ADMIN" | "STAFF" | "MEMBER";
 
+export type LoginPortal = "MEMBER" | "MANAGEMENT";
+
 export interface LoginRequest {
   username: string;
   password: string;
+  portal?: LoginPortal;
 }
 
 export interface LoginResponse {

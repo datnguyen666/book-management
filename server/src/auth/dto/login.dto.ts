@@ -1,5 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+
+export enum LoginPortal {
+  MEMBER = 'MEMBER',
+  MANAGEMENT = 'MANAGEMENT',
+}
 
 export class LoginDto {
   @ApiProperty({
@@ -15,4 +20,13 @@ export class LoginDto {
   @IsString()
   @IsNotEmpty()
   password!: string;
+
+  @ApiPropertyOptional({
+    enum: LoginPortal,
+    description: 'Cổng đăng nhập (MEMBER hoặc MANAGEMENT)',
+    example: LoginPortal.MEMBER,
+  })
+  @IsOptional()
+  @IsEnum(LoginPortal)
+  portal?: LoginPortal;
 }

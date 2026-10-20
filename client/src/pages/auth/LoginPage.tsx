@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { BookOpen } from "lucide-react";
+import type { LoginPortal } from "@/types/auth";
 
 const RECENT_BOOKS = [
   { title: "The Great Library", author: "R. Caldwell", year: 2019 },
@@ -8,6 +10,7 @@ const RECENT_BOOKS = [
 ];
 
 export function LoginPage() {
+  const [portal, setPortal] = useState<LoginPortal>("MEMBER");
   return (
     <div className="flex min-h-screen">
       {/* Left panel */}
@@ -76,13 +79,15 @@ export function LoginPage() {
       <div className="flex w-full flex-col items-center justify-center bg-[#f5f1ea] px-6 lg:w-1/2">
         <div className="w-full max-w-sm">
           <h2 className="mb-2 font-serif text-3xl font-bold text-[#2b1608]">
-            Welcome back
+            {portal === "MEMBER" ? "Chào mừng Bạn đọc" : "Cổng Quản trị Thư viện"}
           </h2>
-          <p className="mb-8 text-sm text-gray-500">
-            Sign in to manage your book collection
+          <p className="mb-6 text-sm text-gray-500">
+            {portal === "MEMBER"
+              ? "Đăng nhập để tra cứu, đặt mượn và quản lý sách"
+              : "Đăng nhập dành cho Thủ thư và Quản trị viên"}
           </p>
 
-          <div className="mt-6 mb-8 flex items-center gap-3">
+          <div className="mt-4 mb-6 flex items-center gap-3">
             <div className="h-px flex-1" style={{ background: "#e8e1d8" }} />
             <svg
               width="10"
@@ -102,7 +107,7 @@ export function LoginPage() {
             <div className="h-px flex-1" style={{ background: "#e8e1d8" }} />
           </div>
 
-          <LoginForm />
+          <LoginForm portal={portal} onPortalChange={setPortal} />
         </div>
       </div>
     </div>

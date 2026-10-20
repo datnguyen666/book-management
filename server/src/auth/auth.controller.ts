@@ -59,6 +59,7 @@ export class AuthController {
     const user = await this.authService.validateUser(
       dto.username,
       dto.password,
+      dto.portal,
     );
 
     return this.authService.login(user);

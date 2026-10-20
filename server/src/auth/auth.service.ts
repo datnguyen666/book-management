@@ -12,6 +12,7 @@ import { createHash, randomBytes } from 'crypto';
 import { MailService } from 'src/mail/mail.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { RegisterDto } from './dto/register.dto';
+import { LoginPortal } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +21,11 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
   ) {}
-  async validateUser(username: string, password: string) {
+  async validateUser(
+    username: string,
+    password: string,
+    portal?: LoginPortal,
+  ) {
     const user = await this.prisma.user.findUnique({
       where: {
         username,
@@ -36,6 +41,22 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid username or password');
     }
+
+    if (portal === LoginPortal.MANAGEMENT && user.role === Role.MEMBER) {
+      throw new UnauthorizedException(
+        'Tài khoản độc giả không thể đăng nhập tại cổng Ban quản lý. Vui lòng chuyển sang cổng Bạn đọc.',
+      );
+    }
+
+    if (
+      portal === LoginPortal.MEMBER &&
+      (user.role === Role.ADMIN || user.role === Role.STAFF)
+    ) {
+      throw new UnauthorizedException(
+        'Tài khoản ban quản lý không thể đăng nhập tại cổng Bạn đọc. Vui lòng chuyển sang cổng Quản trị.',
+      );
+    }
+
     return user;
   }
   async login(user: User): Promise<{ accessToken: string }> {

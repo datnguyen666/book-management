@@ -13,6 +13,7 @@ import { StaffModule } from './staff/staff.module';
 import { MailModule } from './mail/mail.module';
 import { BorrowModule } from './borrow/borrow.module';
 import { AssetModule } from './asset/asset.module';
+import { MemberModule } from './member/member.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { AssetModule } from './asset/asset.module';
     MailModule,
     BorrowModule,
     AssetModule,
+    MemberModule,
   ],
   controllers: [AppController],
   providers: [AppService],

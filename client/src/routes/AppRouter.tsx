@@ -21,6 +21,8 @@ import { MyBorrowsPage } from "@/pages/borrow/MyBorrowsPage";
 import { LibraryAssetsPage } from "@/pages/assets/LibraryAssetsPage";
 import { ProfilePage } from "@/pages/profile/ProfilePage";
 import { UpdateProfilePage } from "@/pages/profile/UpdateProfilePage";
+import { MembersPage } from "@/pages/member/MembersPage";
+import { MemberDetailPage } from "@/pages/member/MemberDetailPage";
 
 function NotFoundPage() {
   return (
@@ -93,6 +95,24 @@ export function AppRouter() {
               element={
                 <RoleRoute allowedRoles={["ADMIN"]}>
                   <StaffPage />
+                </RoleRoute>
+              }
+            />
+
+            {/* Member Management (Staff & Admin) */}
+            <Route
+              path="/members"
+              element={
+                <RoleRoute allowedRoles={["ADMIN", "STAFF"]}>
+                  <MembersPage />
+                </RoleRoute>
+              }
+            />
+            <Route
+              path="/members/:id"
+              element={
+                <RoleRoute allowedRoles={["ADMIN", "STAFF"]}>
+                  <MemberDetailPage />
                 </RoleRoute>
               }
             />

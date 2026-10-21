@@ -6,6 +6,7 @@ import {
   FolderOpen,
   LayoutDashboard,
   User,
+  Users,
   X,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
@@ -36,6 +37,7 @@ const staffNavigationGroups: NavigationGroup[] = [
       { label: "Categories", path: "/categories", icon: FolderOpen },
       { label: "Books", path: "/books", icon: BookOpen },
       { label: "Staff", path: "/staff", icon: User, adminOnly: true },
+      { label: "Reader Community", path: "/members", icon: Users },
     ],
   },
   {

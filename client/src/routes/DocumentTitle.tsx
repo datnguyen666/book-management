@@ -17,6 +17,8 @@ const ROUTE_TITLES: Record<string, string | null> = {
   "/assets": "Library Assets",
   "/profile": "Profile",
   "/profile/edit": "Update Profile",
+  "/members": "Reader Community",
+  "/members/:id": "Reader Details",
 };
 
 function resolveTitle(pathname: string): string | null {

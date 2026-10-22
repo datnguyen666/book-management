@@ -93,11 +93,8 @@ model Book {
 model BorrowRecord {
   id Int @id @default(autoincrement())
 
-  borrowerName String
-  borrowerCode String
-
-  userId Int?
-  user   User? @relation("MemberBorrowRecords", fields: [userId], references: [id], onDelete: SetNull)
+  memberId Int
+  member   User @relation("MemberBorrowRecords", fields: [memberId], references: [id], onDelete: Restrict)
 
   bookId Int
   book   Book @relation(fields: [bookId], references: [id], onDelete: Restrict)
@@ -118,8 +115,7 @@ model BorrowRecord {
   updatedAt DateTime @updatedAt
 
   @@index([bookId])
-  @@index([borrowerCode])
-  @@index([userId])
+  @@index([memberId])
   @@index([processedById])
   @@index([status])
 }

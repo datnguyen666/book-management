@@ -28,8 +28,10 @@ export interface BorrowProcessedBy {
   role?: "ADMIN" | "STAFF";
 }
 
-export interface BorrowUser {
+export interface BorrowMember {
   id: number;
+  username: string;
+  fullName: string;
   email: string;
   phone?: string | null;
   memberCode?: string | null;
@@ -37,10 +39,8 @@ export interface BorrowUser {
 
 export interface BorrowRecord {
   id: number;
-  borrowerName: string;
-  borrowerCode: string;
+  memberId: number;
   bookId: number;
-  userId?: number | null;
   borrowedAt: string;
   dueDate: string;
   returnedAt: string | null;
@@ -51,7 +51,7 @@ export interface BorrowRecord {
   processedById?: number | null;
   book: BorrowBook;
   processedBy?: BorrowProcessedBy | null;
-  user?: BorrowUser | null;
+  member: BorrowMember;
   createdAt: string;
   updatedAt: string;
 }
@@ -76,8 +76,7 @@ export interface GetBorrowsParams {
 }
 
 export interface CreateBorrowRequest {
-  borrowerName: string;
-  borrowerCode: string;
+  memberId: number;
   bookId: number;
   dueDate: string;
 }

@@ -153,6 +153,15 @@ export function useCreateBorrow() {
       queryClient.invalidateQueries({
         queryKey: ["books"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["members"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["member"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["member-borrows"],
+      });
     },
   });
 }

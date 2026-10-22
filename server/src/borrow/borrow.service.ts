@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { BorrowStatus, Prisma } from '@prisma/client';
+import { BorrowStatus, Prisma, Role } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBorrowDto } from './dto/create-borrow.dto';
@@ -36,7 +36,7 @@ export class BorrowService {
     // 1. Kiểm tra giới hạn số sách mượn cùng lúc (tối đa 5 cuốn đang chờ duyệt hoặc đang mượn)
     const activeBorrowCount = await this.prisma.borrowRecord.count({
       where: {
-        userId,
+        memberId: userId,
         status: {
           in: [BorrowStatus.PENDING, BorrowStatus.BORROWING],
         },
@@ -52,7 +52,7 @@ export class BorrowService {
     // 2. Kiểm tra độc giả có sách quá hạn chưa trả không
     const overdueCount = await this.prisma.borrowRecord.count({
       where: {
-        userId,
+        memberId: userId,
         status: BorrowStatus.BORROWING,
         dueDate: {
           lt: new Date(),
@@ -69,7 +69,7 @@ export class BorrowService {
     // 3. Kiểm tra xem độc giả đã gửi yêu cầu hoặc đang mượn chính cuốn sách này chưa
     const duplicateRecord = await this.prisma.borrowRecord.findFirst({
       where: {
-        userId,
+        memberId: userId,
         bookId: dto.bookId,
         status: {
           in: [BorrowStatus.PENDING, BorrowStatus.BORROWING],
@@ -100,14 +100,9 @@ export class BorrowService {
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + DEFAULT_BORROW_DAYS);
 
-    const borrowerCode = user.memberCode || `MB-${String(user.id).padStart(5, '0')}`;
-    const borrowerName = user.fullName || user.username;
-
     const record = await this.prisma.borrowRecord.create({
       data: {
-        userId: user.id,
-        borrowerName,
-        borrowerCode,
+        memberId: user.id,
         bookId: dto.bookId,
         borrowedAt: new Date(),
         dueDate,
@@ -123,6 +118,15 @@ export class BorrowService {
             isbn: true,
             author: true,
             coverImage: true,
+          },
+        },
+        member: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+            email: true,
+            memberCode: true,
           },
         },
       },
@@ -142,7 +146,7 @@ export class BorrowService {
     const skip = (page - 1) * limit;
 
     const where: Prisma.BorrowRecordWhereInput = {
-      userId,
+      memberId: userId,
       ...(status !== undefined && { status }),
       ...(search?.trim() && {
         OR: [
@@ -225,7 +229,7 @@ export class BorrowService {
       throw new NotFoundException('Borrow record not found');
     }
 
-    if (record.userId !== userId) {
+    if (record.memberId !== userId) {
       throw new ForbiddenException('Bạn chỉ có thể hủy yêu cầu của chính mình.');
     }
 
@@ -266,7 +270,7 @@ export class BorrowService {
       throw new NotFoundException('Borrow record not found');
     }
 
-    if (record.userId !== userId) {
+    if (record.memberId !== userId) {
       throw new ForbiddenException('Bạn chỉ có thể gia hạn sách của chính mình.');
     }
 
@@ -472,8 +476,76 @@ export class BorrowService {
       );
     }
 
+    // 1. Kiểm tra tài khoản bạn đọc
+    const member = await this.prisma.user.findFirst({
+      where: {
+        id: dto.memberId,
+        role: Role.MEMBER,
+      },
+    });
+
+    if (!member) {
+      throw new NotFoundException('Không tìm thấy tài khoản bạn đọc này.');
+    }
+
+    if (!member.isActive) {
+      throw new BadRequestException(
+        'Tài khoản bạn đọc đang bị khóa, không thể tạo phiếu mượn.',
+      );
+    }
+
+    // 2. Kiểm tra giới hạn số sách mượn cùng lúc (tối đa 5 cuốn đang chờ duyệt hoặc đang mượn)
+    const activeBorrowCount = await this.prisma.borrowRecord.count({
+      where: {
+        memberId: member.id,
+        status: {
+          in: [BorrowStatus.PENDING, BorrowStatus.BORROWING],
+        },
+      },
+    });
+
+    if (activeBorrowCount >= MAX_ACTIVE_BORROWS_PER_USER) {
+      throw new BadRequestException(
+        `Bạn đọc đã đạt giới hạn tối đa ${MAX_ACTIVE_BORROWS_PER_USER} cuốn sách đang mượn hoặc chờ duyệt.`,
+      );
+    }
+
+    // 3. Kiểm tra bạn đọc có sách quá hạn chưa hoàn trả không
+    const overdueCount = await this.prisma.borrowRecord.count({
+      where: {
+        memberId: member.id,
+        status: BorrowStatus.BORROWING,
+        dueDate: {
+          lt: new Date(),
+        },
+      },
+    });
+
+    if (overdueCount > 0) {
+      throw new BadRequestException(
+        'Bạn đọc có sách đã quá hạn chưa hoàn trả. Vui lòng hoàn trả sách trước khi tạo phiếu mượn mới.',
+      );
+    }
+
+    // 4. Kiểm tra xem bạn đọc đã có yêu cầu hoặc đang mượn chính cuốn sách này chưa
+    const duplicateRecord = await this.prisma.borrowRecord.findFirst({
+      where: {
+        memberId: member.id,
+        bookId: dto.bookId,
+        status: {
+          in: [BorrowStatus.PENDING, BorrowStatus.BORROWING],
+        },
+      },
+    });
+
+    if (duplicateRecord) {
+      throw new BadRequestException(
+        'Bạn đọc đã có yêu cầu chờ duyệt hoặc đang mượn cuốn sách này.',
+      );
+    }
+
     const result = await this.prisma.$transaction(async (tx) => {
-      // 1. Kiểm tra Book tồn tại
+      // 5. Kiểm tra Book tồn tại
       const book = await tx.book.findUnique({
         where: {
           id: dto.bookId,
@@ -484,7 +556,7 @@ export class BorrowService {
         throw new NotFoundException('Book not found');
       }
 
-      // 2. Atomically tăng borrowedQuantity
+      // 6. Atomically tăng borrowedQuantity
       const updatedBookResult = await tx.book.updateMany({
         where: {
           id: dto.bookId,
@@ -499,16 +571,15 @@ export class BorrowService {
         },
       });
 
-      // 3. Không còn sách available
+      // 7. Không còn sách available
       if (updatedBookResult.count === 0) {
         throw new BadRequestException('No available copies of this book');
       }
 
-      // 4. Tạo Borrow Record
+      // 8. Tạo Borrow Record liên kết với bạn đọc (memberId)
       const borrowRecord = await tx.borrowRecord.create({
         data: {
-          borrowerName: dto.borrowerName.trim(),
-          borrowerCode: dto.borrowerCode.trim(),
+          memberId: member.id,
           bookId: dto.bookId,
           borrowedAt: new Date(),
           dueDate,
@@ -530,6 +601,15 @@ export class BorrowService {
               id: true,
               username: true,
               fullName: true,
+            },
+          },
+          member: {
+            select: {
+              id: true,
+              username: true,
+              fullName: true,
+              email: true,
+              memberCode: true,
             },
           },
         },
@@ -573,15 +653,43 @@ export class BorrowService {
       ...(search?.trim() && {
         OR: [
           {
-            borrowerName: {
-              contains: search.trim(),
-              mode: 'insensitive',
+            member: {
+              fullName: {
+                contains: search.trim(),
+                mode: 'insensitive',
+              },
             },
           },
           {
-            borrowerCode: {
-              contains: search.trim(),
-              mode: 'insensitive',
+            member: {
+              username: {
+                contains: search.trim(),
+                mode: 'insensitive',
+              },
+            },
+          },
+          {
+            member: {
+              memberCode: {
+                contains: search.trim(),
+                mode: 'insensitive',
+              },
+            },
+          },
+          {
+            member: {
+              email: {
+                contains: search.trim(),
+                mode: 'insensitive',
+              },
+            },
+          },
+          {
+            member: {
+              phone: {
+                contains: search.trim(),
+                mode: 'insensitive',
+              },
             },
           },
           {
@@ -623,9 +731,11 @@ export class BorrowService {
               coverImage: true,
             },
           },
-          user: {
+          member: {
             select: {
               id: true,
+              username: true,
+              fullName: true,
               email: true,
               phone: true,
               memberCode: true,

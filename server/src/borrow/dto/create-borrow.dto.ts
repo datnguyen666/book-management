@@ -1,30 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import {
-  IsDateString,
-  IsInt,
-  IsNotEmpty,
-  IsString,
-  Min,
-} from 'class-validator';
+import { IsDateString, IsInt, Min } from 'class-validator';
 
 export class CreateBorrowDto {
   @ApiProperty({
-    example: 'Nguyễn Văn A',
+    example: 1,
+    description: 'ID tài khoản bạn đọc (Member)',
   })
-  @IsString()
-  @IsNotEmpty()
-  borrowerName!: string;
-
-  @ApiProperty({
-    example: 'NV001',
-  })
-  @IsString()
-  @IsNotEmpty()
-  borrowerCode!: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  memberId!: number;
 
   @ApiProperty({
     example: 1,
+    description: 'ID sách cần mượn',
   })
   @Type(() => Number)
   @IsInt()
@@ -33,6 +23,7 @@ export class CreateBorrowDto {
 
   @ApiProperty({
     example: '2026-08-31',
+    description: 'Ngày hẹn hoàn trả',
   })
   @IsDateString()
   dueDate!: string;

@@ -38,8 +38,6 @@ export interface MemberDetail {
 
 export interface MemberBorrowRecord {
   id: number;
-  borrowerName: string;
-  borrowerCode: string;
   borrowedAt: string;
   dueDate: string;
   returnedAt?: string | null;

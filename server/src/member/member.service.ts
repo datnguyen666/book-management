@@ -142,20 +142,20 @@ export class MemberService {
     const [totalBorrows, borrowingCount, returnedCount, pendingCount, overdueCount] =
       await Promise.all([
         this.prisma.borrowRecord.count({
-          where: { userId: id },
+          where: { memberId: id },
         }),
         this.prisma.borrowRecord.count({
-          where: { userId: id, status: BorrowStatus.BORROWING },
+          where: { memberId: id, status: BorrowStatus.BORROWING },
         }),
         this.prisma.borrowRecord.count({
-          where: { userId: id, status: BorrowStatus.RETURNED },
+          where: { memberId: id, status: BorrowStatus.RETURNED },
         }),
         this.prisma.borrowRecord.count({
-          where: { userId: id, status: BorrowStatus.PENDING },
+          where: { memberId: id, status: BorrowStatus.PENDING },
         }),
         this.prisma.borrowRecord.count({
           where: {
-            userId: id,
+            memberId: id,
             status: BorrowStatus.BORROWING,
             dueDate: { lt: now },
           },
@@ -195,7 +195,7 @@ export class MemberService {
     const skip = (page - 1) * limit;
 
     const where: Prisma.BorrowRecordWhereInput = {
-      userId: id,
+      memberId: id,
     };
 
     if (dto.status) {
@@ -211,8 +211,6 @@ export class MemberService {
         orderBy: { createdAt: 'desc' },
         select: {
           id: true,
-          borrowerName: true,
-          borrowerCode: true,
           borrowedAt: true,
           dueDate: true,
           returnedAt: true,

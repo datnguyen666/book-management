@@ -76,8 +76,14 @@ export function BorrowPage() {
   };
 
   const handleApprove = async (borrow: BorrowRecord) => {
+    const memberName =
+      borrow.member?.fullName || borrow.member?.username || "Bạn đọc";
+    const memberCode = borrow.member?.memberCode
+      ? ` (${borrow.member.memberCode})`
+      : "";
+
     const confirmed = window.confirm(
-      `Phê duyệt yêu cầu mượn cuốn "${borrow.book.title}" cho độc giả "${borrow.borrowerName}" (${borrow.borrowerCode}) và xác nhận bàn giao sách?`,
+      `Phê duyệt yêu cầu mượn cuốn "${borrow.book.title}" cho bạn đọc "${memberName}"${memberCode} và xác nhận bàn giao sách?`,
     );
 
     if (!confirmed) return;
@@ -87,13 +93,17 @@ export function BorrowPage() {
       window.alert("Đã duyệt yêu cầu và bàn giao sách thành công.");
     } catch (error: any) {
       console.error("Failed to approve borrow:", error);
-      window.alert(error.response?.data?.message || "Không thể duyệt yêu cầu mượn sách.");
+      window.alert(
+        error.response?.data?.message || "Không thể duyệt yêu cầu mượn sách.",
+      );
     }
   };
 
   const handleReject = async (borrow: BorrowRecord) => {
+    const memberName =
+      borrow.member?.fullName || borrow.member?.username || "Bạn đọc";
     const reason = window.prompt(
-      `Nhập lý do từ chối yêu cầu mượn "${borrow.book.title}" của độc giả ${borrow.borrowerName}:`,
+      `Nhập lý do từ chối yêu cầu mượn "${borrow.book.title}" của bạn đọc "${memberName}":`,
       "Sách hiện không thể bàn giao",
     );
 
@@ -107,13 +117,17 @@ export function BorrowPage() {
       window.alert("Đã từ chối yêu cầu mượn sách.");
     } catch (error: any) {
       console.error("Failed to reject borrow:", error);
-      window.alert(error.response?.data?.message || "Không thể từ chối yêu cầu.");
+      window.alert(
+        error.response?.data?.message || "Không thể từ chối yêu cầu.",
+      );
     }
   };
 
   const handleReturn = async (borrow: BorrowRecord) => {
+    const memberName =
+      borrow.member?.fullName || borrow.member?.username || "Bạn đọc";
     const confirmed = window.confirm(
-      `Xác nhận độc giả "${borrow.borrowerName}" đã hoàn trả cuốn sách "${borrow.book.title}"?`,
+      `Xác nhận bạn đọc "${memberName}" đã hoàn trả cuốn sách "${borrow.book.title}"?`,
     );
 
     if (!confirmed) return;
@@ -123,7 +137,9 @@ export function BorrowPage() {
       window.alert("Hoàn trả sách thành công.");
     } catch (error: any) {
       console.error("Failed to return book:", error);
-      window.alert(error.response?.data?.message || "Không thể ghi nhận trả sách.");
+      window.alert(
+        error.response?.data?.message || "Không thể ghi nhận trả sách.",
+      );
     }
   };
 
@@ -251,7 +267,7 @@ export function BorrowPage() {
                     Sách
                   </th>
                   <th className="px-6 py-4 font-semibold text-gray-600">
-                    Người mượn / Độc giả
+                    Bạn đọc
                   </th>
                   <th className="px-6 py-4 text-center font-semibold text-gray-600">
                     Ngày mượn / Yêu cầu
@@ -298,16 +314,16 @@ export function BorrowPage() {
                         </div>
                       </td>
 
-                      {/* Borrower */}
+                      {/* Member / Bạn đọc */}
                       <td className="px-6 py-4">
                         <div className="font-medium text-gray-900 whitespace-nowrap">
-                          {borrow.borrowerName}
+                          {borrow.member?.fullName || borrow.member?.username || "Chưa xác định"}
                         </div>
                         <div className="mt-0.5 text-xs font-mono text-amber-700">
-                          {borrow.borrowerCode}
-                          {borrow.user?.email && (
+                          {borrow.member?.memberCode || `MB-${String(borrow.memberId).padStart(5, '0')}`}
+                          {borrow.member?.email && (
                             <span className="ml-1.5 text-gray-400 font-sans">
-                              ({borrow.user.email})
+                              ({borrow.member.email})
                             </span>
                           )}
                         </div>

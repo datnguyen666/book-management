@@ -159,12 +159,12 @@ export function BorrowPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 font-serif">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 font-serif">
             Quản Lý Mượn Trả
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-xs sm:text-sm text-gray-500">
             Theo dõi, phê duyệt yêu cầu trực tuyến và quản lý hồ sơ mượn sách của thư viện
           </p>
         </div>
@@ -172,10 +172,10 @@ export function BorrowPage() {
         <button
           type="button"
           onClick={() => setIsCreateOpen(true)}
-          className="flex items-center gap-2 rounded-md bg-[#12192B] px-4 py-2 text-sm font-semibold text-[#C89B3C] transition-opacity hover:opacity-90 cursor-pointer"
+          className="flex w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-md bg-[#12192B] px-4 py-2.5 text-sm font-semibold text-[#C89B3C] transition-opacity hover:opacity-90 cursor-pointer"
         >
-          <Plus size={16} />
-          <span>Tạo phiếu mượn tại quầy</span>
+          <Plus size={16} className="shrink-0" />
+          <span className="whitespace-nowrap">Tạo phiếu mượn tại quầy</span>
         </button>
       </div>
 

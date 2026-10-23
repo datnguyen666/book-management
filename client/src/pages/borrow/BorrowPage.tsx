@@ -195,7 +195,7 @@ export function BorrowPage() {
               setPage(1);
             }}
             placeholder="Tìm theo tên người mượn, mã độc giả, tên sách hoặc ISBN..."
-            className="w-full rounded-md border border-gray-200 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-amber-600 focus:ring-1 focus:ring-amber-600"
+            className="w-full rounded-md border border-gray-300 py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-amber-600 focus:ring-1 focus:ring-amber-600"
           />
         </div>
 

@@ -144,19 +144,19 @@ export function CreateBorrowModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-xl rounded-xl bg-white shadow-2xl">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 text-amber-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-3 sm:p-4">
+      <div className="flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl">
+        {/* 1. Header (Đã thêm shrink-0 và giảm padding trên mobile) */}
+        <div className="flex items-start justify-between gap-3 border-b border-gray-100 px-4 py-3.5 sm:items-center sm:px-6 sm:py-4">
+          <div className="flex items-start gap-2.5 sm:items-center">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-800">
               <BookOpen className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-gray-900">
+              <h2 className="text-sm font-semibold leading-snug text-gray-900 sm:text-base">
                 Tạo phiếu mượn sách tại quầy
               </h2>
-              <p className="text-xs text-gray-500">
+              <p className="mt-0.5 text-xs text-gray-500">
                 Liên kết trực tiếp với tài khoản bạn đọc và kiểm tra điều kiện mượn
               </p>
             </div>
@@ -166,14 +166,17 @@ export function CreateBorrowModal({
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 disabled:opacity-40"
+            className="shrink-0 rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 disabled:opacity-40"
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4 p-6">
+        {/* Form (Thêm overflow-y-auto để cuộn mượt trên màn hình nhỏ) */}
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 overflow-y-auto p-4 sm:p-6"
+        >
           {/* Thông báo lỗi */}
           {error && (
             <div className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
@@ -182,9 +185,9 @@ export function CreateBorrowModal({
             </div>
           )}
 
-          {/* 1. Chọn bạn đọc */}
+          {/* 2. Chọn bạn đọc */}
           <div>
-            <label className="mb-1.5 flex items-center justify-between text-xs font-semibold text-gray-700">
+            <label className="mb-1.5 flex flex-wrap items-center justify-between gap-1 text-xs font-semibold text-gray-700">
               <span>Bạn đọc mượn sách</span>
               {selectedMember && (
                 <button
@@ -213,8 +216,8 @@ export function CreateBorrowModal({
                   />
                 </div>
 
-                {/* Danh sách kết quả gợi ý */}
-                <div className="max-h-48 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50/50 p-1 divide-y divide-gray-100">
+                {/* Danh sách kết quả gợi ý (Đã tối ưu tránh gãy tên & mã thẻ) */}
+                <div className="max-h-52 divide-y divide-gray-100 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50/50 p-1">
                   {isMembersLoading ? (
                     <div className="py-4 text-center text-xs text-gray-500">
                       Đang tìm kiếm bạn đọc...
@@ -232,39 +235,46 @@ export function CreateBorrowModal({
                           setSelectedMember(m);
                           setError("");
                         }}
-                        className="flex w-full items-center justify-between rounded-md p-2 text-left transition hover:bg-white hover:shadow-xs"
+                        className="flex w-full flex-col gap-2 rounded-md p-2.5 text-left transition hover:bg-white hover:shadow-xs sm:flex-row sm:items-center sm:justify-between"
                       >
-                        <div className="flex items-center gap-2.5">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100/70 text-amber-900 text-xs font-semibold">
-                            {m.fullName?.charAt(0) || m.username.charAt(0).toUpperCase()}
+                        <div className="flex min-w-0 items-center gap-2.5">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-100/70 text-xs font-semibold text-amber-900">
+                            {m.fullName?.charAt(0) ||
+                              m.username.charAt(0).toUpperCase()}
                           </div>
-                          <div>
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-sm font-medium text-gray-800">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="truncate text-sm font-medium text-gray-800">
                                 {m.fullName || m.username}
                               </span>
-                              <span className="rounded bg-gray-100 px-1.5 py-0.2 text-[10px] font-mono text-gray-600">
-                                {m.memberCode || `MB-${String(m.id).padStart(5, "0")}`}
+                              <span className="shrink-0 whitespace-nowrap rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] text-gray-600">
+                                {m.memberCode ||
+                                  `MB-${String(m.id).padStart(5, "0")}`}
                               </span>
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="truncate text-xs text-gray-500">
                               {m.email} {m.phone ? `• ${m.phone}` : ""}
                             </div>
                           </div>
                         </div>
 
-                        <div className="text-right text-xs">
+                        <div className="pl-10 text-left text-xs sm: shrink-0 sm:pl-0 sm:text-right">
                           {!m.isActive ? (
-                            <span className="inline-flex items-center gap-1 text-red-600 font-medium">
-                              <UserX className="h-3 w-3" /> Đã khóa
+                            <span className="inline-flex items-center gap-1 whitespace-nowrap font-medium text-red-600">
+                              <UserX className="h-3 w-3 shrink-0" /> Đã khóa
                             </span>
                           ) : m.overdueCount > 0 ? (
-                            <span className="inline-flex items-center gap-1 text-red-600 font-medium">
-                              <AlertTriangle className="h-3 w-3" /> {m.overdueCount} quá hạn
+                            <span className="inline-flex items-center gap-1 whitespace-nowrap font-medium text-red-600">
+                              <AlertTriangle className="h-3 w-3 shrink-0" />{" "}
+                              {m.overdueCount} quá hạn
                             </span>
                           ) : (
-                            <span className="text-gray-500">
-                              Đang mượn: <strong className="text-gray-700">{m.borrowingCount}</strong>/5
+                            <span className="whitespace-nowrap text-gray-500">
+                              Đang mượn:{" "}
+                              <strong className="text-gray-700">
+                                {m.borrowingCount}
+                              </strong>
+                              /5
                             </span>
                           )}
                         </div>
@@ -274,51 +284,50 @@ export function CreateBorrowModal({
                 </div>
               </div>
             ) : (
-              /* Thẻ thông tin bạn đọc được chọn */
+              /* Thẻ thông tin bạn đọc được chọn (Đã sửa responsive) */
               <div
-                className={`rounded-lg border p-3 transition ${
-                  isMemberBlocked
-                    ? "border-red-200 bg-red-50/50"
-                    : "border-emerald-200 bg-emerald-50/30"
-                }`}
+                className={`rounded-lg border p-3 transition ${isMemberBlocked
+                  ? "border-red-200 bg-red-50/50"
+                  : "border-emerald-200 bg-emerald-50/30"
+                  }`}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 items-center gap-3">
                     <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold ${
-                        isMemberBlocked
-                          ? "bg-red-100 text-red-800"
-                          : "bg-emerald-100 text-emerald-800"
-                      }`}
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${isMemberBlocked
+                        ? "bg-red-100 text-red-800"
+                        : "bg-emerald-100 text-emerald-800"
+                        }`}
                     >
                       {selectedMember.fullName?.charAt(0) ||
                         selectedMember.username.charAt(0).toUpperCase()}
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-gray-900">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="truncate text-sm font-semibold text-gray-900">
                           {selectedMember.fullName || selectedMember.username}
                         </span>
-                        <span className="rounded bg-white px-2 py-0.5 text-xs font-mono font-medium text-gray-700 shadow-xs border border-gray-200">
+                        <span className="shrink-0 whitespace-nowrap rounded border border-gray-200 bg-white px-2 py-0.5 font-mono text-xs font-medium text-gray-700 shadow-xs">
                           {selectedMember.memberCode ||
                             `MB-${String(selectedMember.id).padStart(5, "0")}`}
                         </span>
                       </div>
-                      <div className="text-xs text-gray-500">
-                        {selectedMember.email} {selectedMember.phone ? `• ${selectedMember.phone}` : ""}
+                      <div className="truncate text-xs text-gray-500">
+                        {selectedMember.email}{" "}
+                        {selectedMember.phone ? `• ${selectedMember.phone}` : ""}
                       </div>
                     </div>
                   </div>
 
-                  <div className="text-right">
-                    <div className="text-xs text-gray-600">
+                  <div className="flex items-center justify-between border-t border-gray-200/60 pt-2 sm:block sm:shrink-0 sm:border-0 sm:pt-0 sm:text-right">
+                    <div className="whitespace-nowrap text-xs text-gray-600">
                       Sách đang mượn:{" "}
                       <strong className="text-gray-900">
                         {selectedMember.borrowingCount}/5
                       </strong>
                     </div>
                     {selectedMember.overdueCount > 0 && (
-                      <div className="text-xs font-medium text-red-600">
+                      <div className="whitespace-nowrap text-xs font-medium text-red-600">
                         {selectedMember.overdueCount} cuốn quá hạn
                       </div>
                     )}
@@ -327,8 +336,8 @@ export function CreateBorrowModal({
 
                 {/* Cảnh báo nếu vi phạm */}
                 {isMemberBlocked && (
-                  <div className="mt-2.5 flex items-center gap-2 rounded-md bg-white/80 p-2 text-xs text-red-700 border border-red-200">
-                    <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
+                  <div className="mt-2.5 flex items-start gap-2 rounded-md border border-red-200 bg-white/80 p-2 text-xs text-red-700">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
                     <span>
                       {isMemberInactive
                         ? "Tài khoản bạn đọc đang bị khóa. Không thể tạo phiếu mượn."
@@ -342,7 +351,7 @@ export function CreateBorrowModal({
             )}
           </div>
 
-          {/* 2. Chọn sách */}
+          {/* 3. Chọn sách */}
           <div>
             <label className="mb-1.5 block text-xs font-semibold text-gray-700">
               Chọn sách cần mượn
@@ -352,10 +361,12 @@ export function CreateBorrowModal({
               value={bookId}
               onChange={(e) => setBookId(e.target.value)}
               disabled={isBooksLoading || isSubmitting}
-              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-amber-600 focus:ring-1 focus:ring-amber-600 disabled:bg-gray-50"
+              className="w-full truncate rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-amber-600 focus:ring-1 focus:ring-amber-600 disabled:bg-gray-50"
             >
               <option value="">
-                {isBooksLoading ? "Đang tải danh mục sách..." : "-- Chọn một cuốn sách --"}
+                {isBooksLoading
+                  ? "Đang tải danh mục sách..."
+                  : "-- Chọn một cuốn sách --"}
               </option>
 
               {availableBooks.map((book) => {
@@ -375,9 +386,9 @@ export function CreateBorrowModal({
             )}
           </div>
 
-          {/* 3. Ngày hẹn trả */}
+          {/* 4. Ngày hẹn trả (Thêm flex-wrap để không bị ép chữ trên mobile) */}
           <div>
-            <div className="mb-1.5 flex items-center justify-between">
+            <div className="mb-1.5 flex flex-wrap items-center justify-between gap-1">
               <label className="text-xs font-semibold text-gray-700">
                 Ngày hẹn hoàn trả
               </label>
@@ -387,7 +398,7 @@ export function CreateBorrowModal({
             </div>
 
             <div className="relative">
-              <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+              <Calendar className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
               <input
                 type="date"
                 value={dueDate}
@@ -399,13 +410,13 @@ export function CreateBorrowModal({
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-2.5 border-t border-gray-100 pt-4">
+          {/* 5. Actions (Không bị gãy chữ trên màn hình 320px) */}
+          <div className="flex flex-col-reverse gap-2 border-t border-gray-100 pt-4 sm:flex-row sm:justify-end sm:gap-2.5">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="rounded-lg border border-gray-200 px-4 py-2 text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:opacity-40"
+              className="w-full whitespace-nowrap rounded-lg border border-gray-200 px-4 py-2.5 text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:opacity-40 sm:w-auto sm:py-2"
             >
               Hủy bỏ
             </button>
@@ -419,7 +430,7 @@ export function CreateBorrowModal({
                 !selectedMember ||
                 Boolean(isMemberBlocked)
               }
-              className="inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg bg-gray-900 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:py-2"
             >
               {isSubmitting ? (
                 <>

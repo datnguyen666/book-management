@@ -162,7 +162,7 @@ export function BorrowPage() {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 font-serif">
-            Quản lý Mượn trả
+            Quản Lý Mượn Trả
           </h1>
           <p className="mt-1 text-sm text-gray-500">
             Theo dõi, phê duyệt yêu cầu trực tuyến và quản lý hồ sơ mượn sách của thư viện
@@ -269,22 +269,22 @@ export function BorrowPage() {
                   <th className="px-6 py-4 font-semibold text-gray-600">
                     Bạn đọc
                   </th>
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
-                    Ngày mượn / Yêu cầu
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600 whitespace-nowrap">
+                    Ngày mượn
                   </th>
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600 whitespace-nowrap">
                     Hạn trả
                   </th>
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600 whitespace-nowrap">
                     Ngày trả
                   </th>
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600 whitespace-nowrap">
                     Trạng thái
                   </th>
-                  <th className="px-6 py-4 font-semibold text-gray-600">
-                    Thủ thư xử lý
+                  <th className="px-6 py-4 font-semibold text-gray-600 whitespace-nowrap">
+                    Người xử lý
                   </th>
-                  <th className="px-6 py-4 text-center font-semibold text-gray-600">
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600 whitespace-nowrap">
                     Thao tác
                   </th>
                 </tr>
@@ -306,10 +306,10 @@ export function BorrowPage() {
 
                       {/* Book */}
                       <td className="px-6 py-4">
-                        <div className="font-medium text-gray-900 line-clamp-1 max-w-xs" title={borrow.book.title}>
+                        <div className="font-medium text-gray-900 whitespace-nowrap" title={borrow.book.title}>
                           {borrow.book.title}
                         </div>
-                        <div className="mt-0.5 text-xs text-gray-400">
+                        <div className="mt-0.5 text-xs text-gray-400 whitespace-nowrap">
                           ISBN: {borrow.book.isbn}
                         </div>
                       </td>
@@ -319,10 +319,10 @@ export function BorrowPage() {
                         <div className="font-medium text-gray-900 whitespace-nowrap">
                           {borrow.member?.fullName || borrow.member?.username || "Chưa xác định"}
                         </div>
-                        <div className="mt-0.5 text-xs font-mono text-amber-700">
+                        <div className="mt-0.5 text-xs font-mono text-amber-700 whitespace-nowrap">
                           {borrow.member?.memberCode || `MB-${String(borrow.memberId).padStart(5, '0')}`}
                           {borrow.member?.email && (
-                            <span className="ml-1.5 text-gray-400 font-sans">
+                            <span className="ml-1.5 text-gray-400 font-sans whitespace-nowrap">
                               ({borrow.member.email})
                             </span>
                           )}
@@ -341,9 +341,8 @@ export function BorrowPage() {
 
                       {/* Due Date */}
                       <td
-                        className={`px-6 py-4 text-center whitespace-nowrap text-xs ${
-                          overdue ? "font-semibold text-red-600" : "text-gray-700"
-                        }`}
+                        className={`px-6 py-4 text-center whitespace-nowrap text-xs ${overdue ? "font-semibold text-red-600" : "text-gray-700"
+                          }`}
                       >
                         {new Date(borrow.dueDate).toLocaleDateString()}
                         {overdue && (
@@ -390,7 +389,7 @@ export function BorrowPage() {
                       </td>
 
                       {/* Processed By */}
-                      <td className="px-6 py-4 whitespace-nowrap text-xs">
+                      <td className="px-6 py-4 whitespace-nowrap text text-xs">
                         {borrow.processedBy ? (
                           <div>
                             <div className="font-medium text-gray-700">
@@ -489,11 +488,10 @@ export function BorrowPage() {
                       type="button"
                       onClick={() => handlePageChange(pageNumber)}
                       disabled={isFetching}
-                      className={`min-w-8 rounded-md px-2 py-1.5 text-xs font-medium tabular-nums transition ${
-                        isActive
-                          ? "bg-[#12192B] text-[#C89B3C]"
-                          : "text-gray-600 hover:bg-gray-100"
-                      }`}
+                      className={`min-w-8 rounded-md px-2 py-1.5 text-xs font-medium tabular-nums transition ${isActive
+                        ? "bg-[#12192B] text-[#C89B3C]"
+                        : "text-gray-600 hover:bg-gray-100"
+                        }`}
                     >
                       {pageNumber}
                     </button>

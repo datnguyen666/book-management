@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuthStore } from "@/store/auth.store";
+import { getAppBranding } from "@/utils/branding";
 
 interface NavigationItem {
   label: string;
@@ -203,6 +204,7 @@ interface SidebarProps {
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const user = useAuthStore((state) => state.user);
   const location = useLocation();
+  const branding = getAppBranding(user?.role);
 
   const isProfileRoute = location.pathname.startsWith("/profile");
   const [isPersonalOpen, setIsPersonalOpen] = useState(isProfileRoute);
@@ -255,10 +257,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
             <div className="min-w-0 leading-tight">
               <h1 className="truncate font-['Source_Serif_4',serif] text-[17px] font-semibold tracking-tight">
-                Book Management
+                {branding.title}
               </h1>
               <p className="truncate text-[11px] text-[#8B97B0]">
-                Quản lý thư viện
+                {branding.subtitle}
               </p>
             </div>
           </div>

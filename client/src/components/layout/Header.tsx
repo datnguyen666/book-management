@@ -4,6 +4,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { searchBooks } from "@/api/book.api";
 import { getMediaUrl } from "@/lib/media";
+import { getAppBranding } from "@/utils/branding";
 
 interface SearchBook {
   id: number;
@@ -127,7 +128,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   const formattedDateTime = `${formattedDate} • ${formattedTime}`;
 
-  const pageTitle = "Book Management";
+  const pageTitle = getAppBranding(user?.role).title;
 
   return (
     <header

@@ -1,18 +1,24 @@
 import { useEffect } from "react";
+import { useAuthStore } from "@/store/auth.store";
+import { getAppBranding } from "@/utils/branding";
 
-export const APP_NAME = "Book Management";
+export const APP_NAME = "Digital Library";
 
 /**
- * Cập nhật tên tab theo trang đang xem.
+ * Cập nhật tên tab theo trang đang xem và vai trò của người dùng.
  *
- * - `string`    → `"{title} · Book Management"`
- * - `null`      → chỉ `"Book Management"`
+ * - `string`    → `"{title} · {appName}"`
+ * - `null`      → chỉ `"{appName}"`
  * - `undefined` → giữ nguyên tên tab hiện tại (dùng khi dữ liệu chưa tải xong)
  */
 export function usePageTitle(title: string | null | undefined) {
+  const user = useAuthStore((state) => state.user);
+  const appName = getAppBranding(user?.role).appName;
+
   useEffect(() => {
     if (title === undefined) return;
 
-    document.title = title ? `${title} · ${APP_NAME}` : APP_NAME;
-  }, [title]);
+    document.title = title ? `${title} · ${appName}` : appName;
+  }, [title, appName]);
 }
+

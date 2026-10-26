@@ -29,7 +29,7 @@ export function LoginPage() {
             <BookOpen className="h-5 w-5" />
           </div>
           <span className="text-sm font-semibold tracking-[0.2em] text-amber-100/90">
-            BOOK MANAGEMENT
+            DIGITAL LIBRARY
           </span>
         </div>
 
@@ -71,7 +71,7 @@ export function LoginPage() {
         </div>
 
         <p className="relative z-10 text-xs text-white/30">
-          © {new Date().getFullYear()} Book Management. All rights reserved.
+          © {new Date().getFullYear()} Digital Library. All rights reserved.
         </p>
       </div>
 

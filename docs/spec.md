@@ -10,6 +10,7 @@ Hệ thống Quản lý Thư viện sách (Book Management) phục vụ 2 nhóm 
 1. Màn hình đăng nhập cần phân tách rõ ràng cổng vào cho Bạn đọc và Ban quản lý.
 2. Ban quản lý (Admin và Staff) chưa có nơi tập trung để tra cứu danh sách độc giả, xem hồ sơ cá nhân và theo dõi toàn bộ lịch sử mượn/trả sách của từng bạn đọc khi làm việc tại quầy thư viện.
 3. Chuẩn hóa triệt để mô hình Bạn đọc (`Member`): Loại bỏ hoàn toàn sự tồn tại song song của các trường `borrowerName`, `borrowerCode` trong cơ sở dữ liệu. Thống nhất một khái niệm duy nhất là Bạn đọc (`Member`), liên kết trực tiếp qua khóa ngoại `memberId` bắt buộc.
+4. Giao diện hiện tại hiển thị cố định nhận diện "Book Management" (Quản lý sách) ở mọi nơi, không phù hợp với trải nghiệm của Bạn đọc (`MEMBER`) - những người cần một cổng thư viện để tra cứu và mượn sách thay vì phần mềm quản lý nội bộ. Đồng thời, toàn bộ menu điều hướng đang dùng tiếng Anh nên tên thương hiệu và tiêu đề cần đồng bộ bằng tiếng Anh.
 
 ---
 
@@ -32,12 +33,19 @@ Hệ thống Quản lý Thư viện sách (Book Management) phục vụ 2 nhóm 
     * Đổi trường `userId` thành `memberId` bắt buộc (NOT NULL), liên kết trực tiếp với bảng `User` (`Role.MEMBER`).
     * Mọi thông tin người mượn (họ tên, mã thẻ, email, SĐT) đều được truy xuất trực tiếp từ tài khoản Bạn đọc (`member`).
     * Thống nhất toàn bộ mã nguồn backend, frontend và cơ sở dữ liệu chỉ dùng một thuật ngữ duy nhất: Bạn đọc (`Member`).
+  * **Phân tách nhận diện thương hiệu theo vai trò (Branding by Role) bằng tiếng Anh:**
+    * Phía Bạn đọc (`MEMBER`): Sidebar hiển thị logo với tên **"Book Library"**, phụ đề **"Reader Portal"**; tiêu đề tab trình duyệt (`document.title`) có định dạng `{Tên trang} · Book Library`.
+    * Phía Ban quản lý (`ADMIN`, `STAFF`): Sidebar giữ nguyên tên **"Book Management"**, phụ đề **"Management Portal"**; tiêu đề tab trình duyệt có định dạng `{Tên trang} · Book Management`.
+    * Cổng công khai / Khách chưa đăng nhập (`/login`, `/register`, `/forgot-password`,...): Tên thương hiệu trung lập **"Digital Library"**, phụ đề **"Welcome Portal"**; tiêu đề tab trình duyệt có định dạng `{Tên trang} · Digital Library`.
+  * **Header hiển thị tiêu đề trang động (Dynamic Page Title):**
+    * Thay thế tiêu đề cố định "Book Management" trên thanh Header thành tên trang tiếng Anh tương ứng với vị trí người dùng đang đứng (ví dụ: *Search Books*, *Reading List*, *Dashboard*, *Categories*, *Books*, *Staff*, *Members*, *Loans & Returns*, *My Profile*).
 * **Cố tình chưa làm:**
   * Cho phép người chưa có thẻ/tài khoản Bạn đọc (khách vãng lai) mượn sách mang về (bắt buộc phải có tài khoản Bạn đọc trong hệ thống).
   * Giữ lại dữ liệu snapshot họ tên cũ khi bạn đọc đổi tên (chấp nhận hiển thị tên mới nhất của bạn đọc cho tất cả các phiếu mượn).
   * Admin/Staff tạo tài khoản bạn đọc thủ công từ giao diện nội bộ (bạn đọc tự đăng ký tài khoản từ trang ngoài).
   * Chỉnh sửa thông tin cá nhân của bạn đọc từ phía quản trị (bạn đọc tự cập nhật ở trang cá nhân).
   * Xuất danh sách bạn đọc hoặc xuất phiếu lý lịch bạn đọc ra Excel/PDF.
+  * Lưu thông tin cấu hình thương hiệu (tên, logo, slogan) vào cơ sở dữ liệu để Admin tự tùy biến (hiện tại xác định nhận diện trực tiếp ở tầng giao diện theo vai trò của người dùng).
 
 ---
 
@@ -71,6 +79,20 @@ Hệ thống Quản lý Thư viện sách (Book Management) phục vụ 2 nhóm 
 * Khi chọn sách, nếu bạn đọc đã có phiếu chờ duyệt hoặc đang mượn chính cuốn sách đó: Hệ thống báo lỗi *"Bạn đọc đã có yêu cầu hoặc đang mượn cuốn sách này."*
 * Khi thủ thư nhập hạn trả hợp lệ và xác nhận: Hệ thống tạo phiếu mượn với trạng thái `BORROWING`, lưu khóa ngoại `memberId` của bạn đọc (không còn lưu `borrowerName`, `borrowerCode`), và phiếu mượn ngay lập tức xuất hiện trong lịch sử của bạn đọc đó.
 
+### 3.5. Hiển thị nhận diện thương hiệu và tiêu đề trang theo vai trò (Branding by Role)
+* **Khi người dùng là Bạn đọc (`MEMBER`):**
+  * Thanh điều hướng (Sidebar) hiển thị logo với tên thương hiệu **"Book Library"** và dòng phụ đề **"Reader Portal"**.
+  * Thanh Header trên cùng hiển thị tiêu đề trang bằng tiếng Anh tương ứng với vị trí thực tế của độc giả (ví dụ: *"Search Books"* khi ở trang tra cứu sách, *"Reading List"* khi ở trang phiếu mượn, *"My Profile"* khi ở trang cá nhân).
+  * Tiêu đề tab trình duyệt (`document.title`) cập nhật theo định dạng: `{Tên trang} · Book Library`.
+* **Khi người dùng là Ban quản lý (`ADMIN` hoặc `STAFF`):**
+  * Thanh điều hướng (Sidebar) hiển thị logo với tên thương hiệu **"Book Management"** và dòng phụ đề **"Management Portal"**.
+  * Thanh Header trên cùng hiển thị tiêu đề trang tương ứng (ví dụ: *"Dashboard"*, *"Categories"*, *"Books"*, *"Staff"*, *"Members"*, *"Loans & Returns"*).
+  * Tiêu đề tab trình duyệt (`document.title`) cập nhật theo định dạng: `{Tên trang} · Book Management`.
+* **Khi người dùng chưa đăng nhập (ở các trang đăng nhập, đăng ký, quên mật khẩu):**
+  * Khung giao diện xác thực hiển thị tên thương hiệu **"Digital Library"** và dòng phụ đề **"Welcome Portal"**.
+  * Tiêu đề tab trình duyệt cập nhật theo định dạng: `{Tên trang} · Digital Library`.
+  * Dòng bản quyền ở chân trang (Footer) hiển thị: `© {Năm} Digital Library. All rights reserved.`
+
 ---
 
 ## 4. Dữ liệu & vai trò
@@ -86,6 +108,8 @@ Hệ thống Quản lý Thư viện sách (Book Management) phục vụ 2 nhóm 
 | **Nhân viên (`STAFF`)** | Xem tất cả sách, thể loại, phiếu mượn, danh sách & chi tiết bạn đọc | Tạo phiếu mượn tại quầy cho Bạn đọc | Khóa/mở khóa bạn đọc, duyệt/trả sách | Không |
 | **Quản trị viên (`ADMIN`)** | Xem toàn bộ hệ thống (báo cáo, nhân viên, sách, bạn đọc, phiếu mượn) | Tạo nhân viên, sách, thể loại, tạo phiếu mượn | Khóa/mở khóa bạn đọc & nhân viên, sửa cấu hình | Xóa dữ liệu cho phép |
 
+*Ghi chú về nhận diện thương hiệu:* Tên thương hiệu, phụ đề và tiêu đề trang được định nghĩa và cấu hình tĩnh ở tầng giao diện (Frontend) theo vai trò (`Role`) của tài khoản và vị trí trang hiện tại; không lưu trong cơ sở dữ liệu và không cần API cấu hình.
+
 ---
 
 ## 5. Trường hợp biên
@@ -96,6 +120,9 @@ Hệ thống Quản lý Thư viện sách (Book Management) phục vụ 2 nhóm 
 * **Tài khoản bị khóa (`isActive = false`):** Khi bị khóa, bạn đọc không thể đăng nhập, không thể gửi yêu cầu mượn online, và thủ thư không thể tạo phiếu mượn tại quầy cho bạn đọc này.
 * **Tài khoản nhân viên chưa kích hoạt mật khẩu (`mustChangePassword = true`):** Chuyển hướng đến trang thiết lập mật khẩu mới (`/set-password`).
 * **Truy cập trái phép trang `/members`:** Nếu tài khoản có vai trò `MEMBER` cố tình truy cập vào `/members`, hệ thống chặn quyền và điều hướng về trang cho phép (như `/books`).
+* **Đăng xuất / Chuyển đổi vai trò tài khoản:** Khi người dùng đăng xuất và đăng nhập vào tài khoản có vai trò khác (ví dụ từ `STAFF` sang `MEMBER` hoặc ngược lại), nhận diện thương hiệu ở Sidebar, Header và tiêu đề tab trình duyệt lập tức cập nhật theo vai trò mới mà không cần tải lại toàn bộ trang (F5).
+* **Trang dùng chung cho cả Bạn đọc và Quản lý (`/profile`, `/profile/edit`):** Header hiển thị tiêu đề "My Profile", còn Sidebar và tiêu đề tab hiển thị đúng theo vai trò của người dùng đang đăng nhập.
+* **Màn hình trang không tìm thấy (404):** Tiêu đề tab trình duyệt hiển thị hậu tố theo vai trò của người dùng hiện tại (nếu đã đăng nhập) hoặc `· Digital Library` (nếu chưa đăng nhập).
 * **Tìm kiếm không có kết quả:** Hiển thị thông báo *"Không tìm thấy bạn đọc nào phù hợp với từ khóa tìm kiếm."*
 * **Mất kết nối mạng:** Hiển thị thông báo *"Không thể kết nối đến máy chủ, vui lòng kiểm tra kết nối mạng."*
 

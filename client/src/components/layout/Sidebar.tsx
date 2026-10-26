@@ -28,38 +28,38 @@ interface NavigationGroup {
 
 const staffNavigationGroups: NavigationGroup[] = [
   {
-    label: "Tổng quan",
+    label: "Overview",
     items: [{ label: "Dashboard", path: "/dashboard", icon: LayoutDashboard }],
   },
   {
-    label: "Quản lý",
+    label: "Management",
     items: [
       { label: "Categories", path: "/categories", icon: FolderOpen },
       { label: "Books", path: "/books", icon: BookOpen },
       { label: "Staff", path: "/staff", icon: User, adminOnly: true },
-      { label: "Reader Community", path: "/members", icon: Users },
+      { label: "Members", path: "/members", icon: Users },
     ],
   },
   {
-    label: "Hoạt động",
-    items: [{ label: "Borrow Records", path: "/borrows", icon: BookUser }],
+    label: "Circulation",
+    items: [{ label: "Loans & Returns", path: "/borrows", icon: BookUser }],
   },
 ];
 
 const memberNavigationGroups: NavigationGroup[] = [
   {
-    label: "Khám phá",
-    items: [{ label: "Books", path: "/books", icon: BookOpen }],
+    label: "Discovery",
+    items: [{ label: "Search Books", path: "/books", icon: BookOpen }],
   },
   {
-    label: "Tủ sách của tôi",
-    items: [{ label: "Sách của tôi", path: "/my-borrows", icon: BookUser }],
+    label: "My Library",
+    items: [{ label: "Reading List", path: "/my-borrows", icon: BookUser }],
   },
 ];
 
 const profileLinks = [
-  { label: "Thông tin cá nhân", path: "/profile", end: true },
-  { label: "Cập nhật hồ sơ", path: "/profile/edit", end: false },
+  { label: "Profile", path: "/profile", end: true },
+  { label: "Update Profile", path: "/profile/edit", end: false },
 ];
 
 const FOCUS_RING =
@@ -294,7 +294,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
           {/* Tài khoản */}
           <div>
-            <GroupLabel>Tài khoản</GroupLabel>
+            <GroupLabel>Account</GroupLabel>
 
             <button
               type="button"
@@ -311,7 +311,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             >
               {isProfileRoute && <ActiveBar />}
               <IconChip icon={User} active={isProfileRoute} />
-              <span className="flex-1 truncate text-left">Cá nhân</span>
+              <span className="flex-1 truncate text-left">Account Settings</span>
               <ChevronDown
                 size={15}
                 aria-hidden

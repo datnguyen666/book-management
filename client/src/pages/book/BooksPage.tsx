@@ -26,6 +26,13 @@ import { RequestBorrowModal } from "@/components/borrow/RequestBorrowModal";
 
 const DEFAULT_LIMIT = 10;
 
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(value);
+}
+
 export function BooksPage() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
@@ -380,7 +387,7 @@ export function BooksPage() {
                             className="px-6 py-4 text-center align-middle tabular-nums"
                             style={{ color: "#12192B" }}
                           >
-                            {Number(book.price).toFixed(2)}
+                            {formatCurrency(Number(book.price))}
                           </td>
 
 

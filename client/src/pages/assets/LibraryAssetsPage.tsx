@@ -19,9 +19,9 @@ import { useState } from "react";
 import { exportAssetsToExcel, exportAssetsToPdf } from "@/utils/asset-export";
 
 function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("vi-VN", {
     style: "currency",
-    currency: "USD",
+    currency: "VND",
   }).format(value);
 }
 
@@ -112,9 +112,8 @@ export function LibraryAssetsPage() {
             <button
               type="button"
               onClick={handleExport}
-              className={`flex items-center gap-2 rounded-l-md px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 ${
-                exportFormat === "pdf" ? "bg-red-600" : "bg-green-600"
-              }`}
+              className={`flex items-center gap-2 rounded-l-md px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 ${exportFormat === "pdf" ? "bg-red-600" : "bg-green-600"
+                }`}
             >
               <Download size={16} />
 
@@ -125,16 +124,14 @@ export function LibraryAssetsPage() {
             <button
               type="button"
               onClick={() => setIsExportMenuOpen((current) => !current)}
-              className={`flex items-center justify-center rounded-r-md border-l border-white/30 px-2 text-white transition hover:opacity-90 ${
-                exportFormat === "pdf" ? "bg-red-600" : "bg-green-600"
-              }`}
+              className={`flex items-center justify-center rounded-r-md border-l border-white/30 px-2 text-white transition hover:opacity-90 ${exportFormat === "pdf" ? "bg-red-600" : "bg-green-600"
+                }`}
               aria-label="Select export format"
             >
               <ChevronDown
                 size={16}
-                className={`transition-transform ${
-                  isExportMenuOpen ? "rotate-180" : ""
-                }`}
+                className={`transition-transform ${isExportMenuOpen ? "rotate-180" : ""
+                  }`}
               />
             </button>
 

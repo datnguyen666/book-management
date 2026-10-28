@@ -191,11 +191,13 @@ export function MembersPage() {
                   <td colSpan={7} className="py-16 text-center">
                     <Users className="mx-auto h-10 w-10 text-slate-300" />
                     <p className="mt-2 text-base font-medium text-slate-700">
-                      Không tìm thấy bạn đọc nào
+                      {search.trim()
+                        ? "Không tìm thấy bạn đọc nào phù hợp với từ khóa tìm kiếm."
+                        : "Không tìm thấy bạn đọc nào"}
                     </p>
                     <p className="text-xs text-slate-400">
                       {search || status !== "all"
-                        ? "Thử thay đổi từ khóa tìm kiếm hoặc bỏ bộ lọc."
+                        ? "Thử thay đổi từ khóa tìm kiếm hoặc làm mới bộ lọc."
                         : "Hệ thống chưa có tài khoản bạn đọc nào."}
                     </p>
                   </td>

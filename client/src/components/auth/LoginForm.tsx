@@ -135,9 +135,15 @@ export function LoginForm({ portal, onPortalChange }: LoginFormProps) {
 
   const handleForgotPassword = async () => {
     setForgotMessage("");
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!forgotEmail.trim()) {
-      setForgotMessage("Please enter your email.");
+      setForgotMessage("Vui lòng nhập địa chỉ email của bạn.");
+      return;
+    }
+
+    if (!emailPattern.test(forgotEmail.trim())) {
+      setForgotMessage("Địa chỉ email không đúng định dạng.");
       return;
     }
 
@@ -148,12 +154,12 @@ export function LoginForm({ portal, onPortalChange }: LoginFormProps) {
         email: forgotEmail.trim(),
       });
 
-      setForgotMessage(response.message);
+      setForgotMessage(response.message || "Vui lòng kiểm tra hộp thư email của bạn.");
     } catch (error) {
       console.error(error);
 
       // Always show generic message
-      setForgotMessage("Please check your email");
+      setForgotMessage("Vui lòng kiểm tra hộp thư email của bạn.");
     } finally {
       setForgotLoading(false);
     }

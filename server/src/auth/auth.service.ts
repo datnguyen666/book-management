@@ -32,14 +32,14 @@ export class AuthService {
       },
     });
     if (!user) {
-      throw new UnauthorizedException('Invalid username or password');
+      throw new UnauthorizedException('Tên đăng nhập hoặc mật khẩu không chính xác.');
     }
     if (!user.isActive) {
-      throw new UnauthorizedException('This account is inactive');
+      throw new UnauthorizedException('Tài khoản này đã bị khóa hoặc chưa được kích hoạt.');
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid username or password');
+      throw new UnauthorizedException('Tên đăng nhập hoặc mật khẩu không chính xác.');
     }
 
     if (portal === LoginPortal.MANAGEMENT && user.role === Role.MEMBER) {

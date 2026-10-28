@@ -9,6 +9,7 @@ import {
   Plus,
   Check,
   X,
+  AlertTriangle,
 } from "lucide-react";
 import type {
   BorrowRecord,
@@ -50,6 +51,9 @@ export function BorrowPage() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<BorrowStatus | "">("");
+  const [rejectTarget, setRejectTarget] = useState<BorrowRecord | null>(null);
+  const [rejectReason, setRejectReason] = useState("Sách hiện không thể bàn giao");
+  const [rejectError, setRejectError] = useState("");
 
   const { data, isLoading, isError, isFetching } = useBorrows({
     page,
@@ -99,25 +103,31 @@ export function BorrowPage() {
     }
   };
 
-  const handleReject = async (borrow: BorrowRecord) => {
-    const memberName =
-      borrow.member?.fullName || borrow.member?.username || "Bạn đọc";
-    const reason = window.prompt(
-      `Nhập lý do từ chối yêu cầu mượn "${borrow.book.title}" của bạn đọc "${memberName}":`,
-      "Sách hiện không thể bàn giao",
-    );
+  const handleOpenReject = (borrow: BorrowRecord) => {
+    setRejectTarget(borrow);
+    setRejectReason("Sách hiện không thể bàn giao");
+    setRejectError("");
+  };
 
-    if (reason === null) return;
+  const handleConfirmReject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!rejectTarget) return;
+
+    if (rejectReason.length > 500) {
+      setRejectError("Lý do từ chối không được vượt quá 500 ký tự.");
+      return;
+    }
 
     try {
       await rejectMutation.mutateAsync({
-        id: borrow.id,
-        reason: reason.trim() || undefined,
+        id: rejectTarget.id,
+        reason: rejectReason.trim() || undefined,
       });
-      window.alert("Đã từ chối yêu cầu mượn sách.");
+      setRejectTarget(null);
+      window.alert("Đã từ chối yêu cầu mượn sách thành công.");
     } catch (error: any) {
       console.error("Failed to reject borrow:", error);
-      window.alert(
+      setRejectError(
         error.response?.data?.message || "Không thể từ chối yêu cầu.",
       );
     }
@@ -420,7 +430,7 @@ export function BorrowPage() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleReject(borrow)}
+                              onClick={() => handleOpenReject(borrow)}
                               disabled={rejectMutation.isPending}
                               title="Từ chối yêu cầu"
                               className="inline-flex items-center gap-1 rounded border border-rose-300 bg-white px-2 py-1 text-xs font-medium text-rose-600 hover:bg-rose-50 transition"
@@ -519,6 +529,84 @@ export function BorrowPage() {
         onClose={() => setIsCreateOpen(false)}
         onSubmit={handleCreateBorrow}
       />
+
+      {/* Modal Reject Borrow Request */}
+      {rejectTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-fade-in">
+          <div className="relative w-full max-w-md rounded-xl bg-white shadow-2xl overflow-hidden border border-gray-100">
+            <div className="flex items-center justify-between border-b px-6 py-4 bg-rose-50/50">
+              <div className="flex items-center gap-2.5 text-rose-700">
+                <AlertTriangle size={18} className="shrink-0" />
+                <h3 className="font-semibold text-gray-900">Từ chối yêu cầu mượn</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setRejectTarget(null)}
+                disabled={rejectMutation.isPending}
+                className="text-gray-400 hover:text-gray-600 transition"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmReject} className="p-6 space-y-4">
+              <div className="text-sm text-gray-600 space-y-1">
+                <p>
+                  Sách: <strong className="text-gray-900">{rejectTarget.book.title}</strong>
+                </p>
+                <p>
+                  Bạn đọc:{" "}
+                  <strong className="text-gray-900">
+                    {rejectTarget.member?.fullName || rejectTarget.member?.username || "Bạn đọc"}
+                    {rejectTarget.member?.memberCode ? ` (${rejectTarget.member.memberCode})` : ""}
+                  </strong>
+                </p>
+              </div>
+
+              {rejectError && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-600">
+                  {rejectError}
+                </div>
+              )}
+
+              <div>
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-gray-600">
+                  Lý do từ chối
+                </label>
+                <textarea
+                  rows={3}
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder="Nhập lý do từ chối yêu cầu mượn sách..."
+                  disabled={rejectMutation.isPending}
+                  className="w-full rounded-lg border border-gray-200 p-2.5 text-sm outline-none transition focus:border-rose-500 focus:ring-1 focus:ring-rose-500 disabled:bg-gray-50"
+                />
+                <p className="mt-1 text-right text-xs text-gray-400">
+                  {rejectReason.length}/500 ký tự
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-2.5 pt-2 border-t">
+                <button
+                  type="button"
+                  onClick={() => setRejectTarget(null)}
+                  disabled={rejectMutation.isPending}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50"
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  type="submit"
+                  disabled={rejectMutation.isPending}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-rose-700 transition disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {rejectMutation.isPending ? "Đang xử lý..." : "Xác nhận từ chối"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

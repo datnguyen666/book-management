@@ -4,7 +4,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { searchBooks } from "@/api/book.api";
 import { getMediaUrl } from "@/lib/media";
-import { getAppBranding } from "@/utils/branding";
+import { getAppBranding, getRouteTitle } from "@/utils/branding";
 
 interface SearchBook {
   id: number;
@@ -127,8 +127,8 @@ export function Header({ onMenuClick }: HeaderProps) {
   });
 
   const formattedDateTime = `${formattedDate} • ${formattedTime}`;
-
-  const pageTitle = getAppBranding(user?.role).title;
+  const routeTitle = getRouteTitle(location.pathname, user?.role);
+  const pageTitle = routeTitle || getAppBranding(user?.role).title;
 
   return (
     <header

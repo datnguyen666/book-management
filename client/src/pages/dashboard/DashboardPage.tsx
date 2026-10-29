@@ -117,6 +117,9 @@ export function DashboardPage() {
   const totalBorrowRecords =
     borrowingStatus.borrowing + borrowingStatus.returned;
 
+  // Recent books
+  const recentBooks = data?.recentBooks ?? [];
+
   return (
     <div className="space-y-6">
       {/* Page heading */}
@@ -332,7 +335,7 @@ export function DashboardPage() {
                   </h2>
 
                   <p className="mt-1 text-xs" style={{ color: MUTED }}>
-                    Books added during {data.monthlyAcquisitions.year}
+                    Books added during {data.monthlyAcquisitions?.year ?? new Date().getFullYear()}
                   </p>
                 </div>
                 <div
@@ -488,7 +491,7 @@ export function DashboardPage() {
                   </h2>
 
                   <p className="mt-1 text-xs" style={{ color: MUTED }}>
-                    Books borrowed during {data.monthlyBorrowings.year}
+                    Books borrowed during {data.monthlyBorrowings?.year ?? new Date().getFullYear()}
                   </p>
                 </div>
                 <div
@@ -506,9 +509,9 @@ export function DashboardPage() {
                       item.count === 0
                         ? 4
                         : Math.max(
-                            (item.count / maxBorrowingMonthlyCount) * 100,
-                            8,
-                          );
+                          (item.count / maxBorrowingMonthlyCount) * 100,
+                          8,
+                        );
                     const isPeak =
                       item.count === maxBorrowingMonthlyCount && item.count > 0;
 
@@ -868,11 +871,8 @@ export function DashboardPage() {
               </div>
             </div>
 
-            {data.recentBooks.length === 0 ? (
-              <div
-                className="p-10 text-center text-sm"
-                style={{ color: MUTED }}
-              >
+            {recentBooks.length === 0 ? (
+              <div className="p-10 text-center text-sm" style={{ color: MUTED }}>
                 No books have been added yet.
               </div>
             ) : (
@@ -885,38 +885,20 @@ export function DashboardPage() {
                     }}
                   >
                     <tr>
-                      <th
-                        className="px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: "#7A6A46" }}
-                      >
-                        Title
-                      </th>
-
-                      <th
-                        className="px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: "#7A6A46" }}
-                      >
-                        Author
-                      </th>
-
-                      <th
-                        className="px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: "#7A6A46" }}
-                      >
-                        Category
-                      </th>
-
-                      <th
-                        className="px-6 py-3 text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: "#7A6A46" }}
-                      >
-                        Added
-                      </th>
+                      {["Title", "Author", "Category", "Added"].map((heading) => (
+                        <th
+                          key={heading}
+                          className="px-6 py-3 text-xs font-semibold uppercase tracking-wide"
+                          style={{ color: "#7A6A46" }}
+                        >
+                          {heading}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
 
                   <tbody>
-                    {data.recentBooks.map((book) => (
+                    {recentBooks.map((book) => (
                       <tr
                         key={book.id}
                         className="transition-colors hover:bg-[#FAF7EF]"
@@ -930,10 +912,7 @@ export function DashboardPage() {
                             {book.title}
                           </div>
 
-                          <div
-                            className="mt-1 text-xs"
-                            style={{ color: "#B0B7C4" }}
-                          >
+                          <div className="mt-1 text-xs" style={{ color: "#B0B7C4" }}>
                             ISBN: {book.isbn}
                           </div>
                         </td>
@@ -950,7 +929,7 @@ export function DashboardPage() {
                               color: "#5C5240",
                             }}
                           >
-                            {book.category.name}
+                            {book.category?.name ?? "-"}
                           </span>
                         </td>
 

@@ -22,14 +22,14 @@ const bookSchema = z.object({
 
   description: z.string().optional(),
 
-  price: z.number().min(0, "Price must be 0 or greater"),
+  price: z.number({ message: "Price must be a valid number" }).min(0, "Price must be 0 or greater"),
 
   quantity: z
-    .number()
+    .number({ message: "Quantity must be a valid number" })
     .int("quantity must be an integer")
     .min(0, "quantity must be 0 or greater"),
 
-  categoryId: z.number().int().positive("Category is required"),
+  categoryId: z.number({ message: "Category is required" }).int().positive("Category is required"),
 });
 
 type BookFormValues = z.infer<typeof bookSchema>;

@@ -33,6 +33,12 @@ export class BorrowService {
       throw new NotFoundException('User not found');
     }
 
+    if (!user.isActive) {
+      throw new BadRequestException(
+        'Tài khoản bạn đọc đang bị khóa, không thể gửi yêu cầu mượn sách.',
+      );
+    }
+
     // 1. Kiểm tra giới hạn số sách mượn cùng lúc (tối đa 5 cuốn đang chờ duyệt hoặc đang mượn)
     const activeBorrowCount = await this.prisma.borrowRecord.count({
       where: {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import { useBook } from "@/hooks/use-books";
 import { usePageTitle } from "@/hooks/use-page-title";
@@ -8,8 +8,11 @@ import { RequestBorrowModal } from "@/components/borrow/RequestBorrowModal";
 
 export function BookDetailPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id } = useParams();
   const [isBorrowOpen, setIsBorrowOpen] = useState(false);
+
+  const fromUrl = (location.state as { from?: string } | null)?.from;
 
   const bookId = Number(id);
 
@@ -19,7 +22,13 @@ export function BookDetailPage() {
   usePageTitle(book?.title);
 
   const handleBack = () => {
-    navigate("/books");
+    if (fromUrl) {
+      navigate(fromUrl);
+    } else if (window.history.state?.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate("/books");
+    }
   };
 
   if (!Number.isInteger(bookId) || bookId <= 0) {

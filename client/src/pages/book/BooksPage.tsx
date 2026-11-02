@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import {
   BookOpen,
@@ -15,7 +15,7 @@ import {
   useUploadBookCover,
   useDeleteBook,
 } from "@/hooks/use-books";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import type { Book, CreateBookPayload } from "@/api/book.api";
 import { BookForm } from "@/components/books/BookForm";
 import { useCategories } from "@/hooks/use-categories";
@@ -35,7 +35,31 @@ function formatCurrency(value: number) {
 
 export function BooksPage() {
   const navigate = useNavigate();
-  const [page, setPage] = useState(1);
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const pageParam = Number(searchParams.get("page"));
+  const page = Number.isInteger(pageParam) && pageParam > 0 ? pageParam : 1;
+
+  const setPage = (updater: number | ((current: number) => number)) => {
+    setSearchParams((prev) => {
+      const currentPageParam = Number(prev.get("page"));
+      const currentPage =
+        Number.isInteger(currentPageParam) && currentPageParam > 0
+          ? currentPageParam
+          : 1;
+      const newPage =
+        typeof updater === "function" ? updater(currentPage) : updater;
+
+      const next = new URLSearchParams(prev);
+      if (newPage <= 1) {
+        next.delete("page");
+      } else {
+        next.set("page", String(newPage));
+      }
+      return next;
+    });
+  };
 
   const {
     data: categories = [],
@@ -52,6 +76,12 @@ export function BooksPage() {
   const pagination = data?.pagination;
 
   const totalPages = pagination?.totalPages ?? 1;
+
+  useEffect(() => {
+    if (pagination && totalPages > 0 && page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [pagination, totalPages, page]);
 
   const handlePrevious = () => {
     setPage((current) => Math.max(1, current - 1));
@@ -422,7 +452,13 @@ export function BooksPage() {
                         <div className="flex justify-center gap-2">
                           <button
                             type="button"
-                            onClick={() => navigate(`/books/${book.id}`)}
+                            onClick={() =>
+                              navigate(`/books/${book.id}`, {
+                                state: {
+                                  from: `${location.pathname}${location.search}`,
+                                },
+                              })
+                            }
                             title="Xem chi tiết"
                             className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#F7F2E7] cursor-pointer"
                             style={{

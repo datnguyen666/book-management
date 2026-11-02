@@ -23,6 +23,7 @@ import { Eye } from "lucide-react";
 import { Edit } from "lucide-react";
 import { Trash } from "lucide-react";
 import { RequestBorrowModal } from "@/components/borrow/RequestBorrowModal";
+import { getMediaUrl } from "@/lib/media";
 
 const DEFAULT_LIMIT = 10;
 
@@ -269,7 +270,7 @@ export function BooksPage() {
           style={{ border: "1px solid #D8CEB2" }}
         >
           <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full min-w-[960px] text-left text-sm">
+            <table className="w-full min-w-[1040px] text-left text-sm">
               <thead
                 style={{
                   backgroundColor: "#EFE3C4",
@@ -282,6 +283,13 @@ export function BooksPage() {
                     style={{ color: "#7A6A46" }}
                   >
                     STT
+                  </th>
+
+                  <th
+                    className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    style={{ color: "#7A6A46" }}
+                  >
+                    {" "}
                   </th>
 
                   <th
@@ -369,6 +377,25 @@ export function BooksPage() {
                         style={{ color: "#B0B7C4" }}
                       >
                         {(page - 1) * DEFAULT_LIMIT + index + 1}
+                      </td>
+
+                      {/* Cover */}
+                      <td className="px-4 py-3 text-center align-middle">
+                        {book.coverImage ? (
+                          <img
+                            src={getMediaUrl(book.coverImage)}
+                            alt={book.title}
+                            className="h-14 w-10 rounded object-cover shadow-xs border border-[#E6DFCE] bg-[#FAF7EF]"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div
+                            className="flex h-14 w-10 items-center justify-center rounded border border-[#E6DFCE] bg-[#FAF7EF] text-[#B8863B]"
+                            title="Chưa có ảnh bìa"
+                          >
+                            <BookOpen size={16} />
+                          </div>
+                        )}
                       </td>
 
                       {/* Title */}

@@ -286,10 +286,10 @@ export function BooksPage() {
                   </th>
 
                   <th
-                    className="px-4 py-4 text-center text-xs font-semibold uppercase tracking-wide"
+                    className="w-[72px] min-w-[72px] max-w-[72px] px-2 py-4 text-center text-xs font-semibold uppercase tracking-wide"
                     style={{ color: "#7A6A46" }}
                   >
-                    {" "}
+                    <span className="sr-only">Cover</span>
                   </th>
 
                   <th
@@ -380,22 +380,40 @@ export function BooksPage() {
                       </td>
 
                       {/* Cover */}
-                      <td className="px-4 py-3 text-center align-middle">
-                        {book.coverImage ? (
+                      <td className="w-[72px] min-w-[72px] max-w-[72px] px-2 py-3 text-center align-middle">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigate(`/books/${book.id}`, {
+                              state: {
+                                from: `${location.pathname}${location.search}`,
+                              },
+                            })
+                          }
+                          title={`Xem chi tiết "${book.title}"`}
+                          className="group mx-auto flex h-14 w-10 min-w-10 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded border border-[#E6DFCE] bg-[#FAF7EF] shadow-xs transition-transform hover:scale-105 focus:outline-none"
+                        >
+                          {book.coverImage ? (
                           <img
                             src={getMediaUrl(book.coverImage)}
                             alt={book.title}
-                            className="h-14 w-10 rounded object-cover shadow-xs border border-[#E6DFCE] bg-[#FAF7EF]"
+                            className="h-full w-full object-cover"
                             loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                              e.currentTarget.nextElementSibling?.classList.remove("hidden");
+                            }}
                           />
-                        ) : (
+                        ) : null}
                           <div
-                            className="flex h-14 w-10 items-center justify-center rounded border border-[#E6DFCE] bg-[#FAF7EF] text-[#B8863B]"
-                            title="Chưa có ảnh bìa"
+                            className={`flex h-full w-full items-center justify-center text-[#B8863B] ${
+                              book.coverImage ? "hidden" : ""
+                            }`}
+                            title={book.coverImage ? "Không thể tải ảnh bìa" : "Chưa có ảnh bìa"}
                           >
                             <BookOpen size={16} />
                           </div>
-                        )}
+                        </button>
                       </td>
 
                       {/* Title */}

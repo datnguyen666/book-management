@@ -4,17 +4,34 @@ import { diskStorage } from 'multer';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const uploadPath = path.join(process.cwd(), 'uploads');
+let uploadPath = path.join(process.cwd(), 'uploads');
 
-if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath, {
-    recursive: true,
-  });
+try {
+  if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, {
+      recursive: true,
+    });
+  }
+} catch {
+  // Trên môi trường Serverless (Vercel/Lambda), filesystem có thể là read-only.
+  // Fallback sang /tmp/uploads
+  uploadPath = path.join('/tmp', 'uploads');
+  try {
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, {
+        recursive: true,
+      });
+    }
+  } catch {
+    // Bỏ qua lỗi nếu không thể tạo thư mục
+  }
 }
 
 export const multerOptions = {
   storage: diskStorage({
-    destination: uploadPath,
+    destination: (req, file, callback) => {
+      callback(null, uploadPath);
+    },
 
     filename: (req, file, callback) => {
       const uniqueName =

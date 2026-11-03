@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 
@@ -18,26 +18,49 @@ interface PasswordResetMail {
 
 @Injectable()
 export class MailService {
-  private readonly transporter;
+  private readonly transporter: nodemailer.Transporter | null = null;
+  private readonly logger = new Logger(MailService.name);
 
   constructor(private readonly configService: ConfigService) {
-    this.transporter = nodemailer.createTransport({
-      host: this.configService.getOrThrow<string>('MAIL_HOST'),
-      port: Number(this.configService.getOrThrow<string>('MAIL_PORT')),
-      secure: false,
-      auth: {
-        user: this.configService.getOrThrow<string>('MAIL_USER'),
-        pass: this.configService.getOrThrow<string>('MAIL_PASSWORD'),
-      },
-    });
+    const host = this.configService.get<string>('MAIL_HOST');
+    const port = this.configService.get<string>('MAIL_PORT');
+    const user = this.configService.get<string>('MAIL_USER');
+    const pass = this.configService.get<string>('MAIL_PASSWORD');
+
+    if (host && port && user && pass) {
+      this.transporter = nodemailer.createTransport({
+        host,
+        port: Number(port),
+        secure: false,
+        auth: {
+          user,
+          pass,
+        },
+      });
+    } else {
+      this.logger.warn(
+        'Email configuration is missing or incomplete. Email sending will be disabled.',
+      );
+    }
   }
 
   async sendStaffInvitation(data: StaffInvitationMail) {
-    const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
+    if (!this.transporter) {
+      this.logger.warn(
+        `Skip sending staff invitation email to ${data.email}: Mail transporter is not configured.`,
+      );
+      return;
+    }
+
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'https://localhost:5173';
     const setupUrl = `${frontendUrl}/set-password?token=${data.setupToken}`;
+    const from =
+      this.configService.get<string>('MAIL_FROM') ||
+      'Book Management <noreply@book.local>';
 
     await this.transporter.sendMail({
-      from: this.configService.getOrThrow<string>('MAIL_FROM'),
+      from,
       to: data.email,
       subject: 'Your Book Management staff account',
       html: `
@@ -70,18 +93,22 @@ export class MailService {
                       Hello <strong>${data.fullName}</strong>, an administrator has created a staff account for you. Here are your account details:
                     </p>
 
-                    <!-- Account info card -->
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fdf6ec; border-radius:8px; margin-bottom: 24px;">
+                    <!-- Credentials Card -->
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fdf6ec; border: 1px solid #e8b656; border-radius:8px; margin-bottom: 24px;">
                       <tr>
-                        <td style="padding: 18px 20px;">
+                        <td style="padding: 16px 20px;">
                           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                             <tr>
-                              <td style="padding-bottom: 10px; font-size:13px; color:#8a7a5c; width:130px;">Username</td>
-                              <td style="padding-bottom: 10px; font-size:14px; color:#2b1608; font-weight:bold;">${data.username}</td>
+                              <td style="font-size:12px; color:#8c5520; font-weight:bold; text-transform:uppercase; letter-spacing:0.5px; padding-bottom:4px; font-family: Arial, sans-serif;">Username</td>
                             </tr>
                             <tr>
-                              <td style="font-size:13px; color:#8a7a5c;">Temporary password</td>
-                              <td style="font-size:14px; color:#2b1608; font-weight:bold; font-family: 'Courier New', monospace;">${data.temporaryPassword}</td>
+                              <td style="font-size:15px; color:#2b1608; font-family: monospace; font-weight:bold; padding-bottom:12px;">${data.username}</td>
+                            </tr>
+                            <tr>
+                              <td style="font-size:12px; color:#8c5520; font-weight:bold; text-transform:uppercase; letter-spacing:0.5px; padding-bottom:4px; font-family: Arial, sans-serif;">Temporary Password</td>
+                            </tr>
+                            <tr>
+                              <td style="font-size:15px; color:#2b1608; font-family: monospace; font-weight:bold; background:#fff; padding: 6px 10px; border-radius:4px; border: 1px dashed #c9a87a;">${data.temporaryPassword}</td>
                             </tr>
                           </table>
                         </td>
@@ -89,15 +116,16 @@ export class MailService {
                     </table>
 
                     <p style="margin:0 0 20px 0; font-size:14px; color:#6b6b6b; line-height:1.6;">
-                      For security, please set your own password before signing in:
+                      Please click the button below to set your own password and activate your account:
                     </p>
 
+                    <!-- CTA Button -->
                     <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 0 24px 0;">
                       <tr>
                         <td style="border-radius:8px; background: linear-gradient(135deg, #5a3418, #2b1608);">
                           <a href="${setupUrl}"
                              style="display:inline-block; padding: 13px 28px; font-size:14px; font-weight:bold; color:#ffffff; text-decoration:none; border-radius:8px; font-family: Arial, sans-serif;">
-                            Set your password
+                            Set Your Password &rarr;
                           </a>
                         </td>
                       </tr>
@@ -112,7 +140,7 @@ export class MailService {
 
                     <div style="border-left: 3px solid #e8b656; background:#fdf6ec; padding: 12px 16px; border-radius: 4px; margin-bottom: 24px;">
                       <p style="margin:0; font-size:13px; color:#5a4a2f; font-family: Arial, sans-serif; line-height:1.5;">
-                        ⏱ This link and temporary password will expire in <strong>24 hours</strong>. Please set your password before then.
+                        ⏱ This invitation link will expire in <strong>24 hours</strong>. You will be required to change your password upon first login.
                       </p>
                     </div>
                   </td>
@@ -137,11 +165,22 @@ export class MailService {
   }
 
   async sendPasswordReset(data: PasswordResetMail) {
-    const frontendUrl = this.configService.getOrThrow<string>('FRONTEND_URL');
+    if (!this.transporter) {
+      this.logger.warn(
+        `Skip sending password reset email to ${data.email}: Mail transporter is not configured.`,
+      );
+      return;
+    }
+
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'https://localhost:5173';
     const resetUrl = `${frontendUrl}/login?resetToken=${data.resetToken}`;
+    const from =
+      this.configService.get<string>('MAIL_FROM') ||
+      'Book Management <noreply@book.local>';
 
     await this.transporter.sendMail({
-      from: this.configService.getOrThrow<string>('MAIL_FROM'),
+      from,
       to: data.email,
       subject: 'Reset your Book Management password',
       html: `

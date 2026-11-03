@@ -120,20 +120,30 @@ export function LoginForm({ portal, onPortalChange }: LoginFormProps) {
         return;
       }
 
-      if (profile.role === "MEMBER") {
+            if (profile.role === "MEMBER") {
         navigate("/books");
       } else {
         navigate("/dashboard");
       }
     } catch (error: any) {
       console.error(error);
+      const status = error?.response?.status;
       const serverMessage = error?.response?.data?.message;
-      if (typeof serverMessage === "string" && serverMessage.trim()) {
+
+      if (status >= 500) {
+        setLoginError(
+          "Lỗi hệ thống máy chủ (500). Vui lòng thử lại sau hoặc kiểm tra cấu hình biến môi trường trên Vercel.",
+        );
+      } else if (typeof serverMessage === "string" && serverMessage.trim()) {
         setLoginError(serverMessage);
       } else if (Array.isArray(serverMessage) && serverMessage.length > 0) {
         setLoginError(serverMessage[0]);
-      } else {
+      } else if (status === 401 || status === 400) {
         setLoginError("Tên đăng nhập hoặc mật khẩu không chính xác.");
+      } else {
+        setLoginError(
+          error?.message || "Không thể kết nối đến máy chủ, vui lòng thử lại.",
+        );
       }
     }
   };

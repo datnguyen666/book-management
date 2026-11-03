@@ -32,6 +32,7 @@ interface AuthenticatedUser {
   memberCode?: string;
   phone?: string;
   role: Role;
+  mustChangePassword?: boolean;
 }
 
 interface AuthenticatedRequest extends Request {

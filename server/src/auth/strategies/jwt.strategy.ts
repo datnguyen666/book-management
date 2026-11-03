@@ -12,6 +12,7 @@ interface JwtPayload {
   fullName: string;
   role: Role;
   memberCode?: string;
+  mustChangePassword?: boolean;
 }
 
 @Injectable()
@@ -34,6 +35,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       fullName: payload.fullName,
       role: payload.role,
       memberCode: payload.memberCode,
+      mustChangePassword: payload.mustChangePassword,
     };
   }
 }

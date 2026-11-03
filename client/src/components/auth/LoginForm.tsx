@@ -114,7 +114,12 @@ export function LoginForm({ portal, onPortalChange }: LoginFormProps) {
       // 4. Save user
       setUser(profile);
 
-      // 5. Navigate based on role
+      // 5. Navigate based on password activation or role
+      if (profile.mustChangePassword) {
+        navigate("/set-password");
+        return;
+      }
+
       if (profile.role === "MEMBER") {
         navigate("/books");
       } else {

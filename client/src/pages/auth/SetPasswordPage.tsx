@@ -2,13 +2,19 @@ import { useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff, BookOpen, AlertCircle } from "lucide-react";
 
-import { setPassword } from "@/api/auth.api";
+import { setPassword, updateProfile } from "@/api/auth.api";
+import { useAuthStore } from "@/store/auth.store";
 
 export function SetPasswordPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
+  const logout = useAuthStore((state) => state.logout);
+
   const token = searchParams.get("token");
+  const isAuthenticatedWithTemporaryPassword = Boolean(user && user.mustChangePassword);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [password, setPasswordValue] = useState("");
@@ -26,13 +32,13 @@ export function SetPasswordPage() {
 
     setError(null);
 
-    if (!token) {
+    if (!token && !isAuthenticatedWithTemporaryPassword) {
       setError("Đường dẫn thiết lập mật khẩu không hợp lệ hoặc thiếu mã xác thực.");
       return;
     }
 
     if (!currentPassword) {
-      setError("Vui lòng nhập mật khẩu tạm thời nhận từ email.");
+      setError("Vui lòng nhập mật khẩu tạm thời nhận từ email hoặc quản trị viên.");
       return;
     }
 
@@ -49,24 +55,48 @@ export function SetPasswordPage() {
     try {
       setIsSubmitting(true);
 
-      await setPassword({
-        token,
-        currentPassword,
-        password,
-      });
+      if (token) {
+        await setPassword({
+          token,
+          currentPassword,
+          password,
+        });
 
-      alert("Thiết lập mật khẩu thành công! Vui lòng đăng nhập bằng mật khẩu mới.");
+        alert("Thiết lập mật khẩu thành công! Vui lòng đăng nhập bằng mật khẩu mới.");
+        navigate("/login");
+      } else if (user) {
+        const updatedUser = await updateProfile({
+          username: user.username,
+          fullName: user.fullName,
+          email: user.email,
+          currentPassword,
+          newPassword: password,
+        });
 
-      navigate("/login");
-    } catch (err) {
+        setUser(updatedUser);
+        alert("Thiết lập mật khẩu mới thành công! Chào mừng bạn đến hệ thống.");
+
+        if (updatedUser.role === "MEMBER") {
+          navigate("/books");
+        } else {
+          navigate("/dashboard");
+        }
+      }
+    } catch (err: any) {
       console.error(err);
 
       setError(
-        "Mật khẩu tạm thời không chính xác, hoặc đường dẫn thiết lập đã hết hạn sử dụng.",
+        err.response?.data?.message ||
+          "Mật khẩu tạm thời không chính xác, hoặc đường dẫn thiết lập đã hết hạn sử dụng.",
       );
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
   };
 
   return (
@@ -92,7 +122,7 @@ export function SetPasswordPage() {
           </h1>
 
           <p className="mt-2 text-sm text-gray-500">
-            Khởi tạo mật khẩu mới cho tài khoản nhân viên của bạn.
+            Khởi tạo mật khẩu mới cho tài khoản của bạn để tiếp tục sử dụng hệ thống.
           </p>
 
           {error && (
@@ -114,7 +144,7 @@ export function SetPasswordPage() {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   className="w-full rounded-lg border border-gray-200 bg-white p-3 pr-11 text-sm outline-none transition focus:border-amber-600 focus:ring-1 focus:ring-amber-600"
-                  placeholder="Nhập mật khẩu tạm thời từ email"
+                  placeholder="Nhập mật khẩu tạm thời"
                 />
 
                 <button
@@ -188,12 +218,22 @@ export function SetPasswordPage() {
           </form>
 
           <div className="mt-6 pt-4 border-t border-gray-100 text-center">
-            <Link
-              to="/login"
-              className="text-xs font-medium text-amber-800 hover:underline"
-            >
-              ← Quay lại trang đăng nhập
-            </Link>
+            {user ? (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="text-xs font-medium text-amber-800 hover:underline cursor-pointer"
+              >
+                ← Đăng xuất tài khoản
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="text-xs font-medium text-amber-800 hover:underline"
+              >
+                ← Quay lại trang đăng nhập
+              </Link>
+            )}
           </div>
         </div>
       </div>

@@ -17,13 +17,21 @@ export default defineConfig({
     host: "localhost",
     port: 5173,
 
-    https: {
-      key: fs.readFileSync(
-        path.resolve(__dirname, "../server/certs/localhost-key.pem"),
-      ),
-      cert: fs.readFileSync(
-        path.resolve(__dirname, "../server/certs/localhost.pem"),
-      ),
-    },
+    https: (() => {
+      const keyPath = path.resolve(
+        __dirname,
+        "../server/certs/localhost-key.pem",
+      );
+      const certPath = path.resolve(__dirname, "../server/certs/localhost.pem");
+
+      if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
+        return {
+          key: fs.readFileSync(keyPath),
+          cert: fs.readFileSync(certPath),
+        };
+      }
+
+      return undefined;
+    })(),
   },
 });

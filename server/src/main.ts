@@ -7,19 +7,25 @@ import * as path from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const httpsOptions = {
-    key: fs.readFileSync(
-      path.join(process.cwd(), 'certs', 'localhost-key.pem'),
-    ),
-    cert: fs.readFileSync(path.join(process.cwd(), 'certs', 'localhost.pem')),
-  };
+  const keyPath = path.join(process.cwd(), 'certs', 'localhost-key.pem');
+  const certPath = path.join(process.cwd(), 'certs', 'localhost.pem');
+  const hasCerts = fs.existsSync(keyPath) && fs.existsSync(certPath);
 
-  const app = await NestFactory.create(AppModule, { httpsOptions });
+  const app = hasCerts
+    ? await NestFactory.create(AppModule, {
+        httpsOptions: {
+          key: fs.readFileSync(keyPath),
+          cert: fs.readFileSync(certPath),
+        },
+      })
+    : await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api/v1');
 
   app.enableCors({
-    origin: 'https://localhost:5173',
+    origin: process.env.FRONTEND_URL
+      ? [process.env.FRONTEND_URL, 'https://localhost:5173']
+      : true,
     credentials: true,
   });
 
@@ -51,8 +57,9 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 
+  const protocol = hasCerts ? 'https' : 'http';
   console.log(
-    `🚀 Server is running at https://localhost:${process.env.PORT ?? 3000}`,
+    `🚀 Server is running at ${protocol}://localhost:${process.env.PORT ?? 3000}`,
   );
 }
 

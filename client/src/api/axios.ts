@@ -6,7 +6,7 @@ export const NETWORK_ERROR_MESSAGE =
   "Không thể kết nối đến máy chủ, vui lòng kiểm tra kết nối mạng.";
 
 export const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_ORIGIN}/api/v1`,
+  baseURL: `${import.meta.env.VITE_API_ORIGIN || ""}/api/v1`,
 });
 
 api.interceptors.request.use((config) => {

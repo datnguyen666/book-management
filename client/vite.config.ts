@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
 
@@ -19,10 +19,13 @@ export default defineConfig({
 
     https: (() => {
       const keyPath = path.resolve(
-        __dirname,
+        import.meta.dirname,
         "../server/certs/localhost-key.pem",
       );
-      const certPath = path.resolve(__dirname, "../server/certs/localhost.pem");
+      const certPath = path.resolve(
+        import.meta.dirname,
+        "../server/certs/localhost.pem",
+      );
 
       if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
         return {

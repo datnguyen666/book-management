@@ -16,7 +16,11 @@ export function PortalSelector({
   const isManagement = portal === "MANAGEMENT";
 
   return (
-    <div className="mb-6 grid grid-cols-2 gap-3" role="tablist" aria-label="Cổng đăng nhập">
+    <div
+      className="mb-5 grid grid-cols-2 gap-2 rounded-2xl bg-[#eae4d9]/70 p-1.5 border border-stone-200/80"
+      role="tablist"
+      aria-label="Cổng đăng nhập"
+    >
       {/* Cổng Bạn đọc */}
       <button
         type="button"
@@ -24,69 +28,71 @@ export function PortalSelector({
         aria-selected={isMember}
         disabled={disabled}
         onClick={() => onChange("MEMBER")}
-        className={`group relative flex flex-col items-center justify-center rounded-xl border p-3.5 text-center transition-all duration-200 cursor-pointer ${
+        className={`group relative flex items-center gap-3 rounded-xl p-2.5 sm:p-3 text-left transition-all duration-200 cursor-pointer ${
           isMember
-            ? "border-[#8A5A1E] bg-amber-50/70 shadow-sm ring-2 ring-[#8A5A1E]/20 text-[#3b2410]"
-            : "border-gray-200 bg-white text-gray-500 hover:border-amber-200 hover:bg-amber-50/20"
+            ? "bg-white text-stone-900 shadow-sm ring-1 ring-stone-950/5"
+            : "text-stone-600 hover:text-stone-900 hover:bg-white/60"
         } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
       >
         <div
-          className={`mb-2 flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${
             isMember
-              ? "bg-[#8A5A1E] text-white shadow-sm"
-              : "bg-gray-100 text-gray-400 group-hover:bg-amber-100 group-hover:text-amber-800"
+              ? "bg-[#8A5A1E] text-white shadow-xs"
+              : "bg-stone-200/80 text-stone-500 group-hover:bg-amber-100/60 group-hover:text-amber-900"
           }`}
         >
           <BookOpen className="h-5 w-5" />
         </div>
-        <span className="text-sm font-bold tracking-tight text-gray-900">
-          Bạn đọc
-        </span>
-        <span className="mt-0.5 text-[11px] text-gray-500 font-medium">
-          Mượn & tra cứu sách
-        </span>
-
-        {isMember && (
-          <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#8A5A1E] text-[10px] text-white">
-            ✓
-          </span>
-        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm font-bold tracking-tight">Bạn đọc</span>
+            {isMember && (
+              <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#8A5A1E] text-[9px] text-white font-bold">
+                ✓
+              </span>
+            )}
+          </div>
+          <p className="truncate text-xs text-stone-500 font-medium">
+            Mượn & tra cứu
+          </p>
+        </div>
       </button>
 
-      {/* Cổng Quản lý & Nhân viên */}
+      {/* Cổng Quản lý & Thủ thư */}
       <button
         type="button"
         role="tab"
         aria-selected={isManagement}
         disabled={disabled}
         onClick={() => onChange("MANAGEMENT")}
-        className={`group relative flex flex-col items-center justify-center rounded-xl border p-3.5 text-center transition-all duration-200 cursor-pointer ${
+        className={`group relative flex items-center gap-3 rounded-xl p-2.5 sm:p-3 text-left transition-all duration-200 cursor-pointer ${
           isManagement
-            ? "border-[#2b1608] bg-stone-100/90 shadow-sm ring-2 ring-[#2b1608]/20 text-[#2b1608]"
-            : "border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:bg-stone-50/50"
+            ? "bg-white text-stone-900 shadow-sm ring-1 ring-stone-950/5"
+            : "text-stone-600 hover:text-stone-900 hover:bg-white/60"
         } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
       >
         <div
-          className={`mb-2 flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${
             isManagement
-              ? "bg-[#2b1608] text-amber-300 shadow-sm"
-              : "bg-gray-100 text-gray-400 group-hover:bg-stone-200 group-hover:text-stone-800"
+              ? "bg-[#1c1917] text-amber-300 shadow-xs"
+              : "bg-stone-200/80 text-stone-500 group-hover:bg-stone-300/80 group-hover:text-stone-900"
           }`}
         >
           <ShieldCheck className="h-5 w-5" />
         </div>
-        <span className="text-sm font-bold tracking-tight text-gray-900">
-          Ban quản lý
-        </span>
-        <span className="mt-0.5 text-[11px] text-gray-500 font-medium">
-          Thủ thư & Quản trị
-        </span>
-
-        {isManagement && (
-          <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#2b1608] text-[10px] text-amber-300">
-            ✓
-          </span>
-        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm font-bold tracking-tight">Quản lý</span>
+            {isManagement && (
+              <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#1c1917] text-[9px] text-amber-300 font-bold">
+                ✓
+              </span>
+            )}
+          </div>
+          <p className="truncate text-xs text-stone-500 font-medium">
+            Thủ thư & Admin
+          </p>
+        </div>
       </button>
     </div>
   );

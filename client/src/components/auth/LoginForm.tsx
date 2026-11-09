@@ -11,7 +11,7 @@ import {
   AlertCircle,
   User,
   Loader2,
-  Sparkles,
+  // Sparkles,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -86,11 +86,11 @@ export function LoginForm({ portal, onPortalChange }: LoginFormProps) {
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const navigate = useNavigate();
 
-  const handleQuickFill = (username: string, password: string) => {
-    setValue("username", username, { shouldValidate: true });
-    setValue("password", password, { shouldValidate: true });
-    setLoginError("");
-  };
+  // const handleQuickFill = (username: string, password: string) => {
+  //   setValue("username", username, { shouldValidate: true });
+  //   setValue("password", password, { shouldValidate: true });
+  //   setLoginError("");
+  // };
 
   const onSubmit = async (data: LoginFormData) => {
     setLoginError("");
@@ -169,7 +169,7 @@ export function LoginForm({ portal, onPortalChange }: LoginFormProps) {
 
       setForgotMessage(
         response.message ||
-          "Yêu cầu đã được gửi. Vui lòng kiểm tra hộp thư email của bạn.",
+        "Yêu cầu đã được gửi. Vui lòng kiểm tra hộp thư email của bạn.",
       );
     } catch (error) {
       console.error(error);
@@ -370,7 +370,7 @@ export function LoginForm({ portal, onPortalChange }: LoginFormProps) {
         </div>
 
         {/* Thanh gợi ý tài khoản thử nghiệm (Demo Quick Fill) */}
-        {currentPortal === "MANAGEMENT" && (
+        {/* {currentPortal === "MANAGEMENT" && (
           <div className="rounded-xl border border-dashed border-stone-200 bg-stone-50/80 p-2.5">
             <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-2">
               <Sparkles className="h-3.5 w-3.5 text-amber-600" />
@@ -395,17 +395,16 @@ export function LoginForm({ portal, onPortalChange }: LoginFormProps) {
               </button>
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Nút Đăng nhập */}
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 font-semibold text-white transition duration-200 hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer shadow-md ${
-            currentPortal === "MEMBER"
-              ? "bg-gradient-to-r from-[#8A5A1E] to-[#6b4213] hover:from-[#764b18] hover:to-[#5c370e] shadow-[#8A5A1E]/20"
-              : "bg-gradient-to-r from-[#1c1917] via-[#292524] to-[#12192B] hover:opacity-95 text-amber-200 shadow-stone-900/20"
-          }`}
+          className={`w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 font-semibold text-white transition duration-200 hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer shadow-md ${currentPortal === "MEMBER"
+            ? "bg-gradient-to-r from-[#8A5A1E] to-[#6b4213] hover:from-[#764b18] hover:to-[#5c370e] shadow-[#8A5A1E]/20"
+            : "bg-gradient-to-r from-[#1c1917] via-[#292524] to-[#12192B] hover:opacity-95 text-amber-200 shadow-stone-900/20"
+            }`}
         >
           {isSubmitting ? (
             <>

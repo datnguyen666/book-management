@@ -95,8 +95,8 @@ export function MembersPage() {
             <Users className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold"
-              style={{ fontFamily: "'Source Serif 4', serif", color: "#12192B" }}>
+            <h1 className="text-2xl font-semibold font-heading"
+              style={{ fontFamily: "var(--heading)", color: "#12192B" }}>
               Reader Community
             </h1>
             <p className="text-sm text-slate-500">

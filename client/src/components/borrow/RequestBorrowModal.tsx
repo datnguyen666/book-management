@@ -115,7 +115,7 @@ export function RequestBorrowModal({
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-600">
               <CheckCircle2 size={32} />
             </div>
-            <h4 className="text-xl font-bold text-gray-900 font-serif">
+            <h4 className="text-xl font-bold text-gray-900 font-heading">
               Đã gửi yêu cầu mượn thành công!
             </h4>
             <p className="text-sm text-gray-600 max-w-sm mx-auto">

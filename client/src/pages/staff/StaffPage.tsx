@@ -193,8 +193,8 @@ export function StaffPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1
-            className="text-2xl font-semibold"
-            style={{ fontFamily: "'Source Serif 4', serif", color: "#12192B" }}
+            className="text-2xl font-semibold font-heading"
+            style={{ fontFamily: "var(--heading)", color: "#12192B" }}
           >
             Staff Management
           </h1>

@@ -64,7 +64,7 @@ export function LoginPage() {
 
           {isMember ? (
             <>
-              <h1 className="mb-4 font-serif text-4xl font-bold leading-tight">
+              <h1 className="mb-4 font-heading text-4xl font-bold leading-tight">
                 Kho tàng tri thức,
                 <br />
                 <span className="text-amber-400">trong tầm tay bạn.</span>
@@ -125,7 +125,7 @@ export function LoginPage() {
             </>
           ) : (
             <>
-              <h1 className="mb-4 font-serif text-4xl font-bold leading-tight">
+              <h1 className="mb-4 font-heading text-4xl font-bold leading-tight">
                 Vận hành chuyên nghiệp,
                 <br />
                 <span className="text-amber-400">kiểm soát toàn diện.</span>
@@ -213,7 +213,7 @@ export function LoginPage() {
 
           {/* Form Header */}
           <div className="text-center sm:text-left">
-            <h2 className="font-serif text-3xl font-bold text-[#2b1608]">
+            <h2 className="font-heading text-3xl font-bold text-[#2b1608]">
               {isMember ? "Chào mừng Bạn đọc" : "Cổng Quản trị Thư viện"}
             </h2>
             <p className="mt-1.5 text-sm text-stone-600">

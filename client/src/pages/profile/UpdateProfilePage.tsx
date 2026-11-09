@@ -224,9 +224,9 @@ export function UpdateProfilePage() {
       {/* Page heading */}
       <div className="mb-5 sm:mb-6">
         <h1
-          className="mt-2 text-3xl font-semibold leading-tight sm:text-4xl"
+          className="mt-2 text-3xl font-semibold leading-tight sm:text-4xl font-heading"
           style={{
-            fontFamily: "'Source Serif 4', serif",
+            fontFamily: "var(--heading)",
             color: "#12192B",
           }}
         >
@@ -412,9 +412,9 @@ function SectionHeading({
 
       <div className="min-w-0">
         <h2
-          className="text-xl font-semibold leading-snug sm:text-2xl"
+          className="text-xl font-semibold leading-snug sm:text-2xl font-heading"
           style={{
-            fontFamily: "'Source Serif 4', serif",
+            fontFamily: "var(--heading)",
             color: "#12192B",
           }}
         >

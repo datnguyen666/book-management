@@ -79,7 +79,7 @@ export function RegisterForm() {
         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-600">
           <CheckCircle size={32} />
         </div>
-        <h3 className="text-xl font-bold text-gray-900 font-serif">
+        <h3 className="text-xl font-bold text-gray-900 font-heading">
           Đăng ký thành công!
         </h3>
         <p className="mt-1 text-sm text-gray-600">

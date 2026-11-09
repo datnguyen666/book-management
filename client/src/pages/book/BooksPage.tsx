@@ -168,8 +168,8 @@ export function BooksPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1
-            className="text-2xl font-semibold"
-            style={{ fontFamily: "'Source Serif 4', serif", color: "#12192B" }}
+            className="text-2xl font-semibold font-heading"
+            style={{ fontFamily: "var(--heading)", color: "#12192B" }}
           >
             Books
           </h1>
@@ -659,9 +659,9 @@ export function BooksPage() {
               style={{ borderBottom: "1px solid #E6DFCE", paddingBottom: 16 }}
             >
               <h2
-                className="text-xl font-semibold"
+                className="text-xl font-semibold font-heading"
                 style={{
-                  fontFamily: "'Source Serif 4', serif",
+                  fontFamily: "var(--heading)",
                   color: "#12192B",
                 }}
               >

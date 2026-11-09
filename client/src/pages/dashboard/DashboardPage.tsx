@@ -126,8 +126,8 @@ export function DashboardPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1
-            className="text-2xl font-semibold"
-            style={{ fontFamily: "'Source Serif 4', serif", color: INK }}
+            className="text-2xl font-semibold font-heading"
+            style={{ fontFamily: "var(--heading)", color: INK }}
           >
             Overview
           </h1>
@@ -286,9 +286,9 @@ export function DashboardPage() {
                       </p>
 
                       <p
-                        className="mt-2 text-4xl font-semibold tabular-nums"
+                        className="mt-2 text-4xl font-semibold tabular-nums font-heading"
                         style={{
-                          fontFamily: "'Source Serif 4', serif",
+                          fontFamily: "var(--heading)",
                           color: isOverdue ? OVERDUE : INK,
                         }}
                       >
@@ -629,9 +629,9 @@ export function DashboardPage() {
                       </div>
 
                       <p
-                        className="mt-2 text-2xl font-semibold tabular-nums"
+                        className="mt-2 text-2xl font-semibold tabular-nums font-heading"
                         style={{
-                          fontFamily: "'Source Serif 4', serif",
+                          fontFamily: "var(--heading)",
                           color: INK,
                         }}
                       >
@@ -666,9 +666,9 @@ export function DashboardPage() {
                       </div>
 
                       <p
-                        className="mt-2 text-2xl font-semibold tabular-nums"
+                        className="mt-2 text-2xl font-semibold tabular-nums font-heading"
                         style={{
-                          fontFamily: "'Source Serif 4', serif",
+                          fontFamily: "var(--heading)",
                           color: INK,
                         }}
                       >
@@ -716,9 +716,9 @@ export function DashboardPage() {
                         Total records
                       </span>{" "}
                       <span
-                        className="text-lg font-semibold tabular-nums"
+                        className="text-lg font-semibold tabular-nums font-heading"
                         style={{
-                          fontFamily: "'Source Serif 4', serif",
+                          fontFamily: "var(--heading)",
                           color: INK,
                         }}
                       >

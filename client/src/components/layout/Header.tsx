@@ -147,8 +147,8 @@ export function Header({ onMenuClick }: HeaderProps) {
       {/* Page title + Date/Time */}
       <div className="min-w-0 flex-1 lg:flex-none">
         <h2
-          className="truncate text-lg font-semibold sm:text-xl"
-          style={{ fontFamily: "'Source Serif 4', serif", color: "#12192B" }}
+          className="truncate text-lg font-semibold sm:text-xl font-heading"
+          style={{ fontFamily: "var(--heading)", color: "#12192B" }}
         >
           {pageTitle}
         </h2>

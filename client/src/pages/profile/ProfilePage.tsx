@@ -87,9 +87,9 @@ export function ProfilePage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h1
-            className="text-3xl font-semibold leading-tight sm:text-4xl"
+            className="text-3xl font-semibold leading-tight sm:text-4xl font-heading"
             style={{
-              fontFamily: "'Source Serif 4', serif",
+              fontFamily: "var(--heading)",
               color: "#12192B",
             }}
           >
@@ -129,12 +129,12 @@ export function ProfilePage() {
 
           <div className="relative z-10 flex flex-col items-center gap-4 text-center sm:flex-row sm:gap-6 sm:text-left">
             <div
-              className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full text-2xl font-semibold sm:h-28 sm:w-28 sm:text-3xl"
+              className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full text-2xl font-semibold sm:h-28 sm:w-28 sm:text-3xl font-heading"
               style={{
                 color: "#E9B35A",
                 border: "2px solid #B8863B",
                 backgroundColor: "rgba(255,255,255,0.03)",
-                fontFamily: "'Source Serif 4', serif",
+                fontFamily: "var(--heading)",
               }}
             >
               {initials}
@@ -142,8 +142,8 @@ export function ProfilePage() {
 
             <div className="min-w-0">
               <h2
-                className="break-words text-2xl font-semibold sm:text-3xl"
-                style={{ fontFamily: "'Source Serif 4', serif" }}
+                className="break-words text-2xl font-semibold sm:text-3xl font-heading"
+                style={{ fontFamily: "var(--heading)" }}
               >
                 {user.fullName || user.username}
               </h2>

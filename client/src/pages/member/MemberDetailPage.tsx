@@ -194,8 +194,8 @@ export function MemberDetailPage() {
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-semibold"
-              style={{ fontFamily: "'Source Serif 4', serif", color: "#12192B" }}>
+            <h1 className="text-2xl font-semibold font-heading"
+              style={{ fontFamily: "var(--heading)", color: "#12192B" }}>
               Hồ sơ Bạn đọc
             </h1>
             <p className="text-xs text-slate-500">
@@ -234,7 +234,7 @@ export function MemberDetailPage() {
         <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-start gap-4">
             {/* Avatar chữ cái */}
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#B8863B]/30 bg-gradient-to-br from-[#B8863B]/20 to-[#8A5A1E]/20 font-serif text-xl font-bold text-[#8A5A1E]">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#B8863B]/30 bg-gradient-to-br from-[#B8863B]/20 to-[#8A5A1E]/20 font-heading text-xl font-bold text-[#8A5A1E]">
               {(member.fullName || member.username).charAt(0).toUpperCase()}
             </div>
 
@@ -302,7 +302,7 @@ export function MemberDetailPage() {
               </div>
             </div>
             <div className="mt-3">
-              <span className="font-serif text-3xl font-bold text-slate-900">
+              <span className="font-heading text-3xl font-bold text-slate-900">
                 {stats.totalBorrows}
               </span>
               <span className="ml-1 text-xs text-slate-400">lần</span>
@@ -320,7 +320,7 @@ export function MemberDetailPage() {
               </div>
             </div>
             <div className="mt-3">
-              <span className="font-serif text-3xl font-bold text-blue-700">
+              <span className="font-heading text-3xl font-bold text-blue-700">
                 {stats.borrowingCount}
               </span>
               <span className="ml-1 text-xs text-slate-400">cuốn</span>
@@ -352,7 +352,7 @@ export function MemberDetailPage() {
             </div>
             <div className="mt-3">
               <span
-                className={`font-serif text-3xl font-bold ${stats.overdueCount > 0 ? "text-rose-700" : "text-slate-900"
+                className={`font-heading text-3xl font-bold ${stats.overdueCount > 0 ? "text-rose-700" : "text-slate-900"
                   }`}
               >
                 {stats.overdueCount}
@@ -372,7 +372,7 @@ export function MemberDetailPage() {
               </div>
             </div>
             <div className="mt-3">
-              <span className="font-serif text-3xl font-bold text-emerald-700">
+              <span className="font-heading text-3xl font-bold text-emerald-700">
                 {stats.returnedCount}
               </span>
               <span className="ml-1 text-xs text-slate-400">cuốn</span>
@@ -387,7 +387,7 @@ export function MemberDetailPage() {
         <div className="flex flex-col gap-3 border-b border-slate-200 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-[#8A5A1E]" />
-            <h3 className="font-serif text-base font-bold text-slate-900">
+            <h3 className="font-heading text-base font-bold text-slate-900">
               Lịch sử Mượn / Trả Sách
             </h3>
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">

@@ -31,7 +31,7 @@ export function RegisterPage() {
             <span className="h-px flex-1 bg-white/15" />
           </div>
 
-          <h1 className="mb-4 font-serif text-4xl font-bold leading-tight">
+          <h1 className="mb-4 font-heading text-4xl font-bold leading-tight">
             Gia nhập thư viện,
             <br />
             <span className="text-amber-400">mở ra tri thức.</span>
@@ -68,7 +68,7 @@ export function RegisterPage() {
       {/* Right panel */}
       <div className="flex w-full flex-col items-center justify-center bg-[#f5f1ea] px-6 py-12 lg:w-1/2">
         <div className="w-full max-w-sm">
-          <h2 className="mb-2 font-serif text-3xl font-bold text-[#2b1608]">
+          <h2 className="mb-2 font-heading text-3xl font-bold text-[#2b1608]">
             Đăng ký độc giả
           </h2>
           <p className="mb-6 text-sm text-gray-500">

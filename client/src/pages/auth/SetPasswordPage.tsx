@@ -117,7 +117,7 @@ export function SetPasswordPage() {
 
         {/* Card */}
         <div className="w-full rounded-2xl bg-white p-8 shadow-xl border border-stone-200/80">
-          <h1 className="font-serif text-2xl font-bold text-[#2b1608]">
+          <h1 className="font-heading text-2xl font-bold text-[#2b1608]">
             Thiết lập mật khẩu
           </h1>
 

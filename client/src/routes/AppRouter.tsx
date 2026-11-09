@@ -27,7 +27,7 @@ import { MemberDetailPage } from "@/pages/member/MemberDetailPage";
 function NotFoundPage() {
   return (
     <div className="flex h-screen flex-col items-center justify-center p-6 text-center">
-      <h1 className="text-4xl font-bold text-gray-900 font-serif">404</h1>
+      <h1 className="text-4xl font-bold text-gray-900 font-heading">404</h1>
       <p className="mt-2 text-base text-gray-600">Trang bạn tìm kiếm không tồn tại.</p>
       <a
         href="/"

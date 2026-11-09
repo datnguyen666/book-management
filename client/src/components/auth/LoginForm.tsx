@@ -455,7 +455,7 @@ export function LoginForm({ portal, onPortalChange }: LoginFormProps) {
                 <Mail className="h-5 w-5" />
               </div>
 
-              <h3 className="font-serif text-2xl font-bold text-[#2b1608]">
+              <h3 className="font-heading text-2xl font-bold text-[#2b1608]">
                 Khôi phục mật khẩu
               </h3>
 
@@ -534,7 +534,7 @@ export function LoginForm({ portal, onPortalChange }: LoginFormProps) {
                 <LockKeyhole className="h-5 w-5" />
               </div>
 
-              <h3 className="font-serif text-2xl font-bold text-[#2b1608]">
+              <h3 className="font-heading text-2xl font-bold text-[#2b1608]">
                 Đặt lại mật khẩu mới
               </h3>
 

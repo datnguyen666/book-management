@@ -5,6 +5,7 @@ import { useBook } from "@/hooks/use-books";
 import { usePageTitle } from "@/hooks/use-page-title";
 import { getMediaUrl } from "@/lib/media";
 import { RequestBorrowModal } from "@/components/borrow/RequestBorrowModal";
+import { useAuthStore } from "@/store/auth.store";
 
 export function BookDetailPage() {
   const navigate = useNavigate();
@@ -17,6 +18,10 @@ export function BookDetailPage() {
   const bookId = Number(id);
 
   const { data: book, isLoading, isError } = useBook(bookId);
+
+  const user = useAuthStore((state) => state.user);
+
+  const isMember = user?.role === "MEMBER";
 
   // Ghi đè tên tab mặc định ("Book Details") khi đã có dữ liệu sách
   usePageTitle(book?.title);
@@ -111,20 +116,23 @@ export function BookDetailPage() {
           </p>
         </div>
 
-        <div>
-          <button
-            type="button"
-            onClick={() => setIsBorrowOpen(true)}
-            disabled={availableQuantity <= 0}
-            className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b2410] to-[#7a4b1e] px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <BookOpen size={16} />
-            <span>
-              {availableQuantity > 0 ? "Mượn sách" : "Tạm hết sách"}
-            </span>
-          </button>
-        </div>
+        {isMember && (
+          <div>
+            <button
+              type="button"
+              onClick={() => setIsBorrowOpen(true)}
+              disabled={availableQuantity <= 0}
+              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-[#3b2410] to-[#7a4b1e] px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <BookOpen size={16} />
+              <span>
+                {availableQuantity > 0 ? "Mượn sách" : "Tạm hết sách"}
+              </span>
+            </button>
+          </div>
+        )}
       </div>
+
 
       {/* Main */}
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
@@ -228,9 +236,8 @@ export function BookDetailPage() {
               </p>
 
               <p
-                className={`mt-1 text-sm font-semibold ${
-                  book.quantity === 0 ? "text-red-600" : "text-gray-900"
-                }`}
+                className={`mt-1 text-sm font-semibold ${book.quantity === 0 ? "text-red-600" : "text-gray-900"
+                  }`}
               >
                 {book.quantity}
               </p>
@@ -243,9 +250,8 @@ export function BookDetailPage() {
               </p>
 
               <p
-                className={`mt-1 text-sm font-semibold ${
-                  availableQuantity <= 0 ? "text-red-600" : "text-emerald-600"
-                }`}
+                className={`mt-1 text-sm font-semibold ${availableQuantity <= 0 ? "text-red-600" : "text-emerald-600"
+                  }`}
               >
                 {availableQuantity} cuốn khả dụng
               </p>

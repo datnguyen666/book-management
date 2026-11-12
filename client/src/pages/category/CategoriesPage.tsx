@@ -191,7 +191,7 @@ export function CategoriesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1
             className="text-2xl font-semibold font-heading"
@@ -205,65 +205,64 @@ export function CategoriesPage() {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleOpenCreate}
-          className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 cursor-pointer"
-          style={{
-            backgroundColor: INK,
-            color: "#C89B3C",
-          }}
-        >
-          <Plus size={16} />
-          Add Category
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Search Box ngay trên Header Action */}
+          <div className="relative w-full sm:w-72">
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Tìm theo tên hoặc mô tả..."
+              className="w-full rounded-md border border-[#D8CEB2] bg-white py-2 pl-9 pr-8 text-sm text-[#12192B] shadow-sm outline-none transition placeholder:text-gray-400 focus:border-[#B8863B] focus:ring-1 focus:ring-[#B8863B]"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+              >
+                <X size={15} />
+              </button>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleOpenCreate}
+            className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 cursor-pointer whitespace-nowrap shrink-0"
+            style={{
+              backgroundColor: INK,
+              color: "#C89B3C",
+            }}
+          >
+            <Plus size={16} />
+            Add Category
+          </button>
+        </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="flex flex-col gap-3 rounded-lg border border-[#E6DFCE] bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative flex-1 max-w-md">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm theo tên hoặc mô tả thể loại..."
-            className="w-full rounded-md border border-[#E6DFCE] bg-[#F7F2E7] py-2 pl-9 pr-9 text-sm text-[#12192B] outline-none transition placeholder:text-gray-400 focus:border-[#B8863B] focus:bg-white"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-            >
-              <X size={15} />
-            </button>
-          )}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-medium text-gray-500">
-            Hiển thị{" "}
-            <span className="font-semibold text-gray-800">
-              {filteredCategories.length}
-            </span>{" "}
-            / {categories.length} thể loại
+      {/* Filter Info Bar khi đang tìm kiếm */}
+      {searchQuery.trim() && (
+        <div className="flex items-center justify-between rounded-md border border-[#D8CEB2] bg-[#FAF7EF] px-4 py-2.5 text-xs">
+          <span className="text-gray-600">
+            Kết quả tìm kiếm cho <strong className="text-[#12192B]">"{searchQuery}"</strong>: tìm thấy{" "}
+            <strong className="text-[#12192B]">{filteredCategories.length}</strong> / {categories.length} thể loại
           </span>
-          {searchQuery.trim() && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery("")}
-              className="flex items-center gap-1 text-xs font-semibold text-[#B8863B] hover:underline cursor-pointer"
-            >
-              <RotateCcw size={12} />
-              Xóa tìm kiếm
-            </button>
-          )}
+
+          <button
+            type="button"
+            onClick={() => setSearchQuery("")}
+            className="flex items-center gap-1 font-semibold text-[#B8863B] hover:underline cursor-pointer"
+          >
+            <RotateCcw size={12} />
+            Xóa bộ lọc
+          </button>
         </div>
-      </div>
+      )}
 
       {/* Delete error */}
       {deleteError && (

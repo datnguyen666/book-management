@@ -38,6 +38,9 @@ export interface BookListResponse {
 export interface GetBooksParams {
   page?: number;
   limit?: number;
+  search?: string;
+  author?: string;
+  categoryId?: number;
 }
 
 interface BookDetailResponse {
@@ -125,6 +128,12 @@ export async function searchBooks(q: string): Promise<SearchBookResult[]> {
   const response = await api.get<SearchBookResult[]>("/books/search", {
     params: { q },
   });
+
+  return response.data;
+}
+
+export async function getBookAuthors(): Promise<string[]> {
+  const response = await api.get<string[]>("/books/authors");
 
   return response.data;
 }

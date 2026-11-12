@@ -63,12 +63,34 @@ export class BookService {
   }
 
   async findAll(query: QueryBookDto) {
-    const { page, limit } = query;
+    const { page, limit, search, author, categoryId } = query;
 
     const skip = (page - 1) * limit;
 
+    const where: Prisma.BookWhereInput = {};
+
+    if (search?.trim()) {
+      const q = search.trim();
+      where.OR = [
+        { title: { contains: q, mode: 'insensitive' } },
+        { isbn: { contains: q, mode: 'insensitive' } },
+      ];
+    }
+
+    if (author?.trim()) {
+      where.author = {
+        contains: author.trim(),
+        mode: 'insensitive',
+      };
+    }
+
+    if (categoryId) {
+      where.categoryId = categoryId;
+    }
+
     const [books, total] = await this.prisma.$transaction([
       this.prisma.book.findMany({
+        where,
         skip,
         take: limit,
         orderBy: {
@@ -84,7 +106,7 @@ export class BookService {
         },
       }),
 
-      this.prisma.book.count(),
+      this.prisma.book.count({ where }),
     ]);
 
     return {
@@ -97,6 +119,22 @@ export class BookService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  async getAuthors(): Promise<string[]> {
+    const books = await this.prisma.book.findMany({
+      select: {
+        author: true,
+      },
+      distinct: ['author'],
+      orderBy: {
+        author: 'asc',
+      },
+    });
+
+    return books
+      .map((b) => b.author)
+      .filter((a): a is string => Boolean(a && a.trim()));
   }
 
   async search(q: string) {

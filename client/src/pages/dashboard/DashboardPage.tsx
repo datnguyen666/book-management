@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 
 import { useDashboardSummary } from "@/hooks/use-dashboard";
-import { useNavigate } from "react-router-dom";
 
 interface SummaryCard {
   title: string;
@@ -80,7 +79,6 @@ export function DashboardPage() {
     },
   ];
 
-  const navigate = useNavigate();
 
   // Books added per month
   const monthlyData = data?.monthlyAcquisitions?.data ?? [];
@@ -411,14 +409,12 @@ export function DashboardPage() {
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => navigate("/categories")}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition hover:bg-[#F7F2E7]"
+                <div
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
                   style={{ border: `1px solid ${BORDER}`, color: BRASS }}
                 >
                   <FolderOpen size={16} />
-                </button>
+                </div>
               </div>
 
               <div className="mt-6 space-y-5">

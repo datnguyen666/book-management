@@ -8,6 +8,7 @@ import {
 import {
   getBook,
   getBooks,
+  getBookAuthors,
   createBook,
   updateBook,
   deleteBook,
@@ -22,6 +23,14 @@ export function useBooks(params: GetBooksParams) {
     queryKey: ["books", params],
     queryFn: () => getBooks(params),
     placeholderData: keepPreviousData,
+  });
+}
+
+export function useBookAuthors() {
+  return useQuery({
+    queryKey: ["books", "authors"],
+    queryFn: getBookAuthors,
+    staleTime: 5 * 60 * 1000,
   });
 }
 

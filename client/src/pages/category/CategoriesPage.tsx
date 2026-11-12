@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { FolderOpen, Plus } from "lucide-react";
+import { FolderOpen, Plus, Search, X, RotateCcw } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 
 import {
@@ -31,8 +31,17 @@ export function CategoriesPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null,
   );
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: categories = [], isLoading, isError } = useCategories();
+
+  const query = searchQuery.trim().toLowerCase();
+  const filteredCategories = categories.filter((cat) => {
+    if (!query) return true;
+    const matchName = cat.name.toLowerCase().includes(query);
+    const matchDesc = cat.description ? cat.description.toLowerCase().includes(query) : false;
+    return matchName || matchDesc;
+  });
 
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
@@ -199,7 +208,7 @@ export function CategoriesPage() {
         <button
           type="button"
           onClick={handleOpenCreate}
-          className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90"
+          className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 cursor-pointer"
           style={{
             backgroundColor: INK,
             color: "#C89B3C",
@@ -208,6 +217,52 @@ export function CategoriesPage() {
           <Plus size={16} />
           Add Category
         </button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="flex flex-col gap-3 rounded-lg border border-[#E6DFCE] bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative flex-1 max-w-md">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Tìm theo tên hoặc mô tả thể loại..."
+            className="w-full rounded-md border border-[#E6DFCE] bg-[#F7F2E7] py-2 pl-9 pr-9 text-sm text-[#12192B] outline-none transition placeholder:text-gray-400 focus:border-[#B8863B] focus:bg-white"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
+              <X size={15} />
+            </button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-medium text-gray-500">
+            Hiển thị{" "}
+            <span className="font-semibold text-gray-800">
+              {filteredCategories.length}
+            </span>{" "}
+            / {categories.length} thể loại
+          </span>
+          {searchQuery.trim() && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="flex items-center gap-1 text-xs font-semibold text-[#B8863B] hover:underline cursor-pointer"
+            >
+              <RotateCcw size={12} />
+              Xóa tìm kiếm
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Delete error */}
@@ -248,7 +303,7 @@ export function CategoriesPage() {
         </div>
       )}
 
-      {/* Empty */}
+      {/* Empty when no categories created yet */}
       {!isLoading && !isError && categories.length === 0 && (
         <div
           className="rounded-lg bg-white p-10 text-center"
@@ -271,8 +326,43 @@ export function CategoriesPage() {
         </div>
       )}
 
+      {/* Empty when search has no match */}
+      {!isLoading &&
+        !isError &&
+        categories.length > 0 &&
+        filteredCategories.length === 0 && (
+          <div
+            className="rounded-lg bg-white p-10 text-center"
+            style={{ border: `1px solid ${BORDER}` }}
+          >
+            <div
+              className="mx-auto flex h-12 w-12 items-center justify-center rounded-full"
+              style={{ border: `1px solid ${BRASS}55` }}
+            >
+              <Search size={20} style={{ color: BRASS }} />
+            </div>
+
+            <p className="mt-3 text-sm font-medium" style={{ color: INK }}>
+              Không tìm thấy thể loại nào
+            </p>
+
+            <p className="mt-1 text-xs" style={{ color: "#B0B7C4" }}>
+              Không có thể loại nào khớp với từ khóa "{searchQuery}".
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-[#12192B] px-3.5 py-1.5 text-xs font-semibold text-[#C89B3C] transition hover:opacity-90 cursor-pointer"
+            >
+              <RotateCcw size={13} />
+              Xóa tìm kiếm
+            </button>
+          </div>
+        )}
+
       {/* Table */}
-      {!isLoading && !isError && categories.length > 0 && (
+      {!isLoading && !isError && filteredCategories.length > 0 && (
         <div
           className="overflow-hidden rounded-lg bg-white shadow-[0_1px_3px_rgba(18,25,43,0.06),0_8px_24px_-12px_rgba(18,25,43,0.14)]"
           style={{ border: "1px solid #D8CEB2" }}
@@ -317,7 +407,7 @@ export function CategoriesPage() {
               </thead>
 
               <tbody>
-                {categories.map((category, index) => (
+                {filteredCategories.map((category, index) => (
                   <tr
                     key={category.id}
                     className="transition-colors hover:bg-[#FAF7EF]"

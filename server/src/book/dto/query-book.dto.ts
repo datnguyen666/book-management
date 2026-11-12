@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 
 import { Type } from 'class-transformer';
 
-import { IsInt, IsOptional, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class QueryBookDto {
   @ApiPropertyOptional({
@@ -24,4 +24,29 @@ export class QueryBookDto {
   @IsInt()
   @Min(1)
   limit: number = 10;
+
+  @ApiPropertyOptional({
+    description: 'Tìm theo tên sách hoặc ISBN',
+    example: 'Harry Potter',
+  })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional({
+    description: 'Lọc theo tác giả',
+    example: 'J.K. Rowling',
+  })
+  @IsOptional()
+  @IsString()
+  author?: string;
+
+  @ApiPropertyOptional({
+    description: 'Lọc theo thể loại',
+    example: 1,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  categoryId?: number;
 }

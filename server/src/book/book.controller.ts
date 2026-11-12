@@ -42,7 +42,7 @@ import { multerOptions } from '../common/upload/multer.config';
 @UseGuards(JwtAuthGuard)
 @Controller('books')
 export class BookController {
-  constructor(private readonly bookService: BookService) {}
+  constructor(private readonly bookService: BookService) { }
 
   @Post()
   @UseGuards(RolesGuard)
@@ -68,6 +68,14 @@ export class BookController {
   })
   search(@Query('q') q: string) {
     return this.bookService.search(q);
+  }
+
+  @Get('authors')
+  @ApiOperation({
+    summary: 'Get all unique authors',
+  })
+  getAuthors() {
+    return this.bookService.getAuthors();
   }
 
   @Get(':id')

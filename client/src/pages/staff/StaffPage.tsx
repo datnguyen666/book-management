@@ -1,4 +1,15 @@
-import { Users, Plus } from "lucide-react";
+import {
+  Users,
+  Plus,
+  Search,
+  X,
+  ChevronDown,
+  RotateCcw,
+  Edit,
+  Eye,
+  EyeOff,
+  Trash2,
+} from "lucide-react";
 import {
   useStaff,
   useCreateStaff,
@@ -10,14 +21,42 @@ import { useState } from "react";
 import axios from "axios";
 import { StaffModal } from "@/components/staff/StaffModal";
 import type { CreateStaffFormData } from "@/schemas/staff.schema";
-import { Edit } from "lucide-react";
-import { Eye, EyeOff } from "lucide-react";
 import type { Staff } from "@/api/staff.api";
-import { Trash2 } from "lucide-react";
 
 export function StaffPage() {
   const { data: staff = [], isLoading, isError } = useStaff();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
+
+  const query = searchQuery.trim().toLowerCase();
+  const filteredStaff = staff.filter((member) => {
+    if (query) {
+      const matchName = member.fullName.toLowerCase().includes(query);
+      const matchEmail = member.email.toLowerCase().includes(query);
+      const matchUsername = member.username.toLowerCase().includes(query);
+      if (!matchName && !matchEmail && !matchUsername) {
+        return false;
+      }
+    }
+
+    if (statusFilter === "active" && !member.isActive) {
+      return false;
+    }
+    if (statusFilter === "inactive" && member.isActive) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const hasActiveFilters = Boolean(searchQuery.trim() || statusFilter !== "all");
+
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+  };
+
   const createMutation = useCreateStaff();
   const updateMutation = useUpdateStaff();
   const statusMutation = useUpdateStaffStatus();
@@ -206,7 +245,7 @@ export function StaffPage() {
         <button
           type="button"
           onClick={handleOpenCreate}
-          className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90"
+          className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 cursor-pointer"
           style={{
             backgroundColor: "#12192B",
             color: "#C89B3C",
@@ -215,6 +254,75 @@ export function StaffPage() {
           <Plus size={16} />
           Add Staff
         </button>
+      </div>
+
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col gap-3 rounded-lg border border-[#E6DFCE] bg-white p-4 shadow-sm md:flex-row md:items-center">
+        {/* Search Input */}
+        <div className="relative flex-1">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Tìm theo họ tên, email hoặc username..."
+            className="w-full rounded-md border border-[#E6DFCE] bg-[#F7F2E7] py-2 pl-9 pr-9 text-sm text-[#12192B] outline-none transition placeholder:text-gray-400 focus:border-[#B8863B] focus:bg-white"
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
+              <X size={15} />
+            </button>
+          )}
+        </div>
+
+        {/* Status Filter */}
+        <div className="relative min-w-[180px]">
+          <select
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as "all" | "active" | "inactive")
+            }
+            className="w-full appearance-none rounded-md border border-[#E6DFCE] bg-[#F7F2E7] py-2 pl-3 pr-8 text-sm text-[#12192B] outline-none transition focus:border-[#B8863B] focus:bg-white cursor-pointer"
+          >
+            <option value="all">Tất cả trạng thái</option>
+            <option value="active">Đang hoạt động</option>
+            <option value="inactive">Ngừng hoạt động</option>
+          </select>
+          <ChevronDown
+            size={15}
+            className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+        </div>
+
+        {/* Stats & Reset */}
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-medium text-gray-500 whitespace-nowrap">
+            Hiển thị{" "}
+            <span className="font-semibold text-gray-800">
+              {filteredStaff.length}
+            </span>{" "}
+            / {staff.length} nhân viên
+          </span>
+
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="flex items-center justify-center gap-1.5 rounded-md border border-[#E6DFCE] bg-[#F7F2E7] px-3 py-2 text-xs font-semibold text-[#12192B] transition hover:bg-[#EFE9DA] hover:text-[#B8863B] cursor-pointer"
+              title="Đặt lại tất cả bộ lọc"
+            >
+              <RotateCcw size={14} />
+              <span>Đặt lại</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Status Error */}
@@ -269,7 +377,7 @@ export function StaffPage() {
         </div>
       )}
 
-      {/* Empty */}
+      {/* Empty when no staff in system */}
       {!isLoading && !isError && staff.length === 0 && (
         <div
           className="rounded-lg bg-white p-10 text-center"
@@ -292,8 +400,46 @@ export function StaffPage() {
         </div>
       )}
 
+      {/* Empty when search/filter has no match */}
+      {!isLoading &&
+        !isError &&
+        staff.length > 0 &&
+        filteredStaff.length === 0 && (
+          <div
+            className="rounded-lg bg-white p-10 text-center"
+            style={{ border: "1px solid #E6DFCE" }}
+          >
+            <div
+              className="mx-auto flex h-12 w-12 items-center justify-center rounded-full"
+              style={{ border: "1px solid #B8863B55" }}
+            >
+              <Search size={20} style={{ color: "#B8863B" }} />
+            </div>
+
+            <p
+              className="mt-3 text-sm font-medium"
+              style={{ color: "#12192B" }}
+            >
+              Không tìm thấy nhân viên phù hợp
+            </p>
+
+            <p className="mt-1 text-xs" style={{ color: "#B0B7C4" }}>
+              Không có nhân viên nào khớp với điều kiện tìm kiếm hoặc bộ lọc hiện tại.
+            </p>
+
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-[#12192B] px-3.5 py-1.5 text-xs font-semibold text-[#C89B3C] transition hover:opacity-90 cursor-pointer"
+            >
+              <RotateCcw size={13} />
+              Đặt lại bộ lọc
+            </button>
+          </div>
+        )}
+
       {/* Table */}
-      {!isLoading && !isError && staff.length > 0 && (
+      {!isLoading && !isError && filteredStaff.length > 0 && (
         <div
           className="overflow-hidden rounded-lg bg-white shadow-[0_1px_3px_rgba(18,25,43,0.06),0_8px_24px_-12px_rgba(18,25,43,0.14)]"
           style={{ border: "1px solid #D8CEB2" }}
@@ -359,7 +505,7 @@ export function StaffPage() {
               </thead>
 
               <tbody>
-                {staff.map((member, index) => (
+                {filteredStaff.map((member, index) => (
                   <tr
                     key={member.id}
                     className="transition-colors hover:bg-[#FAF7EF]"

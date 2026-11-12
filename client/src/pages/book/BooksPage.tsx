@@ -2,14 +2,19 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import {
   BookOpen,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Plus,
+  RotateCcw,
+  Search,
   Wallet,
+  X,
 } from "lucide-react";
 
 import {
   useBooks,
+  useBookAuthors,
   useCreateBook,
   useUpdateBook,
   useUploadBookCover,
@@ -42,6 +47,40 @@ export function BooksPage() {
   const pageParam = Number(searchParams.get("page"));
   const page = Number.isInteger(pageParam) && pageParam > 0 ? pageParam : 1;
 
+  const searchParam = searchParams.get("search") || "";
+  const authorParam = searchParams.get("author") || "";
+  const categoryIdParam = searchParams.get("categoryId")
+    ? Number(searchParams.get("categoryId"))
+    : undefined;
+
+  const [searchInput, setSearchInput] = useState(searchParam);
+
+  // Đồng bộ searchInput khi URL param thay đổi (ví dụ nút Back/Forward)
+  useEffect(() => {
+    setSearchInput(searchParam);
+  }, [searchParam]);
+
+  // Debounce cập nhật searchParam lên URL khi người dùng gõ
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const trimmed = searchInput.trim();
+      if (trimmed !== searchParam) {
+        setSearchParams((prev) => {
+          const next = new URLSearchParams(prev);
+          if (trimmed) {
+            next.set("search", trimmed);
+          } else {
+            next.delete("search");
+          }
+          next.delete("page");
+          return next;
+        });
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchInput, searchParam, setSearchParams]);
+
   const setPage = (updater: number | ((current: number) => number)) => {
     setSearchParams((prev) => {
       const currentPageParam = Number(prev.get("page"));
@@ -62,15 +101,72 @@ export function BooksPage() {
     });
   };
 
+  const handleAuthorChange = (newAuthor: string) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (newAuthor.trim()) {
+        next.set("author", newAuthor.trim());
+      } else {
+        next.delete("author");
+      }
+      next.delete("page");
+      return next;
+    });
+  };
+
+  const handleCategoryChange = (newCategoryId: string) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (newCategoryId) {
+        next.set("categoryId", newCategoryId);
+      } else {
+        next.delete("categoryId");
+      }
+      next.delete("page");
+      return next;
+    });
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput("");
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete("search");
+      next.delete("page");
+      return next;
+    });
+  };
+
+  const handleResetFilters = () => {
+    setSearchInput("");
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete("search");
+      next.delete("author");
+      next.delete("categoryId");
+      next.delete("page");
+      return next;
+    });
+  };
+
+  const hasActiveFilters = Boolean(
+    searchParam || authorParam || categoryIdParam !== undefined,
+  );
+
   const {
     data: categories = [],
     isLoading: isCategoriesLoading,
     isError: isCategoriesError,
   } = useCategories();
 
+  const { data: authors = [] } = useBookAuthors();
+
   const { data, isLoading, isError, isFetching } = useBooks({
     page,
     limit: DEFAULT_LIMIT,
+    search: searchParam || undefined,
+    author: authorParam || undefined,
+    categoryId: categoryIdParam,
   });
 
   const books = data?.data ?? [];
@@ -216,6 +312,86 @@ export function BooksPage() {
         )}
       </div>
 
+      {/* Search & Filter Bar */}
+      <div className="flex flex-col gap-3 rounded-lg border border-[#E6DFCE] bg-white p-4 shadow-sm md:flex-row md:items-center">
+        {/* Search Input */}
+        <div className="relative flex-1">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            type="text"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Tìm theo tên sách hoặc ISBN..."
+            className="w-full rounded-md border border-[#E6DFCE] bg-[#F7F2E7] py-2 pl-9 pr-9 text-sm text-[#12192B] outline-none transition placeholder:text-gray-400 focus:border-[#B8863B] focus:bg-white"
+          />
+          {searchInput && (
+            <button
+              type="button"
+              onClick={handleClearSearch}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+            >
+              <X size={15} />
+            </button>
+          )}
+        </div>
+
+        {/* Category Filter */}
+        <div className="relative min-w-[180px]">
+          <select
+            value={categoryIdParam ?? ""}
+            onChange={(e) => handleCategoryChange(e.target.value)}
+            className="w-full appearance-none rounded-md border border-[#E6DFCE] bg-[#F7F2E7] py-2 pl-3 pr-8 text-sm text-[#12192B] outline-none transition focus:border-[#B8863B] focus:bg-white cursor-pointer"
+          >
+            <option value="">Tất cả thể loại</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            size={15}
+            className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+        </div>
+
+        {/* Author Filter */}
+        <div className="relative min-w-[180px]">
+          <select
+            value={authorParam}
+            onChange={(e) => handleAuthorChange(e.target.value)}
+            className="w-full appearance-none rounded-md border border-[#E6DFCE] bg-[#F7F2E7] py-2 pl-3 pr-8 text-sm text-[#12192B] outline-none transition focus:border-[#B8863B] focus:bg-white cursor-pointer"
+          >
+            <option value="">Tất cả tác giả</option>
+            {authors.map((authorName) => (
+              <option key={authorName} value={authorName}>
+                {authorName}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            size={15}
+            className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+        </div>
+
+        {/* Reset Filters */}
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={handleResetFilters}
+            className="flex items-center justify-center gap-1.5 rounded-md border border-[#E6DFCE] bg-[#F7F2E7] px-3 py-2 text-xs font-semibold text-[#12192B] transition hover:bg-[#EFE9DA] hover:text-[#B8863B] cursor-pointer"
+            title="Đặt lại tất cả bộ lọc"
+          >
+            <RotateCcw size={14} />
+            <span>Đặt lại</span>
+          </button>
+        )}
+      </div>
+
       {/* Loading */}
       {isLoading && (
         <div
@@ -250,16 +426,35 @@ export function BooksPage() {
             className="mx-auto flex h-12 w-12 items-center justify-center rounded-full"
             style={{ border: "1px solid #B8863B55" }}
           >
-            <BookOpen size={20} style={{ color: "#B8863B" }} />
+            {hasActiveFilters ? (
+              <Search size={20} style={{ color: "#B8863B" }} />
+            ) : (
+              <BookOpen size={20} style={{ color: "#B8863B" }} />
+            )}
           </div>
 
           <p className="mt-3 text-sm font-medium" style={{ color: "#12192B" }}>
-            No books found
+            {hasActiveFilters
+              ? "Không tìm thấy sách phù hợp"
+              : "Chưa có sách nào"}
           </p>
 
           <p className="mt-1 text-xs" style={{ color: "#B0B7C4" }}>
-            There are no books to display.
+            {hasActiveFilters
+              ? "Không có cuốn sách nào khớp với điều kiện tìm kiếm hoặc bộ lọc hiện tại."
+              : "Hiện tại chưa có sách nào trong thư viện."}
           </p>
+
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-[#12192B] px-3.5 py-1.5 text-xs font-semibold text-[#C89B3C] transition hover:opacity-90 cursor-pointer"
+            >
+              <RotateCcw size={13} />
+              Đặt lại bộ lọc
+            </button>
+          )}
         </div>
       )}
 

@@ -212,8 +212,9 @@ export function LibraryAssetsPage() {
             <button
               type="button"
               onClick={handleExport}
-              className={`flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-l-lg px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 cursor-pointer ${exportFormat === "pdf" ? "bg-red-600" : "bg-green-600"
-                }`}
+              className={`flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-l-lg px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 cursor-pointer ${
+                exportFormat === "pdf" ? "bg-red-600" : "bg-green-600"
+              }`}
             >
               <Download size={16} />
               <span>
@@ -225,14 +226,16 @@ export function LibraryAssetsPage() {
             <button
               type="button"
               onClick={() => setIsExportMenuOpen((current) => !current)}
-              className={`flex items-center justify-center rounded-r-lg border-l border-white/30 px-3 text-white transition hover:opacity-90 cursor-pointer ${exportFormat === "pdf" ? "bg-red-600" : "bg-green-600"
-                }`}
+              className={`flex items-center justify-center rounded-r-lg border-l border-white/30 px-3 text-white transition hover:opacity-90 cursor-pointer ${
+                exportFormat === "pdf" ? "bg-red-600" : "bg-green-600"
+              }`}
               aria-label="Select export format"
             >
               <ChevronDown
                 size={16}
-                className={`transition-transform duration-200 ${isExportMenuOpen ? "rotate-180" : ""
-                  }`}
+                className={`transition-transform duration-200 ${
+                  isExportMenuOpen ? "rotate-180" : ""
+                }`}
               />
             </button>
 
@@ -393,306 +396,149 @@ export function LibraryAssetsPage() {
         </div>
       )}
 
-      {/* Data Views (Dual-View: Mobile Cards & Desktop Table) */}
+      {/* Data Table View (Unified for Mobile & Desktop) */}
       {filteredBooks.length > 0 && (
-        <>
-          {/* Mobile Card View (block md:hidden) */}
-          <div className="space-y-3 md:hidden">
-            {paginatedBooks.map((book) => (
-              <div
-                key={book.bookId}
-                className="rounded-xl border border-gray-200 bg-white p-3.5 sm:p-4 shadow-xs space-y-3 transition hover:border-gray-300"
-              >
-                {/* Header: Title 100% width, Category Badge & ISBN below */}
-                <div className="space-y-1.5">
-                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base leading-snug break-words">
-                    {book.title}
-                  </h3>
-
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    {book.category?.name && (
-                      <span className="inline-flex items-center rounded-md bg-[#FAF7EF] px-2 py-0.5 text-xs font-medium text-[#7A6A46] border border-[#D8CEB2]/60">
-                        {book.category.name}
-                      </span>
-                    )}
-                    <span className="text-xs text-gray-400 font-mono">
-                      {book.isbn}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Metrics Grid */}
-                <div className="grid grid-cols-2 gap-2 rounded-lg bg-gray-50 p-2.5 text-xs sm:text-sm">
-                  <div>
-                    <span className="text-gray-500 block text-[11px] sm:text-xs">
-                      Đơn giá:
-                    </span>
-                    <span className="font-medium text-gray-800 tabular-nums">
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs">
+          <div className="overflow-x-auto">
+            <table className="min-w-[720px] w-full divide-y divide-gray-200 text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-4 py-3.5 text-left font-semibold text-gray-700 min-w-[220px]"
+                  >
+                    Book
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3.5 text-center font-semibold text-gray-700 w-44 whitespace-nowrap"
+                  >
+                    Category
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3.5 text-center font-semibold text-gray-700 w-32 whitespace-nowrap"
+                  >
+                    Price
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3.5 text-center font-semibold text-gray-700 w-24 whitespace-nowrap"
+                  >
+                    Quantity
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3.5 text-center font-semibold text-gray-700 w-24 whitespace-nowrap"
+                  >
+                    Borrowed
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3.5 text-center font-semibold text-gray-700 w-24 whitespace-nowrap"
+                  >
+                    Available
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3.5 text-right font-semibold text-gray-700 w-36 whitespace-nowrap"
+                  >
+                    Total Value
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {paginatedBooks.map((book) => (
+                  <tr
+                    key={book.bookId}
+                    className="hover:bg-gray-50/80 transition-colors"
+                  >
+                    <td className="px-4 py-3.5 min-w-[220px]">
+                      <div
+                        className="font-medium text-gray-900 leading-snug line-clamp-2"
+                        title={book.title}
+                      >
+                        {book.title}
+                      </div>
+                      <div className="text-xs text-gray-500 font-mono mt-0.5">
+                        {book.isbn}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5 text-gray-600 whitespace-nowrap text-center">
+                      {book.category?.name ? (
+                        <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+                          {book.category.name}
+                        </span>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
+                    <td className="px-4 py-3.5 text-center text-gray-600 whitespace-nowrap tabular-nums">
                       {formatCurrency(book.price)}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500 block text-[11px] sm:text-xs">
-                      Tổng số lượng:
-                    </span>
-                    <span className="font-medium text-gray-800 tabular-nums">
+                    </td>
+                    <td className="px-4 py-3.5 text-center text-gray-600 whitespace-nowrap tabular-nums font-medium">
                       {book.quantity}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500 block text-[11px] sm:text-xs">
-                      Đang mượn:
-                    </span>
-                    <span
-                      className={`font-medium tabular-nums ${
-                        book.borrowedQuantity > 0
-                          ? "text-amber-600 font-semibold"
-                          : "text-gray-800"
-                      }`}
-                    >
-                      {book.borrowedQuantity}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500 block text-[11px] sm:text-xs">
-                      Khả dụng:
-                    </span>
-                    <span
-                      className={`font-medium tabular-nums ${
-                        book.availableQuantity > 0
-                          ? "text-teal-600 font-semibold"
-                          : "text-gray-500"
-                      }`}
-                    >
-                      {book.availableQuantity}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Footer: Total Value */}
-                <div className="flex items-center justify-between border-t border-gray-100 pt-2.5 text-sm">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    Tổng giá trị
-                  </span>
-                  <span className="font-bold text-gray-900 text-base tabular-nums">
-                    {formatCurrency(book.totalValue)}
-                  </span>
-                </div>
-              </div>
-            ))}
-
-            {/* Mobile Pagination */}
-            {totalPages > 1 && (
-              <div className="flex flex-col gap-2.5 rounded-xl border border-gray-200 bg-white p-3.5 shadow-xs">
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <span>
-                    Hiển thị{" "}
-                    <strong className="text-gray-900 font-semibold">
-                      {filteredBooks.length > 0 ? startIndex + 1 : 0}-{endIndex}
-                    </strong>{" "}
-                    / {filteredBooks.length} sách
-                  </span>
-                  <span>
-                    Trang{" "}
-                    <strong className="text-gray-900 font-semibold">
-                      {safeCurrentPage}
-                    </strong>{" "}
-                    / {totalPages}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-2.5">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCurrentPage(Math.max(1, safeCurrentPage - 1))
-                    }
-                    disabled={safeCurrentPage === 1}
-                    className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
-                  >
-                    <ChevronLeft size={14} /> Trước
-                  </button>
-
-                  <div className="flex items-center gap-1 px-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                      (pageNum) => {
-                        const isActive = pageNum === safeCurrentPage;
-                        return (
-                          <button
-                            key={pageNum}
-                            type="button"
-                            onClick={() => setCurrentPage(pageNum)}
-                            className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-xs font-semibold tabular-nums transition cursor-pointer ${
-                              isActive
-                                ? "bg-gray-900 text-white"
-                                : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-                            }`}
-                          >
-                            {pageNum}
-                          </button>
-                        );
-                      },
-                    )}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCurrentPage(Math.min(totalPages, safeCurrentPage + 1))
-                    }
-                    disabled={safeCurrentPage >= totalPages}
-                    className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
-                  >
-                    Sau <ChevronRight size={14} />
-                  </button>
-                </div>
-              </div>
-            )}
+                    </td>
+                    <td className="px-4 py-3.5 text-center whitespace-nowrap tabular-nums">
+                      <span
+                        className={
+                          book.borrowedQuantity > 0
+                            ? "font-semibold text-amber-600"
+                            : "text-gray-500"
+                        }
+                      >
+                        {book.borrowedQuantity}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-center whitespace-nowrap tabular-nums">
+                      <span
+                        className={
+                          book.availableQuantity > 0
+                            ? "font-semibold text-teal-600"
+                            : "text-gray-400"
+                        }
+                      >
+                        {book.availableQuantity}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-right font-semibold text-gray-900 whitespace-nowrap tabular-nums">
+                      {formatCurrency(book.totalValue)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
-          {/* Desktop Table View (hidden md:block) */}
-          <div className="hidden md:block overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-4 py-3.5 text-left font-semibold text-gray-700 min-w-[220px]"
-                    >
-                      Book
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3.5 text-center font-semibold text-gray-700 w-44 whitespace-nowrap"
-                    >
-                      Category
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3.5 text-center font-semibold text-gray-700 w-32 whitespace-nowrap"
-                    >
-                      Price
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3.5 text-center font-semibold text-gray-700 w-24 whitespace-nowrap"
-                    >
-                      Quantity
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3.5 text-center font-semibold text-gray-700 w-24 whitespace-nowrap"
-                    >
-                      Borrowed
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3.5 text-center font-semibold text-gray-700 w-24 whitespace-nowrap"
-                    >
-                      Available
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-4 py-3.5 text-right font-semibold text-gray-700 w-36 whitespace-nowrap"
-                    >
-                      Total Value
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
-                  {paginatedBooks.map((book) => (
-                    <tr
-                      key={book.bookId}
-                      className="hover:bg-gray-50/80 transition-colors"
-                    >
-                      <td className="px-4 py-3.5 min-w-[220px]">
-                        <div
-                          className="font-medium text-gray-900 leading-snug line-clamp-2"
-                          title={book.title}
-                        >
-                          {book.title}
-                        </div>
-                        <div className="text-xs text-gray-500 font-mono mt-0.5">
-                          {book.isbn}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3.5 text-gray-600 whitespace-nowrap text-center">
-                        {book.category?.name ? (
-                          <span className="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
-                            {book.category.name}
-                          </span>
-                        ) : (
-                          "-"
-                        )}
-                      </td>
-                      <td className="px-4 py-3.5 text-center text-gray-600 whitespace-nowrap tabular-nums">
-                        {formatCurrency(book.price)}
-                      </td>
-                      <td className="px-4 py-3.5 text-center text-gray-600 whitespace-nowrap tabular-nums font-medium">
-                        {book.quantity}
-                      </td>
-                      <td className="px-4 py-3.5 text-center whitespace-nowrap tabular-nums">
-                        <span
-                          className={
-                            book.borrowedQuantity > 0
-                              ? "font-semibold text-amber-600"
-                              : "text-gray-500"
-                          }
-                        >
-                          {book.borrowedQuantity}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 text-center whitespace-nowrap tabular-nums">
-                        <span
-                          className={
-                            book.availableQuantity > 0
-                              ? "font-semibold text-teal-600"
-                              : "text-gray-400"
-                          }
-                        >
-                          {book.availableQuantity}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3.5 text-right font-semibold text-gray-900 whitespace-nowrap tabular-nums">
-                        {formatCurrency(book.totalValue)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          {/* Unified Pagination Footer */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-gray-200 bg-white px-4 py-3.5 sm:px-6">
+            <p className="text-xs text-gray-500 text-center sm:text-left">
+              Hiển thị{" "}
+              <span className="font-semibold text-gray-900">
+                {filteredBooks.length > 0 ? startIndex + 1 : 0}
+              </span>{" "}
+              - <span className="font-semibold text-gray-900">{endIndex}</span>{" "}
+              trên{" "}
+              <span className="font-semibold text-gray-900">
+                {filteredBooks.length}
+              </span>{" "}
+              đầu sách
+            </p>
 
-            {/* Desktop Table Pagination */}
-            <div className="flex items-center justify-between border-t border-gray-200 bg-white px-6 py-3.5">
-              <p className="text-xs text-gray-500">
-                Hiển thị{" "}
-                <span className="font-semibold text-gray-900">
-                  {filteredBooks.length > 0 ? startIndex + 1 : 0}
-                </span>{" "}
-                -{" "}
-                <span className="font-semibold text-gray-900">{endIndex}</span>{" "}
-                trên{" "}
-                <span className="font-semibold text-gray-900">
-                  {filteredBooks.length}
-                </span>{" "}
-                đầu sách
-              </p>
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-1">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCurrentPage(Math.max(1, safeCurrentPage - 1))
+                  }
+                  disabled={safeCurrentPage === 1}
+                  className="flex h-8 px-2.5 items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+                >
+                  <ChevronLeft size={14} /> Trước
+                </button>
 
-              {totalPages > 1 && (
                 <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCurrentPage(Math.max(1, safeCurrentPage - 1))
-                    }
-                    disabled={safeCurrentPage === 1}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
-                    aria-label="Trang trước"
-                  >
-                    <ChevronLeft size={16} />
-                  </button>
-
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                     (pageNum) => {
                       const isActive = pageNum === safeCurrentPage;
@@ -712,23 +558,22 @@ export function LibraryAssetsPage() {
                       );
                     },
                   )}
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCurrentPage(Math.min(totalPages, safeCurrentPage + 1))
-                    }
-                    disabled={safeCurrentPage >= totalPages}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
-                    aria-label="Trang sau"
-                  >
-                    <ChevronRight size={16} />
-                  </button>
                 </div>
-              )}
-            </div>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setCurrentPage(Math.min(totalPages, safeCurrentPage + 1))
+                  }
+                  disabled={safeCurrentPage >= totalPages}
+                  className="flex h-8 px-2.5 items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white text-xs font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+                >
+                  Sau <ChevronRight size={14} />
+                </button>
+              </div>
+            )}
           </div>
-        </>
+        </div>
       )}
     </div>
   );

@@ -7,6 +7,8 @@ import {
   TrendingUp,
   Download,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   FileText,
   FileSpreadsheet,
   Search,
@@ -100,6 +102,22 @@ export function LibraryAssetsPage() {
       return titleMatch || isbnMatch || categoryMatch;
     });
   }, [data, searchQuery]);
+
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredBooks.length / ITEMS_PER_PAGE),
+  );
+
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, filteredBooks.length);
+
+  const paginatedBooks = useMemo(() => {
+    return filteredBooks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredBooks, startIndex]);
 
   if (isLoading) {
     return (
@@ -318,14 +336,20 @@ export function LibraryAssetsPage() {
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             placeholder="Tìm theo sách, ISBN, thể loại..."
             className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-9 pr-8 text-sm text-gray-900 placeholder:text-gray-400 shadow-xs outline-none transition focus:border-amber-600 focus:ring-1 focus:ring-amber-600"
           />
           {searchQuery && (
             <button
               type="button"
-              onClick={() => setSearchQuery("")}
+              onClick={() => {
+                setSearchQuery("");
+                setCurrentPage(1);
+              }}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer p-0.5"
               aria-label="Xóa tìm kiếm"
             >
@@ -357,7 +381,10 @@ export function LibraryAssetsPage() {
           </p>
           <button
             type="button"
-            onClick={() => setSearchQuery("")}
+            onClick={() => {
+              setSearchQuery("");
+              setCurrentPage(1);
+            }}
             className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-gray-900 px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-gray-800 cursor-pointer"
           >
             <RotateCcw size={13} />
@@ -371,60 +398,71 @@ export function LibraryAssetsPage() {
         <>
           {/* Mobile Card View (block md:hidden) */}
           <div className="space-y-3 md:hidden">
-            {filteredBooks.map((book) => (
+            {paginatedBooks.map((book) => (
               <div
                 key={book.bookId}
-                className="rounded-xl border border-gray-200 bg-white p-4 shadow-xs space-y-3 transition hover:border-gray-300"
+                className="rounded-xl border border-gray-200 bg-white p-3.5 sm:p-4 shadow-xs space-y-3 transition hover:border-gray-300"
               >
-                {/* Header: Title, ISBN & Category */}
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-gray-900 text-sm sm:text-base leading-snug">
-                      {book.title}
-                    </h3>
-                    <p className="mt-0.5 text-xs text-gray-500 font-mono">
+                {/* Header: Title 100% width, Category Badge & ISBN below */}
+                <div className="space-y-1.5">
+                  <h3 className="font-semibold text-gray-900 text-sm sm:text-base leading-snug break-words">
+                    {book.title}
+                  </h3>
+
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {book.category?.name && (
+                      <span className="inline-flex items-center rounded-md bg-[#FAF7EF] px-2 py-0.5 text-xs font-medium text-[#7A6A46] border border-[#D8CEB2]/60">
+                        {book.category.name}
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-400 font-mono">
                       {book.isbn}
-                    </p>
-                  </div>
-                  {book.category?.name && (
-                    <span className="shrink-0 rounded-md bg-[#FAF7EF] px-2 py-0.5 text-xs font-medium text-[#7A6A46] border border-[#D8CEB2]/60">
-                      {book.category.name}
                     </span>
-                  )}
+                  </div>
                 </div>
 
                 {/* Metrics Grid */}
                 <div className="grid grid-cols-2 gap-2 rounded-lg bg-gray-50 p-2.5 text-xs sm:text-sm">
                   <div>
-                    <span className="text-gray-500 block">Đơn giá:</span>
-                    <span className="font-medium text-gray-800">
+                    <span className="text-gray-500 block text-[11px] sm:text-xs">
+                      Đơn giá:
+                    </span>
+                    <span className="font-medium text-gray-800 tabular-nums">
                       {formatCurrency(book.price)}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-500 block">Tổng số lượng:</span>
-                    <span className="font-medium text-gray-800">
+                    <span className="text-gray-500 block text-[11px] sm:text-xs">
+                      Tổng số lượng:
+                    </span>
+                    <span className="font-medium text-gray-800 tabular-nums">
                       {book.quantity}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-500 block">Đang mượn:</span>
+                    <span className="text-gray-500 block text-[11px] sm:text-xs">
+                      Đang mượn:
+                    </span>
                     <span
-                      className={`font-medium ${book.borrowedQuantity > 0
-                        ? "text-amber-600 font-semibold"
-                        : "text-gray-800"
-                        }`}
+                      className={`font-medium tabular-nums ${
+                        book.borrowedQuantity > 0
+                          ? "text-amber-600 font-semibold"
+                          : "text-gray-800"
+                      }`}
                     >
                       {book.borrowedQuantity}
                     </span>
                   </div>
                   <div>
-                    <span className="text-gray-500 block">Khả dụng:</span>
+                    <span className="text-gray-500 block text-[11px] sm:text-xs">
+                      Khả dụng:
+                    </span>
                     <span
-                      className={`font-medium ${book.availableQuantity > 0
-                        ? "text-teal-600 font-semibold"
-                        : "text-gray-500"
-                        }`}
+                      className={`font-medium tabular-nums ${
+                        book.availableQuantity > 0
+                          ? "text-teal-600 font-semibold"
+                          : "text-gray-500"
+                      }`}
                     >
                       {book.availableQuantity}
                     </span>
@@ -432,16 +470,84 @@ export function LibraryAssetsPage() {
                 </div>
 
                 {/* Footer: Total Value */}
-                <div className="flex items-center justify-between border-t border-gray-100 pt-2 text-sm">
+                <div className="flex items-center justify-between border-t border-gray-100 pt-2.5 text-sm">
                   <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     Tổng giá trị
                   </span>
-                  <span className="font-bold text-gray-900 text-base">
+                  <span className="font-bold text-gray-900 text-base tabular-nums">
                     {formatCurrency(book.totalValue)}
                   </span>
                 </div>
               </div>
             ))}
+
+            {/* Mobile Pagination */}
+            {totalPages > 1 && (
+              <div className="flex flex-col gap-2.5 rounded-xl border border-gray-200 bg-white p-3.5 shadow-xs">
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  <span>
+                    Hiển thị{" "}
+                    <strong className="text-gray-900 font-semibold">
+                      {filteredBooks.length > 0 ? startIndex + 1 : 0}-{endIndex}
+                    </strong>{" "}
+                    / {filteredBooks.length} sách
+                  </span>
+                  <span>
+                    Trang{" "}
+                    <strong className="text-gray-900 font-semibold">
+                      {safeCurrentPage}
+                    </strong>{" "}
+                    / {totalPages}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 border-t border-gray-100 pt-2.5">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCurrentPage(Math.max(1, safeCurrentPage - 1))
+                    }
+                    disabled={safeCurrentPage === 1}
+                    className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+                  >
+                    <ChevronLeft size={14} /> Trước
+                  </button>
+
+                  <div className="flex items-center gap-1 px-1">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (pageNum) => {
+                        const isActive = pageNum === safeCurrentPage;
+                        return (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            onClick={() => setCurrentPage(pageNum)}
+                            className={`flex h-8 min-w-8 items-center justify-center rounded-lg px-2 text-xs font-semibold tabular-nums transition cursor-pointer ${
+                              isActive
+                                ? "bg-gray-900 text-white"
+                                : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      },
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCurrentPage(Math.min(totalPages, safeCurrentPage + 1))
+                    }
+                    disabled={safeCurrentPage >= totalPages}
+                    className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg border border-gray-200 bg-white py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+                  >
+                    Sau <ChevronRight size={14} />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Desktop Table View (hidden md:block) */}
@@ -495,7 +601,7 @@ export function LibraryAssetsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
-                  {filteredBooks.map((book) => (
+                  {paginatedBooks.map((book) => (
                     <tr
                       key={book.bookId}
                       className="hover:bg-gray-50/80 transition-colors"
@@ -555,6 +661,71 @@ export function LibraryAssetsPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Desktop Table Pagination */}
+            <div className="flex items-center justify-between border-t border-gray-200 bg-white px-6 py-3.5">
+              <p className="text-xs text-gray-500">
+                Hiển thị{" "}
+                <span className="font-semibold text-gray-900">
+                  {filteredBooks.length > 0 ? startIndex + 1 : 0}
+                </span>{" "}
+                -{" "}
+                <span className="font-semibold text-gray-900">{endIndex}</span>{" "}
+                trên{" "}
+                <span className="font-semibold text-gray-900">
+                  {filteredBooks.length}
+                </span>{" "}
+                đầu sách
+              </p>
+
+              {totalPages > 1 && (
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCurrentPage(Math.max(1, safeCurrentPage - 1))
+                    }
+                    disabled={safeCurrentPage === 1}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+                    aria-label="Trang trước"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (pageNum) => {
+                      const isActive = pageNum === safeCurrentPage;
+                      return (
+                        <button
+                          key={pageNum}
+                          type="button"
+                          onClick={() => setCurrentPage(pageNum)}
+                          className={`h-8 min-w-8 rounded-lg px-2 text-xs font-semibold tabular-nums transition cursor-pointer ${
+                            isActive
+                              ? "bg-gray-900 text-white shadow-xs"
+                              : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    },
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCurrentPage(Math.min(totalPages, safeCurrentPage + 1))
+                    }
+                    disabled={safeCurrentPage >= totalPages}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+                    aria-label="Trang sau"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </>

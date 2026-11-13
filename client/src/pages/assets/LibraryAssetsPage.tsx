@@ -212,9 +212,8 @@ export function LibraryAssetsPage() {
             <button
               type="button"
               onClick={handleExport}
-              className={`flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-l-lg px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 cursor-pointer ${
-                exportFormat === "pdf" ? "bg-red-600" : "bg-green-600"
-              }`}
+              className={`flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-l-lg px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 cursor-pointer ${exportFormat === "pdf" ? "bg-red-600" : "bg-green-600"
+                }`}
             >
               <Download size={16} />
               <span>
@@ -226,16 +225,14 @@ export function LibraryAssetsPage() {
             <button
               type="button"
               onClick={() => setIsExportMenuOpen((current) => !current)}
-              className={`flex items-center justify-center rounded-r-lg border-l border-white/30 px-3 text-white transition hover:opacity-90 cursor-pointer ${
-                exportFormat === "pdf" ? "bg-red-600" : "bg-green-600"
-              }`}
+              className={`flex items-center justify-center rounded-r-lg border-l border-white/30 px-3 text-white transition hover:opacity-90 cursor-pointer ${exportFormat === "pdf" ? "bg-red-600" : "bg-green-600"
+                }`}
               aria-label="Select export format"
             >
               <ChevronDown
                 size={16}
-                className={`transition-transform duration-200 ${
-                  isExportMenuOpen ? "rotate-180" : ""
-                }`}
+                className={`transition-transform duration-200 ${isExportMenuOpen ? "rotate-180" : ""
+                  }`}
               />
             </button>
 
@@ -359,14 +356,6 @@ export function LibraryAssetsPage() {
               <X size={15} />
             </button>
           )}
-        </div>
-
-        <div className="text-xs sm:text-sm text-gray-500 shrink-0">
-          Hiển thị{" "}
-          <span className="font-semibold text-gray-900">
-            {filteredBooks.length}
-          </span>{" "}
-          / {data.data.length} đầu sách
         </div>
       </div>
 
@@ -547,11 +536,10 @@ export function LibraryAssetsPage() {
                           key={pageNum}
                           type="button"
                           onClick={() => setCurrentPage(pageNum)}
-                          className={`h-8 min-w-8 rounded-lg px-2 text-xs font-semibold tabular-nums transition cursor-pointer ${
-                            isActive
+                          className={`h-8 min-w-8 rounded-lg px-2 text-xs font-semibold tabular-nums transition cursor-pointer ${isActive
                               ? "bg-gray-900 text-white shadow-xs"
                               : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-                          }`}
+                            }`}
                         >
                           {pageNum}
                         </button>

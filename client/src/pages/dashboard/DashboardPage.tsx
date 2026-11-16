@@ -984,7 +984,7 @@ export function DashboardPage() {
                     <thead className="bg-gray-50/75 text-xs font-semibold text-gray-700 border-b border-gray-200/80">
                       <tr>
                         <th scope="col" className="px-6 py-3.5">
-                          Đầu sách & Bìa sách
+                          Đầu sách
                         </th>
                         <th scope="col" className="px-6 py-3.5">
                           Tác giả

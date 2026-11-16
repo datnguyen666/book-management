@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import {
   BookOpen,
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Plus,
@@ -10,6 +9,14 @@ import {
   Search,
   Wallet,
   X,
+  LayoutGrid,
+  Table as TableIcon,
+  Eye,
+  Edit,
+  Trash,
+  CheckCircle2,
+  Clock,
+  Sparkles,
 } from "lucide-react";
 
 import {
@@ -20,17 +27,14 @@ import {
   useUploadBookCover,
   useDeleteBook,
 } from "@/hooks/use-books";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams, Link } from "react-router-dom";
 import type { Book, CreateBookPayload } from "@/api/book.api";
 import { BookForm } from "@/components/books/BookForm";
 import { useCategories } from "@/hooks/use-categories";
-import { Eye } from "lucide-react";
-import { Edit } from "lucide-react";
-import { Trash } from "lucide-react";
 import { RequestBorrowModal } from "@/components/borrow/RequestBorrowModal";
 import { getMediaUrl } from "@/lib/media";
 
-const DEFAULT_LIMIT = 10;
+const DEFAULT_LIMIT = 12;
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("vi-VN", {
@@ -44,23 +48,28 @@ export function BooksPage() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const user = useAuthStore((state) => state.user);
+  const isAdmin = user?.role === "ADMIN";
+  const isMember = user?.role === "MEMBER";
+
+  // URL Query Parameters
   const pageParam = Number(searchParams.get("page"));
   const page = Number.isInteger(pageParam) && pageParam > 0 ? pageParam : 1;
-
   const searchParam = searchParams.get("search") || "";
   const authorParam = searchParams.get("author") || "";
   const categoryIdParam = searchParams.get("categoryId")
     ? Number(searchParams.get("categoryId"))
     : undefined;
 
+  // Local Search Input with Debounce
   const [searchInput, setSearchInput] = useState(searchParam);
+  const [prevSearchParam, setPrevSearchParam] = useState(searchParam);
 
-  // Đồng bộ searchInput khi URL param thay đổi (ví dụ nút Back/Forward)
-  useEffect(() => {
+  if (prevSearchParam !== searchParam) {
+    setPrevSearchParam(searchParam);
     setSearchInput(searchParam);
-  }, [searchParam]);
+  }
 
-  // Debounce cập nhật searchParam lên URL khi người dùng gõ
   useEffect(() => {
     const timer = setTimeout(() => {
       const trimmed = searchInput.trim();
@@ -81,25 +90,39 @@ export function BooksPage() {
     return () => clearTimeout(timer);
   }, [searchInput, searchParam, setSearchParams]);
 
-  const setPage = (updater: number | ((current: number) => number)) => {
-    setSearchParams((prev) => {
-      const currentPageParam = Number(prev.get("page"));
-      const currentPage =
-        Number.isInteger(currentPageParam) && currentPageParam > 0
-          ? currentPageParam
-          : 1;
-      const newPage =
-        typeof updater === "function" ? updater(currentPage) : updater;
+  // View Mode: Member defaults to Grid, Managers default to Table
+  const [viewMode, setViewMode] = useState<"grid" | "table">(() =>
+    isMember ? "grid" : "table",
+  );
 
-      const next = new URLSearchParams(prev);
-      if (newPage <= 1) {
-        next.delete("page");
-      } else {
-        next.set("page", String(newPage));
-      }
-      return next;
-    });
-  };
+  // Local availability filter (Còn sách / Đang mượn hết)
+  const [statusFilter, setStatusFilter] = useState<
+    "ALL" | "AVAILABLE" | "OUT_OF_STOCK"
+  >("ALL");
+
+  // Navigation & Filter Handlers
+  const setPage = useCallback(
+    (updater: number | ((current: number) => number)) => {
+      setSearchParams((prev) => {
+        const currentPageParam = Number(prev.get("page"));
+        const currentPage =
+          Number.isInteger(currentPageParam) && currentPageParam > 0
+            ? currentPageParam
+            : 1;
+        const newPage =
+          typeof updater === "function" ? updater(currentPage) : updater;
+
+        const next = new URLSearchParams(prev);
+        if (newPage <= 1) {
+          next.delete("page");
+        } else {
+          next.set("page", String(newPage));
+        }
+        return next;
+      });
+    },
+    [setSearchParams],
+  );
 
   const handleAuthorChange = (newAuthor: string) => {
     setSearchParams((prev) => {
@@ -139,6 +162,7 @@ export function BooksPage() {
 
   const handleResetFilters = () => {
     setSearchInput("");
+    setStatusFilter("ALL");
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       next.delete("search");
@@ -150,9 +174,13 @@ export function BooksPage() {
   };
 
   const hasActiveFilters = Boolean(
-    searchParam || authorParam || categoryIdParam !== undefined,
+    searchParam ||
+    authorParam ||
+    categoryIdParam !== undefined ||
+    statusFilter !== "ALL",
   );
 
+  // Queries
   const {
     data: categories = [],
     isLoading: isCategoriesLoading,
@@ -169,16 +197,32 @@ export function BooksPage() {
     categoryId: categoryIdParam,
   });
 
-  const books = data?.data ?? [];
   const pagination = data?.pagination;
-
   const totalPages = pagination?.totalPages ?? 1;
 
+  // Filter books locally by status if selected
+  const books = useMemo(() => {
+    const list = data?.data ?? [];
+    if (statusFilter === "ALL") return list;
+    if (statusFilter === "AVAILABLE") {
+      return list.filter(
+        (book) => book.quantity - book.borrowedQuantity > 0,
+      );
+    }
+    if (statusFilter === "OUT_OF_STOCK") {
+      return list.filter(
+        (book) => book.quantity - book.borrowedQuantity <= 0,
+      );
+    }
+    return list;
+  }, [data?.data, statusFilter]);
+
+  // Adjust page if out of bounds
   useEffect(() => {
     if (pagination && totalPages > 0 && page > totalPages) {
       setPage(totalPages);
     }
-  }, [pagination, totalPages, page]);
+  }, [pagination, totalPages, page, setPage]);
 
   const handlePrevious = () => {
     setPage((current) => Math.max(1, current - 1));
@@ -189,25 +233,18 @@ export function BooksPage() {
   };
 
   const handlePageChange = (newPage: number) => {
-    if (newPage < 1 || newPage > totalPages) {
-      return;
-    }
-
+    if (newPage < 1 || newPage > totalPages) return;
     setPage(newPage);
   };
 
-  const user = useAuthStore((state) => state.user);
-
-  const isAdmin = user?.role === "ADMIN";
-  const isMember = user?.role === "MEMBER";
-
-  const [selectedBorrowBook, setSelectedBorrowBook] = useState<Book | null>(null);
+  // Modals state
+  const [selectedBorrowBook, setSelectedBorrowBook] = useState<Book | null>(
+    null,
+  );
   const [isBorrowModalOpen, setIsBorrowModalOpen] = useState(false);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
-
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
-
   const [selectedBook, setSelectedBook] = useState<Book | undefined>(undefined);
 
   const handleCreate = () => {
@@ -228,11 +265,11 @@ export function BooksPage() {
   const deleteMutation = useDeleteBook();
 
   const handleFormSubmit = async (
-    data: CreateBookPayload,
+    formData: CreateBookPayload,
     coverFile?: File,
   ) => {
     if (formMode === "create") {
-      const createdBook = await createMutation.mutateAsync(data);
+      const createdBook = await createMutation.mutateAsync(formData);
 
       if (coverFile) {
         await uploadCoverMutation.mutateAsync({
@@ -243,7 +280,7 @@ export function BooksPage() {
     } else if (selectedBook) {
       await updateMutation.mutateAsync({
         id: selectedBook.id,
-        payload: data,
+        payload: formData,
       });
 
       if (coverFile) {
@@ -259,325 +296,337 @@ export function BooksPage() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 max-w-7xl mx-auto pb-8">
+      {/* ========================================================= */}
+      {/* 1. Header & Actions Toolbar (Role-Adaptive) */}
+      {/* ========================================================= */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1
-            className="text-2xl font-semibold font-heading"
-            style={{ fontFamily: "var(--heading)", color: "#12192B" }}
-          >
-            Books
-          </h1>
-
-          <p className="mt-1 text-sm" style={{ color: "#8A93A6" }}>
-            Manage books in the library.
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 font-heading">
+              {isMember ? "Kho sách thư viện" : "Quản lý danh mục sách"}
+            </h1>
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100/80 px-2.5 py-0.5 text-xs font-semibold text-amber-800 border border-amber-200/60">
+              <Sparkles size={12} className="text-amber-600" />
+              {isMember ? "Khám phá & Mượn sách" : "Hệ thống quản trị"}
+            </span>
+          </div>
+          <p className="mt-1 text-xs sm:text-sm text-gray-600">
+            {isMember
+              ? "Khám phá hàng ngàn tựa sách phong phú, tra cứu thông tin và gửi yêu cầu mượn trực tuyến."
+              : "Quản lý số lượng bản sách, theo dõi tình trạng lưu thông, đơn giá và chỉnh sửa thông tin sách."}
           </p>
         </div>
 
-        {isMember ? (
-          <button
-            type="button"
-            className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition hover:opacity-90 cursor-pointer text-white bg-[#8A5A1E]"
-            onClick={() => navigate("/my-borrows")}
-          >
-            <BookOpen size={16} />
-            Tủ sách của tôi
-          </button>
-        ) : (
-          <div className="flex items-center gap-3">
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2.5 self-start sm:self-auto shrink-0 w-full sm:w-auto">
+          {isMember ? (
             <button
               type="button"
-              className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition hover:bg-[#F7F2E7] cursor-pointer"
-              style={{ border: "1px solid #E6DFCE", color: "#12192B" }}
-              onClick={() => navigate("/assets")}
+              onClick={() => navigate("/my-borrows")}
+              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-amber-700 hover:bg-amber-800 px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition active:scale-[0.98] cursor-pointer"
             >
-              <Wallet size={16} />
-              View Assets
+              <BookOpen size={16} />
+              <span>Tủ sách của tôi</span>
             </button>
-            <button
-              type="button"
-              className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 cursor-pointer disabled:opacity-50"
-              style={{
-                backgroundColor: "#12192B",
-                color: "#C89B3C",
-              }}
-              onClick={handleCreate}
-              disabled={isCategoriesLoading || isCategoriesError}
-            >
-              <Plus size={16} />
-              Add Book
-            </button>
-          </div>
-        )}
-      </div>
+          ) : (
+            <div className="flex items-center gap-2.5 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={() => navigate("/assets")}
+                className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-2xs hover:bg-gray-50 hover:text-gray-900 transition cursor-pointer"
+              >
+                <Wallet size={16} className="text-amber-600" />
+                <span className="hidden sm:inline">Báo cáo tài sản</span>
+                <span className="sm:hidden">Tài sản</span>
+              </button>
 
-      {/* Search & Filter Bar */}
-      <div className="flex flex-col gap-3 rounded-lg border border-[#E6DFCE] bg-white p-4 shadow-sm md:flex-row md:items-center">
-        {/* Search Input */}
-        <div className="relative flex-1">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Tìm theo tên sách hoặc ISBN..."
-            className="w-full rounded-md border border-[#E6DFCE] bg-[#F7F2E7] py-2 pl-9 pr-9 text-sm text-[#12192B] outline-none transition placeholder:text-gray-400 focus:border-[#B8863B] focus:bg-white"
-          />
-          {searchInput && (
-            <button
-              type="button"
-              onClick={handleClearSearch}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-            >
-              <X size={15} />
-            </button>
+              <button
+                type="button"
+                onClick={handleCreate}
+                disabled={isCategoriesLoading || isCategoriesError}
+                className="flex flex-1 sm:flex-initial items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-amber-400 shadow-xs hover:bg-gray-800 transition active:scale-[0.98] cursor-pointer disabled:opacity-50"
+              >
+                <Plus size={16} />
+                <span>Thêm sách mới</span>
+              </button>
+            </div>
           )}
         </div>
-
-        {/* Category Filter */}
-        <div className="relative min-w-[180px]">
-          <select
-            value={categoryIdParam ?? ""}
-            onChange={(e) => handleCategoryChange(e.target.value)}
-            className="w-full appearance-none rounded-md border border-[#E6DFCE] bg-[#F7F2E7] py-2 pl-3 pr-8 text-sm text-[#12192B] outline-none transition focus:border-[#B8863B] focus:bg-white cursor-pointer"
-          >
-            <option value="">Tất cả thể loại</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            size={15}
-            className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-        </div>
-
-        {/* Author Filter */}
-        <div className="relative min-w-[180px]">
-          <select
-            value={authorParam}
-            onChange={(e) => handleAuthorChange(e.target.value)}
-            className="w-full appearance-none rounded-md border border-[#E6DFCE] bg-[#F7F2E7] py-2 pl-3 pr-8 text-sm text-[#12192B] outline-none transition focus:border-[#B8863B] focus:bg-white cursor-pointer"
-          >
-            <option value="">Tất cả tác giả</option>
-            {authors.map((authorName) => (
-              <option key={authorName} value={authorName}>
-                {authorName}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            size={15}
-            className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-        </div>
-
-        {/* Reset Filters */}
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={handleResetFilters}
-            className="flex items-center justify-center gap-1.5 rounded-md border border-[#E6DFCE] bg-[#F7F2E7] px-3 py-2 text-xs font-semibold text-[#12192B] transition hover:bg-[#EFE9DA] hover:text-[#B8863B] cursor-pointer"
-            title="Đặt lại tất cả bộ lọc"
-          >
-            <RotateCcw size={14} />
-            <span>Đặt lại</span>
-          </button>
-        )}
       </div>
 
-      {/* Loading */}
-      {isLoading && (
-        <div
-          className="rounded-lg bg-white p-8 text-center text-sm"
-          style={{ border: "1px solid #E6DFCE", color: "#8A93A6" }}
-        >
-          Loading books...
-        </div>
-      )}
-
-      {/* Error */}
-      {isError && (
-        <div
-          className="rounded-lg p-6 text-sm"
-          style={{
-            border: "1px solid #A6432C33",
-            backgroundColor: "#FBEFEC",
-            color: "#A6432C",
-          }}
-        >
-          Failed to load books. Please try again.
-        </div>
-      )}
-
-      {/* Empty */}
-      {!isLoading && !isError && books.length === 0 && (
-        <div
-          className="rounded-lg bg-white p-10 text-center"
-          style={{ border: "1px solid #E6DFCE" }}
-        >
-          <div
-            className="mx-auto flex h-12 w-12 items-center justify-center rounded-full"
-            style={{ border: "1px solid #B8863B55" }}
-          >
-            {hasActiveFilters ? (
-              <Search size={20} style={{ color: "#B8863B" }} />
-            ) : (
-              <BookOpen size={20} style={{ color: "#B8863B" }} />
+      {/* ========================================================= */}
+      {/* 2. Search & Advanced Filter Toolbar */}
+      {/* ========================================================= */}
+      <div className="rounded-2xl border border-gray-200/80 bg-white p-4 shadow-2xs space-y-3">
+        <div className="flex flex-col md:flex-row md:items-center gap-3">
+          {/* Search Box */}
+          <div className="relative flex-1 min-w-0">
+            <Search
+              size={16}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+            />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Tìm theo tựa sách hoặc mã ISBN..."
+              className="w-full rounded-xl border border-gray-200 bg-gray-50/50 py-2.5 pl-10 pr-9 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-500/20"
+            />
+            {searchInput && (
+              <button
+                type="button"
+                onClick={handleClearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-700 cursor-pointer"
+                aria-label="Xóa tìm kiếm"
+              >
+                <X size={14} />
+              </button>
             )}
           </div>
 
-          <p className="mt-3 text-sm font-medium" style={{ color: "#12192B" }}>
-            {hasActiveFilters
-              ? "Không tìm thấy sách phù hợp"
-              : "Chưa có sách nào"}
-          </p>
+          {/* Filter Dropdowns & View Switcher */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Category Filter */}
+            <select
+              value={categoryIdParam ?? ""}
+              onChange={(e) => handleCategoryChange(e.target.value)}
+              className="h-10 rounded-xl border border-gray-200 bg-gray-50/50 px-3 text-xs sm:text-sm font-medium text-gray-700 outline-none transition focus:border-amber-500 focus:bg-white cursor-pointer"
+            >
+              <option value="">Tất cả thể loại</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
 
-          <p className="mt-1 text-xs" style={{ color: "#B0B7C4" }}>
-            {hasActiveFilters
-              ? "Không có cuốn sách nào khớp với điều kiện tìm kiếm hoặc bộ lọc hiện tại."
-              : "Hiện tại chưa có sách nào trong thư viện."}
-          </p>
+            {/* Author Filter */}
+            <select
+              value={authorParam}
+              onChange={(e) => handleAuthorChange(e.target.value)}
+              className="h-10 rounded-xl border border-gray-200 bg-gray-50/50 px-3 text-xs sm:text-sm font-medium text-gray-700 outline-none transition focus:border-amber-500 focus:bg-white cursor-pointer"
+            >
+              <option value="">Tất cả tác giả</option>
+              {authors.map((authorName) => (
+                <option key={authorName} value={authorName}>
+                  {authorName}
+                </option>
+              ))}
+            </select>
 
+            {/* Availability Status Filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(
+                  e.target.value as "ALL" | "AVAILABLE" | "OUT_OF_STOCK",
+                )
+              }
+              className="h-10 rounded-xl border border-gray-200 bg-gray-50/50 px-3 text-xs sm:text-sm font-medium text-gray-700 outline-none transition focus:border-amber-500 focus:bg-white cursor-pointer"
+            >
+              <option value="ALL">Tất cả tình trạng</option>
+              <option value="AVAILABLE">Còn sách sẵn sàng</option>
+              <option value="OUT_OF_STOCK">Đang mượn hết</option>
+            </select>
+
+            {/* View Mode Switcher */}
+            <div className="flex items-center rounded-xl border border-gray-200 bg-gray-50/80 p-0.5">
+              <button
+                type="button"
+                onClick={() => setViewMode("grid")}
+                className={`flex h-9 w-9 items-center justify-center rounded-lg transition cursor-pointer ${viewMode === "grid"
+                  ? "bg-white text-gray-900 shadow-2xs"
+                  : "text-gray-500 hover:text-gray-900"
+                  }`}
+                title="Chế độ xem lưới thẻ sách"
+              >
+                <LayoutGrid size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("table")}
+                className={`flex h-9 w-9 items-center justify-center rounded-lg transition cursor-pointer ${viewMode === "table"
+                  ? "bg-white text-gray-900 shadow-2xs"
+                  : "text-gray-500 hover:text-gray-900"
+                  }`}
+                title="Chế độ xem bảng chi tiết"
+              >
+                <TableIcon size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Filter Summary & Reset Pill */}
+        {hasActiveFilters && (
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 text-xs">
+            <span className="text-gray-500">
+              Tìm thấy{" "}
+              <strong className="text-gray-900 font-semibold">
+                {books.length}
+              </strong>{" "}
+              {pagination ? `trên tổng số ${pagination.total}` : ""}{" "}
+              cuốn sách phù hợp
+            </span>
+            <button
+              type="button"
+              onClick={handleResetFilters}
+              className="inline-flex items-center gap-1 font-semibold text-amber-700 hover:text-amber-800 cursor-pointer"
+            >
+              <RotateCcw size={12} />
+              Đặt lại bộ lọc
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ========================================================= */}
+      {/* 3. Loading Skeleton */}
+      {/* ========================================================= */}
+      {isLoading && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4">
+            {[...Array(DEFAULT_LIMIT)].map((_, i) => (
+              <div
+                key={i}
+                className="h-80 animate-pulse rounded-2xl border border-gray-200 bg-white p-4"
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* 4. Error State */}
+      {/* ========================================================= */}
+      {isError && (
+        <div className="max-w-2xl mx-auto my-8 flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-rose-200 bg-rose-50/70 p-8 text-center shadow-xs">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 mb-4 shadow-2xs">
+            <BookOpen size={28} />
+          </div>
+          <h2 className="text-lg font-bold text-rose-900">
+            Không thể tải danh mục sách
+          </h2>
+          <p className="mt-2 text-sm text-rose-700 max-w-md">
+            Đã có sự cố khi kết nối tới máy chủ. Vui lòng kiểm tra lại mạng hoặc thử tải lại trang.
+          </p>
+          <button
+            type="button"
+            onClick={() => navigate(0)}
+            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-rose-700 cursor-pointer"
+          >
+            <RotateCcw size={16} />
+            Tải lại trang
+          </button>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* 5. Empty State */}
+      {/* ========================================================= */}
+      {!isLoading && !isError && books.length === 0 && (
+        <div className="rounded-2xl border border-gray-200/80 bg-white p-8 sm:p-14 text-center shadow-2xs">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 shadow-2xs">
+            <Search size={24} />
+          </div>
+          <h3 className="mt-4 text-base font-bold text-gray-900">
+            {hasActiveFilters
+              ? "Không tìm thấy cuốn sách nào phù hợp"
+              : "Hiện chưa có cuốn sách nào"}
+          </h3>
+          <p className="mt-1 text-xs sm:text-sm text-gray-500 max-w-sm mx-auto">
+            {hasActiveFilters
+              ? "Vui lòng kiểm tra lại từ khóa tìm kiếm hoặc điều chỉnh lại các bộ lọc."
+              : "Thư viện hiện chưa có đầu sách nào trong danh mục."}
+          </p>
           {hasActiveFilters && (
             <button
               type="button"
               onClick={handleResetFilters}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-[#12192B] px-3.5 py-1.5 text-xs font-semibold text-[#C89B3C] transition hover:opacity-90 cursor-pointer"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-xs transition hover:bg-gray-800 cursor-pointer"
             >
-              <RotateCcw size={13} />
-              Đặt lại bộ lọc
+              <RotateCcw size={14} />
+              Xóa bộ lọc & xem tất cả
             </button>
           )}
         </div>
       )}
 
-      {/* Book Table */}
+      {/* ========================================================= */}
+      {/* 6. Main Books Content */}
+      {/* ========================================================= */}
       {!isLoading && !isError && books.length > 0 && (
-        <div
-          className="overflow-hidden rounded-lg bg-white shadow-[0_1px_3px_rgba(18,25,43,0.06),0_8px_24px_-12px_rgba(18,25,43,0.14)]"
-          style={{ border: "1px solid #D8CEB2" }}
-        >
-          <div className="overflow-x-auto custom-scrollbar">
-            <table className="w-full min-w-[1040px] text-left text-sm">
-              <thead
-                style={{
-                  backgroundColor: "#EFE3C4",
-                  borderBottom: "1px solid #D8CEB2",
-                }}
-              >
-                <tr>
-                  <th
-                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "#7A6A46" }}
-                  >
-                    STT
-                  </th>
+        <>
+          {/* ======================================================= */}
+          {/* 6.1 Gallery Grid View (Ideal for Readers & Visual Inspection) */}
+          {/* ======================================================= */}
+          {viewMode === "grid" && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5">
+              {books.map((book) => {
+                const available = book.quantity - book.borrowedQuantity;
+                const isAvailable = available > 0;
+                const coverUrl = getMediaUrl(book.coverImage);
 
-                  <th
-                    className="w-[72px] min-w-[72px] max-w-[72px] px-2 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "#7A6A46" }}
+                return (
+                  <div
+                    key={book.id}
+                    className="group relative flex flex-col justify-between rounded-2xl border border-gray-200/80 bg-white p-3.5 sm:p-4 shadow-2xs hover:shadow-md hover:-translate-y-1 transition-all duration-200"
                   >
-                    <span className="sr-only">Cover</span>
-                  </th>
-
-                  <th
-                    className="px-6 py-4 text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "#7A6A46" }}
-                  >
-                    Title
-                  </th>
-
-                  <th
-                    className="px-6 py-4 text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "#7A6A46" }}
-                  >
-                    ISBN
-                  </th>
-
-                  <th
-                    className="px-6 py-4 text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "#7A6A46" }}
-                  >
-                    Author
-                  </th>
-
-                  <th
-                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "#7A6A46" }}
-                  >
-                    Category
-                  </th>
-                  {!isMember && (
-                    <>
-                      <th
-                        className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: "#7A6A46" }}
+                    <div>
+                      {/* Book Cover Image Area */}
+                      <div
+                        onClick={() =>
+                          navigate(`/books/${book.id}`, {
+                            state: {
+                              from: `${location.pathname}${location.search}`,
+                            },
+                          })
+                        }
+                        className="relative h-56 sm:h-64 w-full overflow-hidden rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/40 border border-gray-100 flex items-center justify-center cursor-pointer shadow-xs"
                       >
-                        Price
-                      </th>
+                        {/* Book Spine 3D Effect */}
+                        <div className="pointer-events-none absolute inset-y-0 left-0 w-2.5 bg-gradient-to-r from-black/20 via-black/5 to-transparent z-10" />
 
+                        {coverUrl ? (
+                          <img
+                            src={coverUrl}
+                            alt={book.title}
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-amber-700/60 p-4 text-center">
+                            <BookOpen size={40} className="mb-2" />
+                            <span className="text-xs font-semibold line-clamp-2">
+                              {book.title}
+                            </span>
+                          </div>
+                        )}
 
-                      <th
-                        className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: "#7A6A46" }}
-                      >
-                        Quantity
-                      </th>
+                        {/* Floating Status Badge */}
+                        <div className="absolute top-2.5 right-2.5 z-10">
+                          {isAvailable ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600/90 text-white backdrop-blur-xs px-2.5 py-0.5 text-[11px] font-bold shadow-xs">
+                              <CheckCircle2 size={11} />
+                              Còn {available} bản
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-600/90 text-white backdrop-blur-xs px-2.5 py-0.5 text-[11px] font-bold shadow-xs">
+                              <Clock size={11} />
+                              Đang mượn hết
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
-                      <th
-                        className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: "#7A6A46" }}
-                      >
-                        Borrowed
-                      </th>
+                      {/* Book Meta & Title */}
+                      <div className="mt-3">
+                        <span className="inline-block rounded-md bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                          {book.category.name}
+                        </span>
 
-                      <th
-                        className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                        style={{ color: "#7A6A46" }}
-                      >
-                        Available
-                      </th>
-                    </>
-                  )}
-
-                  <th
-                    className="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wide"
-                    style={{ color: "#7A6A46" }}
-                  >
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {books.map((book, index) => {
-                  const available = book.quantity - book.borrowedQuantity;
-
-                  return (
-                    <tr
-                      key={book.id}
-                      className="transition-colors hover:bg-[#FAF7EF]"
-                      style={{ borderTop: "1px solid #E6DFCE" }}
-                    >
-                      {/* ID */}
-                      <td
-                        className="px-6 py-4 text-center align-middle tabular-nums"
-                        style={{ color: "#B0B7C4" }}
-                      >
-                        {(page - 1) * DEFAULT_LIMIT + index + 1}
-                      </td>
-
-                      {/* Cover */}
-                      <td className="w-[72px] min-w-[72px] max-w-[72px] px-2 py-3 text-center align-middle">
-                        <button
-                          type="button"
+                        <h3
                           onClick={() =>
                             navigate(`/books/${book.id}`, {
                               state: {
@@ -585,111 +634,58 @@ export function BooksPage() {
                               },
                             })
                           }
-                          title={`Xem chi tiết "${book.title}"`}
-                          className="group mx-auto flex h-14 w-10 min-w-10 shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded border border-[#E6DFCE] bg-[#FAF7EF] shadow-xs transition-transform hover:scale-105 focus:outline-none"
-                        >
-                          {book.coverImage ? (
-                          <img
-                            src={getMediaUrl(book.coverImage)}
-                            alt={book.title}
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none";
-                              e.currentTarget.nextElementSibling?.classList.remove("hidden");
-                            }}
-                          />
-                        ) : null}
-                          <div
-                            className={`flex h-full w-full items-center justify-center text-[#B8863B] ${
-                              book.coverImage ? "hidden" : ""
-                            }`}
-                            title={book.coverImage ? "Không thể tải ảnh bìa" : "Chưa có ảnh bìa"}
-                          >
-                            <BookOpen size={16} />
-                          </div>
-                        </button>
-                      </td>
-
-                      {/* Title */}
-                      <td className="max-w-[220px] px-6 py-4">
-                        <div
-                          className="truncate font-medium whitespace-nowrap"
-                          style={{ color: "#12192B" }}
+                          className="mt-1.5 font-bold text-sm sm:text-base text-gray-900 group-hover:text-amber-800 transition-colors line-clamp-2 leading-snug cursor-pointer"
+                          title={book.title}
                         >
                           {book.title}
-                        </div>
-                      </td>
+                        </h3>
 
-                      {/* ISBN */}
-                      <td
-                        className="px-6 py-4 whitespace-nowrap"
-                        style={{ color: "#6B7280" }}
-                      >
-                        {book.isbn}
-                      </td>
+                        <p className="mt-0.5 text-xs text-gray-500 line-clamp-1">
+                          {book.author}
+                        </p>
 
-                      {/* Author */}
-                      <td
-                        className="px-6 py-4 whitespace-nowrap"
-                        style={{ color: "#374151" }}
-                      >
-                        {book.author}
-                      </td>
+                        <p className="mt-1 font-mono text-[11px] text-gray-400">
+                          ISBN: {book.isbn}
+                        </p>
 
-                      {/* Category */}
-                      <td className="px-6 py-4 text-center align-middle">
-                        <span
-                          className="rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap"
-                          style={{
-                            backgroundColor: "#F7F2E7",
-                            color: "#5C5240",
+                        {/* Inventory & Price (Only for Managers) */}
+                        {!isMember && (
+                          <div className="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
+                            <span className="font-bold text-gray-900 tabular-nums">
+                              {formatCurrency(Number(book.price))}
+                            </span>
+                            <span className="text-[11px] text-gray-500">
+                              Tổng: <strong>{book.quantity}</strong> | Mượn:{" "}
+                              <strong>{book.borrowedQuantity}</strong>
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Card Actions Footer */}
+                    <div className="mt-3.5 pt-3 border-t border-gray-100">
+                      {isMember ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedBorrowBook(book);
+                            setIsBorrowModalOpen(true);
                           }}
+                          disabled={!isAvailable}
+                          className={`w-full h-9 rounded-xl px-3 text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-[0.98] ${
+                            isAvailable
+                              ? "bg-amber-600 hover:bg-amber-700 text-white shadow-2xs cursor-pointer"
+                              : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          }`}
                         >
-                          {book.category.name}
-                        </span>
-                      </td>
-
-                      {/* Price */}
-                      {!isMember && (
-                        <>
-                          <td
-                            className="px-6 py-4 text-center align-middle tabular-nums"
-                            style={{ color: "#12192B" }}
-                          >
-                            {formatCurrency(Number(book.price))}
-                          </td>
-
-
-                          {/* Quantity */}
-                          <td
-                            className="px-6 py-4 text-center align-middle tabular-nums"
-                            style={{ color: "#8A93A6" }}
-                          >
-                            {book.quantity}
-                          </td>
-
-                          <td
-                            className="px-6 py-4 text-center align-middle tabular-nums"
-                            style={{ color: "#8A93A6" }}
-                          >
-                            {book.borrowedQuantity}
-                          </td>
-
-                          <td
-                            className="px-6 py-4 text-center align-middle font-semibold tabular-nums"
-                            style={{
-                              color: available === 0 ? "#A6432C" : "#8A93A6",
-                            }}
-                          >
-                            {available}
-                          </td>
-                        </>
-                      )}
-
-                      {/* Actions */}
-                      <td className="px-5 py-4">
-                        <div className="flex justify-center gap-2">
+                          <BookOpen size={14} />
+                          <span>
+                            {isAvailable ? "Mượn sách" : "Tạm hết sách"}
+                          </span>
+                        </button>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
                           <button
                             type="button"
                             onClick={() =>
@@ -699,174 +695,387 @@ export function BooksPage() {
                                 },
                               })
                             }
-                            title="Xem chi tiết"
-                            className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#F7F2E7] cursor-pointer"
-                            style={{
-                              border: "1px solid #E6DFCE",
-                              color: "#5C6B85",
-                            }}
+                            className="flex-1 py-1.5 px-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 flex items-center justify-center gap-1 text-xs font-semibold transition cursor-pointer"
                           >
-                            <Eye size={14} />
+                            <Eye size={13} />
+                            <span>Chi tiết</span>
                           </button>
 
-                          {isMember ? (
+                          <button
+                            type="button"
+                            onClick={() => handleEdit(book)}
+                            className="flex-1 py-1.5 px-2 rounded-xl border border-amber-200 bg-amber-50/50 text-amber-800 hover:bg-amber-100/70 flex items-center justify-center gap-1 text-xs font-semibold transition cursor-pointer"
+                          >
+                            <Edit size={13} />
+                            <span>Sửa</span>
+                          </button>
+
+                          {isAdmin && (
                             <button
                               type="button"
-                              onClick={() => {
-                                setSelectedBorrowBook(book);
-                                setIsBorrowModalOpen(true);
+                              disabled={deleteMutation.isPending}
+                              onClick={async () => {
+                                const confirmed = window.confirm(
+                                  `Bạn có chắc chắn muốn xóa cuốn sách "${book.title}"?`,
+                                );
+                                if (!confirmed) return;
+                                await deleteMutation.mutateAsync(book.id);
+                                if (books.length === 1 && page > 1) {
+                                  setPage((current) => current - 1);
+                                }
                               }}
-                              disabled={book.quantity - book.borrowedQuantity <= 0}
-                              title={
-                                book.quantity - book.borrowedQuantity <= 0
-                                  ? "Hết sách"
-                                  : "Mượn sách"
-                              }
-                              className="flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold text-white bg-[#8A5A1E] hover:bg-[#724814] disabled:cursor-not-allowed disabled:opacity-40 transition"
+                              className="h-8 w-8 shrink-0 rounded-xl border border-rose-200 bg-rose-50/50 text-rose-600 hover:bg-rose-100 flex items-center justify-center transition cursor-pointer disabled:opacity-50"
+                              title="Xóa sách"
                             >
-                              <BookOpen size={13} />
+                              <Trash size={13} />
                             </button>
-                          ) : (
-                            <>
-                              <button
-                                type="button"
-                                className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#F7F2E7] cursor-pointer"
-                                style={{
-                                  border: "1px solid #B8863B55",
-                                  color: "#B8863B",
-                                }}
-                                onClick={() => handleEdit(book)}
-                              >
-                                <Edit size={14} />
-                              </button>
-
-                              {isAdmin && (
-                                <button
-                                  type="button"
-                                  className="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#FBEFEC] cursor-pointer disabled:opacity-50"
-                                  style={{
-                                    border: "1px solid #A6432C55",
-                                    color: "#A6432C",
-                                  }}
-                                  disabled={deleteMutation.isPending}
-                                  onClick={async () => {
-                                    const confirmed = window.confirm(
-                                      `Are you sure you want to delete "${book.title}"?`,
-                                    );
-
-                                    if (!confirmed) {
-                                      return;
-                                    }
-
-                                    await deleteMutation.mutateAsync(book.id);
-                                    if (books.length === 1 && page > 1) {
-                                      setPage((current) => current - 1);
-                                    }
-                                  }}
-                                >
-                                  <Trash size={14} />
-                                </button>
-                              )}
-                            </>
                           )}
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
-          {/* Pagination */}
-          <div
-            className="flex items-center justify-between bg-white px-6 py-4"
-            style={{ borderTop: "1px solid #E6DFCE" }}
-          >
-            <p className="text-xs" style={{ color: "#8A93A6" }}>
-              {pagination
-                ? `Showing page ${pagination.page} of ${pagination.totalPages} (${pagination.total} books)`
-                : "Loading..."}
+          {/* ======================================================= */}
+          {/* 6.2 Table View (Ideal for Managers & Detailed Auditing) */}
+          {/* ======================================================= */}
+          {viewMode === "table" && (
+            <div className="overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-2xs">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-gray-600">
+                  <thead className="border-b border-gray-200/80 bg-gray-50/75 text-xs font-semibold text-gray-700">
+                    <tr>
+                      <th scope="col" className="px-5 py-3.5 w-14 text-center">
+                        STT
+                      </th>
+                      <th scope="col" className="px-5 py-3.5 min-w-[280px]">
+                        Đầu sách
+                      </th>
+                      <th scope="col" className="px-4 py-3.5 text-center whitespace-nowrap">
+                        Tác giả
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-4 py-3.5 text-center whitespace-nowrap"
+                      >
+                        Thể loại
+                      </th>
+
+                      {/* Management Columns (Hidden for Members) */}
+                      {!isMember && (
+                        <>
+                          <th
+                            scope="col"
+                            className="px-4 py-3.5 text-center whitespace-nowrap"
+                          >
+                            Đơn giá
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-4 py-3.5 text-center whitespace-nowrap"
+                          >
+                            Tổng số bản
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-4 py-3.5 text-center whitespace-nowrap"
+                          >
+                            Đang mượn
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-4 py-3.5 text-center whitespace-nowrap"
+                          >
+                            Sẵn sàng
+                          </th>
+                        </>
+                      )}
+
+                      <th
+                        scope="col"
+                        className="px-5 py-3.5 text-center whitespace-nowrap"
+                      >
+                        Thao tác
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-gray-100 bg-white">
+                    {books.map((book, index) => {
+                      const available = book.quantity - book.borrowedQuantity;
+                      const isAvailable = available > 0;
+                      const coverUrl = getMediaUrl(book.coverImage);
+
+                      return (
+                        <tr
+                          key={book.id}
+                          className="transition-colors hover:bg-amber-50/25"
+                        >
+                          {/* Index */}
+                          <td className="px-5 py-3.5 text-center text-xs text-gray-400 tabular-nums">
+                            {(page - 1) * DEFAULT_LIMIT + index + 1}
+                          </td>
+
+                          {/* Cover & Title */}
+                          <td className="px-5 py-3.5">
+                            <div className="flex items-center gap-3">
+                              <div
+                                onClick={() =>
+                                  navigate(`/books/${book.id}`, {
+                                    state: {
+                                      from: `${location.pathname}${location.search}`,
+                                    },
+                                  })
+                                }
+                                className="h-12 w-9 shrink-0 overflow-hidden rounded-md border border-gray-200 bg-gray-50 flex items-center justify-center cursor-pointer shadow-2xs hover:scale-105 transition-transform"
+                              >
+                                {coverUrl ? (
+                                  <img
+                                    src={coverUrl}
+                                    alt={book.title}
+                                    className="h-full w-full object-cover"
+                                    loading="lazy"
+                                  />
+                                ) : (
+                                  <BookOpen size={16} className="text-amber-700/60" />
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <Link
+                                  to={`/books/${book.id}`}
+                                  state={{
+                                    from: `${location.pathname}${location.search}`,
+                                  }}
+                                  className="font-bold text-gray-900 hover:text-amber-800 transition-colors line-clamp-1 leading-snug"
+                                  title={book.title}
+                                >
+                                  {book.title}
+                                </Link>
+                                <span className="font-mono text-xs text-gray-400 block mt-0.5">
+                                  {book.isbn}
+                                </span>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Author */}
+                          <td className="px-4 py-3.5 font-medium text-gray-700 text-center whitespace-nowrap">
+                            {book.author}
+                          </td>
+
+                          {/* Category */}
+                          <td className="px-4 py-3.5 text-center whitespace-nowrap">
+                            <span className="inline-flex items-center rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+                              {book.category.name}
+                            </span>
+                          </td>
+
+                          {/* Manager Stats */}
+                          {!isMember && (
+                            <>
+                              <td className="px-4 py-3.5 text-right font-semibold text-gray-900 whitespace-nowrap tabular-nums">
+                                {formatCurrency(Number(book.price))}
+                              </td>
+                              <td className="px-4 py-3.5 text-center font-bold text-gray-800 whitespace-nowrap tabular-nums">
+                                {book.quantity}
+                              </td>
+                              <td className="px-4 py-3.5 text-center whitespace-nowrap tabular-nums text-amber-700 font-semibold">
+                                {book.borrowedQuantity}
+                              </td>
+                              <td className="px-4 py-3.5 text-center whitespace-nowrap tabular-nums">
+                                <span
+                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${isAvailable
+                                    ? "bg-emerald-50 text-emerald-700"
+                                    : "bg-rose-50 text-rose-700"
+                                    }`}
+                                >
+                                  {available}
+                                </span>
+                              </td>
+                            </>
+                          )}
+
+                          {/* Actions Column */}
+                          <td className="px-5 py-3.5 text-center whitespace-nowrap">
+                            {isMember ? (
+                              <div className="flex items-center justify-center gap-2">
+                                <Link
+                                  to={`/books/${book.id}`}
+                                  state={{
+                                    from: `${location.pathname}${location.search}`,
+                                  }}
+                                  className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition shadow-2xs cursor-pointer"
+                                  title="Xem chi tiết"
+                                >
+                                  <Eye size={13} />
+                                  <span>Chi tiết</span>
+                                </Link>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedBorrowBook(book);
+                                    setIsBorrowModalOpen(true);
+                                  }}
+                                  disabled={!isAvailable}
+                                  className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition active:scale-[0.98] ${
+                                    isAvailable
+                                      ? "bg-amber-600 hover:bg-amber-700 text-white shadow-2xs cursor-pointer"
+                                      : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                  }`}
+                                >
+                                  <BookOpen size={13} />
+                                  <span>
+                                    {isAvailable ? "Mượn sách" : "Hết sách"}
+                                  </span>
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-center gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    navigate(`/books/${book.id}`, {
+                                      state: {
+                                        from: `${location.pathname}${location.search}`,
+                                      },
+                                    })
+                                  }
+                                  className="flex h-8 w-8 items-center justify-center rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition cursor-pointer"
+                                  title="Xem chi tiết"
+                                >
+                                  <Eye size={14} />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleEdit(book)}
+                                  className="flex h-8 w-8 items-center justify-center rounded-xl border border-amber-200 bg-amber-50/50 text-amber-800 hover:bg-amber-100 transition cursor-pointer"
+                                  title="Chỉnh sửa thông tin sách"
+                                >
+                                  <Edit size={14} />
+                                </button>
+
+                                {isAdmin && (
+                                  <button
+                                    type="button"
+                                    disabled={deleteMutation.isPending}
+                                    onClick={async () => {
+                                      const confirmed = window.confirm(
+                                        `Bạn có chắc chắn muốn xóa cuốn sách "${book.title}"?`,
+                                      );
+                                      if (!confirmed) return;
+                                      await deleteMutation.mutateAsync(book.id);
+                                      if (books.length === 1 && page > 1) {
+                                        setPage((current) => current - 1);
+                                      }
+                                    }}
+                                    className="flex h-8 w-8 items-center justify-center rounded-xl border border-rose-200 bg-rose-50/50 text-rose-600 hover:bg-rose-100 transition cursor-pointer disabled:opacity-50"
+                                    title="Xóa sách"
+                                  >
+                                    <Trash size={14} />
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ======================================================= */}
+          {/* 7. Pagination Footer */}
+          {/* ======================================================= */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-gray-200/80 bg-white px-5 py-4 shadow-2xs">
+            <p className="text-xs text-gray-500 text-center sm:text-left">
+              {pagination ? (
+                <>
+                  Trang{" "}
+                  <strong className="text-gray-900 font-semibold">
+                    {pagination.page}
+                  </strong>{" "}
+                  / {pagination.totalPages} (Tổng cộng{" "}
+                  <strong className="text-gray-900 font-semibold">
+                    {pagination.total}
+                  </strong>{" "}
+                  cuốn sách)
+                </>
+              ) : (
+                "Đang tải số trang..."
+              )}
             </p>
 
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={handlePrevious}
-                disabled={page === 1 || isFetching}
-                className="rounded-md p-2 transition hover:bg-[#F7F2E7] disabled:cursor-not-allowed disabled:opacity-40"
-                style={{ border: "1px solid #E6DFCE", color: "#5C6B85" }}
-              >
-                <ChevronLeft size={16} />
-              </button>
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handlePrevious}
+                  disabled={page === 1 || isFetching}
+                  className="flex h-8 px-2.5 items-center justify-center gap-1 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer shadow-2xs"
+                >
+                  <ChevronLeft size={14} /> Trước
+                </button>
 
-              {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                (pageNumber) => {
-                  const isActive = pageNumber === page;
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                    (pageNumber) => {
+                      const isActive = pageNumber === page;
+                      return (
+                        <button
+                          key={pageNumber}
+                          type="button"
+                          onClick={() => handlePageChange(pageNumber)}
+                          disabled={isFetching}
+                          className={`h-8 min-w-8 rounded-xl px-2 text-xs font-bold tabular-nums transition cursor-pointer ${isActive
+                            ? "bg-gray-900 text-white shadow-xs"
+                            : "border border-gray-200 bg-white text-gray-700 hover:bg-gray-100"
+                            }`}
+                        >
+                          {pageNumber}
+                        </button>
+                      );
+                    },
+                  )}
+                </div>
 
-                  return (
-                    <button
-                      key={pageNumber}
-                      type="button"
-                      onClick={() => handlePageChange(pageNumber)}
-                      disabled={isFetching}
-                      className="min-w-8 rounded-md px-2 py-1.5 text-xs font-medium tabular-nums transition"
-                      style={{
-                        backgroundColor: isActive ? "#12192B" : "transparent",
-                        color: isActive ? "#C89B3C" : "#5C6B85",
-                      }}
-                    >
-                      {pageNumber}
-                    </button>
-                  );
-                },
-              )}
-
-              <button
-                type="button"
-                onClick={handleNext}
-                disabled={page >= totalPages || isFetching}
-                className="rounded-md p-2 transition hover:bg-[#F7F2E7] disabled:cursor-not-allowed disabled:opacity-40"
-                style={{ border: "1px solid #E6DFCE", color: "#5C6B85" }}
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={page >= totalPages || isFetching}
+                  className="flex h-8 px-2.5 items-center justify-center gap-1 rounded-xl border border-gray-200 bg-white text-xs font-semibold text-gray-600 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer shadow-2xs"
+                >
+                  Sau <ChevronRight size={14} />
+                </button>
+              </div>
+            )}
           </div>
-        </div>
+        </>
       )}
 
-      {/* Background fetching indicator */}
-      {isFetching && !isLoading && (
-        <p className="text-right text-xs" style={{ color: "#B0B7C4" }}>
-          Updating...
-        </p>
-      )}
-
+      {/* ========================================================= */}
+      {/* 8. Modals (BookForm & RequestBorrowModal) */}
+      {/* ========================================================= */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div
-            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl"
-            style={{ border: "1px solid #E6DFCE" }}
-          >
-            <div
-              className="mb-6"
-              style={{ borderBottom: "1px solid #E6DFCE", paddingBottom: 16 }}
-            >
-              <h2
-                className="text-xl font-semibold font-heading"
-                style={{
-                  fontFamily: "var(--heading)",
-                  color: "#12192B",
-                }}
-              >
-                {formMode === "create" ? "Create Book" : "Update Book"}
-              </h2>
-
-              <p className="mt-1 text-sm" style={{ color: "#8A93A6" }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl">
+            <div className="mb-6 pb-4 border-b border-gray-100">
+              <h2 className="text-xl font-bold font-heading text-gray-900">
                 {formMode === "create"
-                  ? "Create a new book."
-                  : "Update book information."}
+                  ? "Thêm sách mới vào thư viện"
+                  : "Cập nhật thông tin sách"}
+              </h2>
+              <p className="mt-1 text-xs sm:text-sm text-gray-500">
+                {formMode === "create"
+                  ? "Điền thông tin chi tiết để thêm đầu sách mới vào hệ thống quản lý."
+                  : "Chỉnh sửa các trường thông tin cần cập nhật của cuốn sách."}
               </p>
             </div>
 

@@ -834,7 +834,7 @@ export function LibraryAssetsPage() {
               <thead className="border-b border-gray-200/80 bg-gray-50/75 text-xs font-semibold text-gray-700">
                 <tr>
                   <th scope="col" className="px-5 py-3.5">
-                    Đầu sách & Mã ISBN
+                    Đầu sách
                   </th>
                   <th scope="col" className="px-4 py-3.5 text-center whitespace-nowrap">
                     Thể loại

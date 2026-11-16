@@ -4,13 +4,13 @@ export const createCategorySchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, "Category name is required")
-    .max(100, "Category name must not exceed 100 characters"),
+    .min(1, "Vui lòng nhập tên thể loại")
+    .max(100, "Tên thể loại không được vượt quá 100 ký tự"),
 
   description: z
     .string()
     .trim()
-    .max(500, "Description must not exceed 500 characters")
+    .max(500, "Mô tả không được vượt quá 500 ký tự")
     .optional()
     .or(z.literal("")),
 });

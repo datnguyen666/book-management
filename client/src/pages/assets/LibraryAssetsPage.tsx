@@ -839,7 +839,7 @@ export function LibraryAssetsPage() {
                   <th scope="col" className="px-4 py-3.5 text-center whitespace-nowrap">
                     Thể loại
                   </th>
-                  <th scope="col" className="px-4 py-3.5 text-right whitespace-nowrap">
+                  <th scope="col" className="px-4 py-3.5 text-center whitespace-nowrap">
                     Đơn giá
                   </th>
                   <th scope="col" className="px-4 py-3.5 text-center whitespace-nowrap">

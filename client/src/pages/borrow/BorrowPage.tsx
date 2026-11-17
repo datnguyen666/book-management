@@ -381,12 +381,12 @@ export function BorrowPage() {
                   <th className="w-16 px-4 py-3.5 text-center">#ID</th>
                   <th className="min-w-[220px] px-6 py-3.5">Đầu sách</th>
                   <th className="min-w-[220px] px-6 py-3.5">Bạn đọc</th>
-                  <th className="min-w-[120px] px-4 py-3.5 text-center">Ngày mượn</th>
+                  <th className="min-w-[120px] px-4 py-3.5 text-center whitespace-nowrap">Ngày mượn</th>
                   <th className="min-w-[130px] px-4 py-3.5 text-center">Hạn trả</th>
                   <th className="min-w-[120px] px-4 py-3.5 text-center">Ngày trả</th>
                   <th className="min-w-[130px] px-4 py-3.5 text-center">Trạng thái</th>
-                  <th className="min-w-[150px] px-5 py-3.5">Người xử lý</th>
-                  <th className="min-w-[150px] px-5 py-3.5 text-right">Thao tác</th>
+                  <th className="min-w-[150px] px-5 py-3.5 text-left">Người xử lý</th>
+                  <th className="min-w-[160px] px-5 py-3.5 text-center">Thao tác</th>
                 </tr>
               </thead>
 
@@ -420,13 +420,13 @@ export function BorrowPage() {
                       </td>
 
                       {/* Member */}
-                      <td className="px-6 py-4">
+                      <td className="whitespace-nowrap px-6 py-4">
                         <div className="flex items-center gap-2.5">
                           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-100 text-xs font-bold text-purple-700">
                             {getInitials(borrow.member?.fullName, borrow.member?.username)}
                           </div>
                           <div>
-                            <div className="font-semibold text-gray-900">
+                            <div className="font-semibold text-gray-900 ">
                               {borrow.member?.fullName || borrow.member?.username || "Chưa xác định"}
                             </div>
                             <div className="flex items-center gap-1.5 mt-0.5">
@@ -514,9 +514,9 @@ export function BorrowPage() {
                       </td>
 
                       {/* Actions */}
-                      <td className="px-5 py-4 text-right whitespace-nowrap">
+                      <td className="px-5 py-4 text-center whitespace-nowrap">
                         {borrow.status === "PENDING" && (
-                          <div className="flex items-center justify-end gap-1.5">
+                          <div className="flex items-center justify-center gap-1.5">
                             <button
                               type="button"
                               onClick={() => handleApprove(borrow)}
@@ -541,18 +541,20 @@ export function BorrowPage() {
                         )}
 
                         {borrow.status === "BORROWING" && (
-                          <button
-                            type="button"
-                            disabled={returnMutation.isPending}
-                            onClick={() => handleReturn(borrow)}
-                            className="cursor-pointer inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 shadow-2xs transition hover:bg-emerald-100 disabled:opacity-50"
-                          >
-                            <RotateCcw
-                              size={13}
-                              className={returnMutation.isPending ? "animate-spin" : ""}
-                            />
-                            <span>Nhận trả sách</span>
-                          </button>
+                          <div className="flex items-center justify-center">
+                            <button
+                              type="button"
+                              disabled={returnMutation.isPending}
+                              onClick={() => handleReturn(borrow)}
+                              className="cursor-pointer inline-flex items-center gap-1.5 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 shadow-2xs transition hover:bg-emerald-100 disabled:opacity-50"
+                            >
+                              <RotateCcw
+                                size={13}
+                                className={returnMutation.isPending ? "animate-spin" : ""}
+                              />
+                              <span>Nhận trả sách</span>
+                            </button>
+                          </div>
                         )}
 
                         {borrow.status === "RETURNED" && (
@@ -560,7 +562,7 @@ export function BorrowPage() {
                         )}
 
                         {(borrow.status === "REJECTED" || borrow.status === "CANCELLED") && (
-                          <span className="text-xs text-gray-400">—</span>
+                          <span className="text-xs text-gray-400 font-mono">—</span>
                         )}
                       </td>
                     </tr>

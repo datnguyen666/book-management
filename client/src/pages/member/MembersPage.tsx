@@ -246,13 +246,13 @@ export function MembersPage() {
           <table className="w-full text-left text-sm">
             <thead className="border-b border-gray-200/80 bg-gray-50/80 text-xs font-semibold uppercase tracking-wider text-gray-500">
               <tr>
-                <th className="min-w-[130px] px-5 py-3.5">Mã bạn đọc</th>
+                <th className="min-w-[130px] px-5 py-3.5 whitespace-nowrap">Mã bạn đọc</th>
                 <th className="min-w-[220px] px-5 py-3.5">Bạn đọc</th>
                 <th className="min-w-[220px] px-5 py-3.5">Thông tin liên hệ</th>
-                <th className="min-w-[150px] px-5 py-3.5">Sách đang mượn</th>
-                <th className="min-w-[130px] px-5 py-3.5">Tổng lượt mượn</th>
+                <th className="min-w-[150px] px-5 py-3.5 whitespace-nowrap">Sách đang mượn</th>
+                <th className="min-w-[130px] px-5 py-3.5 whitespace-nowrap">Tổng lượt mượn</th>
                 <th className="min-w-[130px] px-5 py-3.5">Trạng thái</th>
-                <th className="min-w-[140px] px-5 py-3.5 text-right">Thao tác</th>
+                <th className="min-w-[140px] px-5 py-3.5 text-center">Thao tác</th>
               </tr>
             </thead>
 
@@ -307,7 +307,7 @@ export function MembersPage() {
 
                     {/* Họ và tên & username (kèm Avatar initials) */}
                     <td className="px-5 py-4">
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 whitespace-nowrap">
                         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-xs font-bold text-purple-700 shadow-2xs">
                           {getInitials(member.fullName)}
                         </div>
@@ -340,11 +340,10 @@ export function MembersPage() {
                     <td className="whitespace-nowrap px-5 py-4">
                       <div className="flex items-center gap-2">
                         <span
-                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                            member.borrowingCount > 0
-                              ? "bg-blue-50 text-blue-700 border border-blue-200/60"
-                              : "bg-gray-100 text-gray-500"
-                          }`}
+                          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${member.borrowingCount > 0
+                            ? "bg-blue-50 text-blue-700 border border-blue-200/60"
+                            : "bg-gray-100 text-gray-500"
+                            }`}
                         >
                           <BookOpen className="h-3 w-3" />
                           {member.borrowingCount} cuốn
@@ -402,11 +401,10 @@ export function MembersPage() {
                           onClick={() => handleToggleStatus(member)}
                           disabled={updateStatusMutation.isPending}
                           title={member.isActive ? "Khóa tài khoản bạn đọc" : "Mở khóa tài khoản bạn đọc"}
-                          className={`cursor-pointer inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium shadow-2xs transition disabled:opacity-50 ${
-                            member.isActive
-                              ? "border-rose-200 bg-white text-rose-700 hover:bg-rose-50"
-                              : "border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50"
-                          }`}
+                          className={`cursor-pointer inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium shadow-2xs transition disabled:opacity-50 ${member.isActive
+                            ? "border-rose-200 bg-white text-rose-700 hover:bg-rose-50"
+                            : "border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50"
+                            }`}
                         >
                           {member.isActive ? (
                             <>

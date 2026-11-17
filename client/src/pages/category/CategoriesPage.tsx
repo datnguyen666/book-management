@@ -391,7 +391,7 @@ export function CategoriesPage() {
 
                     {/* Cột 2: Tên thể loại */}
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 whitespace-nowrap">
                         <span className="inline-flex items-center gap-1.5 rounded-lg border border-purple-200/60 bg-purple-50 px-3 py-1 text-xs font-semibold text-purple-700">
                           <Folder size={13} className="text-purple-600" />
                           {category.name}

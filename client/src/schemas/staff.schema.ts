@@ -4,14 +4,14 @@ export const createStaffSchema = z.object({
   fullName: z
     .string()
     .trim()
-    .min(1, "Full name is required")
-    .max(100, "Full name is too long"),
+    .min(1, "Vui lòng nhập họ và tên nhân viên")
+    .max(100, "Họ và tên không được vượt quá 100 ký tự"),
 
   email: z
     .string()
     .trim()
-    .min(1, "Email is required")
-    .email("Invalid email address"),
+    .min(1, "Vui lòng nhập địa chỉ email")
+    .email("Địa chỉ email không đúng định dạng"),
 });
 
 export type CreateStaffFormData = z.infer<typeof createStaffSchema>;

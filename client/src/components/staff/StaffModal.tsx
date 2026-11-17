@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";
+import { X, UserPlus, UserCheck, AlertCircle, Info } from "lucide-react";
 
 import {
   createStaffSchema,
@@ -59,65 +59,69 @@ export function StaffModal({
   }
 
   const handleClose = () => {
-    if (isSubmitting) {
-      return;
-    }
-
+    if (isSubmitting) return;
     onClose();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-      <div className="w-full max-w-md rounded-lg bg-white shadow-xl">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b px-6 py-4">
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              {mode === "create" ? "Add Staff" : "Edit Staff"}
-            </h2>
+  const isCreate = mode === "create";
 
-            <p className="mt-1 text-sm text-gray-500">
-              {mode === "create"
-                ? "Create a new staff account."
-                : "Update staff account information."}
-            </p>
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs px-4 animate-in fade-in duration-200">
+      <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-gray-100 overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-5">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
+              {isCreate ? <UserPlus size={20} /> : <UserCheck size={20} />}
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-gray-900">
+                {isCreate ? "Thêm nhân viên mới" : "Chỉnh sửa thông tin nhân viên"}
+              </h2>
+              <p className="text-xs text-gray-500">
+                {isCreate
+                  ? "Tạo tài khoản mới cho nhân viên thư viện."
+                  : "Cập nhật họ tên và email của nhân viên."}
+              </p>
+            </div>
           </div>
 
           <button
             type="button"
             onClick={handleClose}
             disabled={isSubmitting}
-            className="text-gray-400 hover:text-gray-600 disabled:opacity-50"
+            className="cursor-pointer rounded-xl p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition disabled:opacity-50"
+            title="Đóng"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-5 px-6 py-6">
+          <div className="space-y-4 px-6 py-5">
+            {/* Error Notification */}
             {errorMessage && (
-              <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-                {errorMessage}
+              <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
+                <AlertCircle size={16} className="shrink-0 mt-0.5 text-red-600" />
+                <span className="font-medium">{errorMessage}</span>
               </div>
             )}
 
-            {/* Full Name */}
+            {/* Họ và tên */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Full Name
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                Họ và tên nhân viên <span className="text-red-500">*</span>
               </label>
-
               <input
                 {...register("fullName")}
                 type="text"
-                placeholder="Enter full name"
+                placeholder="Ví dụ: Nguyễn Văn A..."
                 disabled={isSubmitting}
-                className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-600 disabled:bg-gray-100"
+                className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-2xs outline-none transition placeholder:text-gray-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 disabled:bg-gray-50 disabled:text-gray-400"
               />
-
               {errors.fullName && (
-                <p className="mt-1 text-sm text-red-500">
+                <p className="mt-1.5 text-xs font-medium text-red-600">
                   {errors.fullName.message}
                 </p>
               )}
@@ -125,60 +129,57 @@ export function StaffModal({
 
             {/* Email */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Email
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                Địa chỉ Email <span className="text-red-500">*</span>
               </label>
-
               <input
                 {...register("email")}
                 type="email"
-                placeholder="staff@example.com"
+                placeholder="nhanvien@thuvien.local"
                 disabled={isSubmitting}
-                className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-600 disabled:bg-gray-100"
+                className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-2xs outline-none transition placeholder:text-gray-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 disabled:bg-gray-50 disabled:text-gray-400"
               />
-
               {errors.email && (
-                <p className="mt-1 text-sm text-red-500">
+                <p className="mt-1.5 text-xs font-medium text-red-600">
                   {errors.email.message}
                 </p>
               )}
             </div>
 
-            {mode === "create" && (
-              <div className="rounded-md bg-gray-50 px-4 py-3 text-xs text-gray-500">
-                A username and temporary password will be generated
-                automatically for this staff account.
+            {/* Thông báo tự động cấp mật khẩu khi tạo mới */}
+            {isCreate && (
+              <div className="flex items-start gap-2.5 rounded-xl border border-blue-100 bg-blue-50/60 p-3.5 text-xs text-blue-800 leading-relaxed">
+                <Info size={16} className="shrink-0 mt-0.5 text-blue-600" />
+                <span>
+                  Tên đăng nhập và mật khẩu khởi tạo sẽ được hệ thống sinh tự động và gửi qua email cho nhân viên.
+                </span>
               </div>
             )}
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 border-t px-6 py-4">
+          <div className="flex items-center justify-end gap-3 border-t border-gray-100 px-6 py-4">
             <button
               type="button"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+              className="cursor-pointer rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-2xs transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Cancel
+              Hủy bỏ
             </button>
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="rounded-md px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-              style={{
-                backgroundColor: "#111827",
-                color: "#d4a853",
-              }}
+              className="cursor-pointer rounded-xl bg-gray-900 px-5 py-2.5 text-sm font-semibold text-amber-400 shadow-2xs transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting
-                ? mode === "create"
-                  ? "Creating..."
-                  : "Saving..."
-                : mode === "create"
-                  ? "Create Staff"
-                  : "Save Changes"}
+                ? isCreate
+                  ? "Đang tạo..."
+                  : "Đang lưu..."
+                : isCreate
+                ? "Tạo nhân viên"
+                : "Lưu thay đổi"}
             </button>
           </div>
         </form>

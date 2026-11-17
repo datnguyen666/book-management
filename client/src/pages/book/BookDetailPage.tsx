@@ -289,7 +289,7 @@ export function BookDetailPage() {
             {/* Thẻ Tóm Tắt Tình Trạng Tồn Bản (Inventory Distribution) */}
             <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-4 space-y-3">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-gray-700">Tình trạng tài liệu</span>
+                <span className="font-semibold text-gray-700">Tình trạng sách</span>
                 <span className="text-gray-500 font-mono">Tổng: {book.quantity} bản</span>
               </div>
 

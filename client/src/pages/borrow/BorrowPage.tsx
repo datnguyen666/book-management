@@ -348,12 +348,12 @@ export function BorrowPage() {
 
       {/* Empty State */}
       {!isLoading && !isError && borrows.length === 0 && (
-        <div className="rounded-2xl border border-gray-200/80 bg-white p-12 text-center shadow-2xs">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-gray-200/80 bg-white p-12 text-center shadow-2xs">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
             <BookOpen size={28} />
           </div>
           <h3 className="mt-4 text-base font-semibold text-gray-900">Không tìm thấy phiếu mượn nào</h3>
-          <p className="mx-auto mt-1 max-w-sm text-xs text-gray-500">
+          <p className="mt-1.5 text-center text-xs text-gray-500">
             {search || status
               ? "Hãy thử điều chỉnh từ khóa tìm kiếm hoặc bộ lọc trạng thái."
               : "Hiện tại chưa có phiếu mượn nào trong hệ thống."}

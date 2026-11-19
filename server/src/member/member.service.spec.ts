@@ -58,7 +58,11 @@ describe('MemberService', () => {
         },
       ]);
 
-      const result = await service.findAll({ page: 1, limit: 10, status: 'all' });
+      const result = await service.findAll({
+        page: 1,
+        limit: 10,
+        status: 'all',
+      });
 
       expect(result.data).toHaveLength(1);
       expect(result.data[0].username).toBe('member1');
@@ -121,7 +125,9 @@ describe('MemberService', () => {
         role: Role.STAFF,
       });
 
-      await expect(service.updateStatus(2, false)).rejects.toThrow(BadRequestException);
+      await expect(service.updateStatus(2, false)).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 });

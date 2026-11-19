@@ -34,6 +34,7 @@ model User {
   fullName String @default("")
   password String
   phone    String?
+  avatar   String?
 
   memberCode String? @unique
 

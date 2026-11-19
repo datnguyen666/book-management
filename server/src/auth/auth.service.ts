@@ -21,25 +21,27 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
   ) {}
-  async validateUser(
-    username: string,
-    password: string,
-    portal?: LoginPortal,
-  ) {
+  async validateUser(username: string, password: string, portal?: LoginPortal) {
     const user = await this.prisma.user.findUnique({
       where: {
         username,
       },
     });
     if (!user) {
-      throw new UnauthorizedException('Tên đăng nhập hoặc mật khẩu không chính xác.');
+      throw new UnauthorizedException(
+        'Tên đăng nhập hoặc mật khẩu không chính xác.',
+      );
     }
     if (!user.isActive) {
-      throw new UnauthorizedException('Tài khoản này đã bị khóa hoặc chưa được kích hoạt.');
+      throw new UnauthorizedException(
+        'Tài khoản này đã bị khóa hoặc chưa được kích hoạt.',
+      );
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Tên đăng nhập hoặc mật khẩu không chính xác.');
+      throw new UnauthorizedException(
+        'Tên đăng nhập hoặc mật khẩu không chính xác.',
+      );
     }
 
     if (portal === LoginPortal.MANAGEMENT && user.role === Role.MEMBER) {
@@ -183,12 +185,47 @@ export class AuthService {
       email: user.email,
       fullName: user.fullName,
       phone: user.phone,
+      avatar: user.avatar,
       memberCode: user.memberCode,
       role: user.role,
       isActive: user.isActive,
       mustChangePassword: user.mustChangePassword,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+    };
+  }
+
+  async updateAvatar(userId: number, avatarFilename: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: { avatar: avatarFilename },
+    });
+
+    return {
+      avatarUrl: `/uploads/${avatarFilename}`,
+      avatar: avatarFilename,
+      user: {
+        id: updatedUser.id,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        fullName: updatedUser.fullName,
+        phone: updatedUser.phone,
+        avatar: updatedUser.avatar,
+        memberCode: updatedUser.memberCode,
+        role: updatedUser.role,
+        isActive: updatedUser.isActive,
+        mustChangePassword: updatedUser.mustChangePassword,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
+      },
     };
   }
 
@@ -218,7 +255,24 @@ export class AuthService {
     }
 
     if (dto.email !== undefined) {
-      data.email = dto.email.trim();
+      const trimmedEmail = dto.email.trim();
+      if (
+        user.role === Role.STAFF &&
+        trimmedEmail.toLowerCase() !== user.email.toLowerCase()
+      ) {
+        throw new BadRequestException(
+          'Nhân viên không được phép tự thay đổi địa chỉ email. Vui lòng liên hệ Quản trị viên.',
+        );
+      }
+      data.email = trimmedEmail;
+    }
+
+    if (dto.phone !== undefined) {
+      data.phone = dto.phone ? dto.phone.trim() : null;
+    }
+
+    if (dto.avatar !== undefined) {
+      data.avatar = dto.avatar ? dto.avatar.trim() : null;
     }
 
     if (dto.newPassword !== undefined) {
@@ -254,6 +308,8 @@ export class AuthService {
         username: user.username,
         email: user.email,
         fullName: user.fullName,
+        phone: user.phone,
+        avatar: user.avatar,
         role: user.role,
         isActive: user.isActive,
         mustChangePassword: user.mustChangePassword,
@@ -275,6 +331,8 @@ export class AuthService {
         username: updatedUser.username,
         email: updatedUser.email,
         fullName: updatedUser.fullName,
+        phone: updatedUser.phone,
+        avatar: updatedUser.avatar,
         role: updatedUser.role,
         isActive: updatedUser.isActive,
         mustChangePassword: updatedUser.mustChangePassword,

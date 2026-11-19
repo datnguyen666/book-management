@@ -1,14 +1,24 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Patch,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { multerOptions } from '../common/upload/multer.config';
 
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { Role } from '@prisma/client';
 
@@ -31,6 +41,7 @@ interface AuthenticatedUser {
   fullName: string;
   memberCode?: string;
   phone?: string;
+  avatar?: string;
   role: Role;
   mustChangePassword?: boolean;
 }
@@ -87,6 +98,24 @@ export class AuthController {
     @Body() dto: UpdateProfileDto,
   ) {
     return this.authService.updateProfile(req.user.id, dto);
+  }
+
+  @Post('profile/avatar')
+  @ApiBearerAuth('JWT')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file', multerOptions))
+  @ApiOperation({
+    summary: 'Upload user profile avatar',
+  })
+  @ApiConsumes('multipart/form-data')
+  uploadAvatar(
+    @Req() req: AuthenticatedRequest,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new BadRequestException('Vui lòng chọn file hình ảnh avatar.');
+    }
+    return this.authService.updateAvatar(req.user.id, file.filename);
   }
 
   @Get('admin')

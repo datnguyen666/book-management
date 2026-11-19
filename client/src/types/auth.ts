@@ -33,6 +33,7 @@ export interface User {
   fullName: string;
   memberCode?: string;
   phone?: string;
+  avatar?: string;
   role: Role;
   isActive: boolean;
   mustChangePassword?: boolean;

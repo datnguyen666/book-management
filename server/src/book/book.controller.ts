@@ -42,7 +42,7 @@ import { multerOptions } from '../common/upload/multer.config';
 @UseGuards(JwtAuthGuard)
 @Controller('books')
 export class BookController {
-  constructor(private readonly bookService: BookService) { }
+  constructor(private readonly bookService: BookService) {}
 
   @Post()
   @UseGuards(RolesGuard)

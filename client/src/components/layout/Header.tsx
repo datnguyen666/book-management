@@ -3,6 +3,7 @@ import { Menu } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getAppBranding, getRouteTitle } from "@/utils/branding";
+import { getMediaUrl } from "@/lib/media";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -106,13 +107,21 @@ export function Header({ onMenuClick }: HeaderProps) {
         <div className="flex items-center gap-3">
           {/* Avatar */}
           <div
-            className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-xs font-bold overflow-hidden border border-amber-300/40 shadow-xs shrink-0"
             style={{
               backgroundColor: "#12192B",
               color: "#C89B3C",
             }}
           >
-            {avatarText}
+            {user?.avatar ? (
+              <img
+                src={getMediaUrl(user.avatar)}
+                alt={user.fullName || user.username}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              avatarText
+            )}
           </div>
 
           {/* Username + Role */}

@@ -139,7 +139,8 @@ export class BorrowService {
     });
 
     return {
-      message: 'Gửi yêu cầu mượn sách thành công. Vui lòng chờ thư viện phê duyệt.',
+      message:
+        'Gửi yêu cầu mượn sách thành công. Vui lòng chờ thư viện phê duyệt.',
       data: record,
     };
   }
@@ -236,11 +237,15 @@ export class BorrowService {
     }
 
     if (record.memberId !== userId) {
-      throw new ForbiddenException('Bạn chỉ có thể hủy yêu cầu của chính mình.');
+      throw new ForbiddenException(
+        'Bạn chỉ có thể hủy yêu cầu của chính mình.',
+      );
     }
 
     if (record.status !== BorrowStatus.PENDING) {
-      throw new BadRequestException('Chỉ có thể hủy yêu cầu khi đang ở trạng thái chờ duyệt.');
+      throw new BadRequestException(
+        'Chỉ có thể hủy yêu cầu khi đang ở trạng thái chờ duyệt.',
+      );
     }
 
     const updated = await this.prisma.borrowRecord.update({
@@ -277,15 +282,21 @@ export class BorrowService {
     }
 
     if (record.memberId !== userId) {
-      throw new ForbiddenException('Bạn chỉ có thể gia hạn sách của chính mình.');
+      throw new ForbiddenException(
+        'Bạn chỉ có thể gia hạn sách của chính mình.',
+      );
     }
 
     if (record.status !== BorrowStatus.BORROWING) {
-      throw new BadRequestException('Chỉ có thể gia hạn sách đang trong trạng thái đang mượn.');
+      throw new BadRequestException(
+        'Chỉ có thể gia hạn sách đang trong trạng thái đang mượn.',
+      );
     }
 
     if (record.renewCount >= 1) {
-      throw new BadRequestException('Cuốn sách này đã được gia hạn tối đa 1 lần.');
+      throw new BadRequestException(
+        'Cuốn sách này đã được gia hạn tối đa 1 lần.',
+      );
     }
 
     const now = new Date();
@@ -335,7 +346,9 @@ export class BorrowService {
     }
 
     if (record.status !== BorrowStatus.PENDING) {
-      throw new BadRequestException('Chỉ có thể duyệt yêu cầu đang ở trạng thái chờ duyệt.');
+      throw new BadRequestException(
+        'Chỉ có thể duyệt yêu cầu đang ở trạng thái chờ duyệt.',
+      );
     }
 
     const result = await this.prisma.$transaction(async (tx) => {
@@ -363,7 +376,9 @@ export class BorrowService {
       });
 
       if (updatedBookResult.count === 0) {
-        throw new BadRequestException('Sách đã hết bản sao khả dụng, không thể duyệt.');
+        throw new BadRequestException(
+          'Sách đã hết bản sao khả dụng, không thể duyệt.',
+        );
       }
 
       // 2. Hạn trả 14 ngày kể từ thời điểm duyệt giao sách
@@ -433,7 +448,9 @@ export class BorrowService {
     }
 
     if (record.status !== BorrowStatus.PENDING) {
-      throw new BadRequestException('Chỉ có thể từ chối yêu cầu đang ở trạng thái chờ duyệt.');
+      throw new BadRequestException(
+        'Chỉ có thể từ chối yêu cầu đang ở trạng thái chờ duyệt.',
+      );
     }
 
     const updated = await this.prisma.borrowRecord.update({
@@ -792,7 +809,9 @@ export class BorrowService {
     }
 
     if (borrowRecord.status !== BorrowStatus.BORROWING) {
-      throw new BadRequestException('Only books currently in borrowing status can be returned');
+      throw new BadRequestException(
+        'Only books currently in borrowing status can be returned',
+      );
     }
 
     const result = await this.prisma.$transaction(async (tx) => {

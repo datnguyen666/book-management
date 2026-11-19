@@ -58,10 +58,7 @@ export class BorrowController {
   @ApiOperation({
     summary: 'Cancel a pending borrow request',
   })
-  cancelBorrowRequest(
-    @Param('id', ParseIntPipe) id: number,
-    @Req() req: any,
-  ) {
+  cancelBorrowRequest(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
     return this.borrowService.cancelBorrowRequest(id, req.user.id);
   }
 
@@ -71,10 +68,7 @@ export class BorrowController {
   @ApiOperation({
     summary: 'Renew / extend due date of an active borrow',
   })
-  renewBorrow(
-    @Param('id', ParseIntPipe) id: number,
-    @Req() req: any,
-  ) {
+  renewBorrow(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
     return this.borrowService.renewBorrow(id, req.user.id);
   }
 
@@ -84,10 +78,7 @@ export class BorrowController {
   @ApiOperation({
     summary: 'Approve a borrow request and handover book',
   })
-  approveBorrow(
-    @Param('id', ParseIntPipe) id: number,
-    @Req() req: any,
-  ) {
+  approveBorrow(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
     return this.borrowService.approveBorrow(id, req.user.id);
   }
 
@@ -131,10 +122,7 @@ export class BorrowController {
   @ApiOperation({
     summary: 'Return a borrowed book',
   })
-  returnBook(
-    @Param('id', ParseIntPipe) id: number,
-    @Req() req: any,
-  ) {
+  returnBook(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
     return this.borrowService.returnBook(id, req.user.id);
   }
 }

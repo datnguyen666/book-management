@@ -24,9 +24,11 @@ export interface ResetPasswordRequest {
 }
 
 export interface UpdateProfileRequest {
-  username: string;
-  fullName: string;
-  email: string;
+  username?: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  avatar?: string;
   currentPassword?: string;
   newPassword?: string;
 }
@@ -86,6 +88,25 @@ export async function resetPassword(
 
 export async function updateProfile(data: UpdateProfileRequest): Promise<User> {
   const response = await api.patch<User>("/auth/profile", data);
+
+  return response.data;
+}
+
+export async function uploadAvatar(
+  file: File,
+): Promise<{ avatarUrl: string; avatar: string; user?: User }> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await api.post<{
+    avatarUrl: string;
+    avatar: string;
+    user?: User;
+  }>("/auth/profile/avatar", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 
   return response.data;
 }

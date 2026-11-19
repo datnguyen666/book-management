@@ -139,28 +139,33 @@ export class MemberService {
 
     const now = new Date();
 
-    const [totalBorrows, borrowingCount, returnedCount, pendingCount, overdueCount] =
-      await Promise.all([
-        this.prisma.borrowRecord.count({
-          where: { memberId: id },
-        }),
-        this.prisma.borrowRecord.count({
-          where: { memberId: id, status: BorrowStatus.BORROWING },
-        }),
-        this.prisma.borrowRecord.count({
-          where: { memberId: id, status: BorrowStatus.RETURNED },
-        }),
-        this.prisma.borrowRecord.count({
-          where: { memberId: id, status: BorrowStatus.PENDING },
-        }),
-        this.prisma.borrowRecord.count({
-          where: {
-            memberId: id,
-            status: BorrowStatus.BORROWING,
-            dueDate: { lt: now },
-          },
-        }),
-      ]);
+    const [
+      totalBorrows,
+      borrowingCount,
+      returnedCount,
+      pendingCount,
+      overdueCount,
+    ] = await Promise.all([
+      this.prisma.borrowRecord.count({
+        where: { memberId: id },
+      }),
+      this.prisma.borrowRecord.count({
+        where: { memberId: id, status: BorrowStatus.BORROWING },
+      }),
+      this.prisma.borrowRecord.count({
+        where: { memberId: id, status: BorrowStatus.RETURNED },
+      }),
+      this.prisma.borrowRecord.count({
+        where: { memberId: id, status: BorrowStatus.PENDING },
+      }),
+      this.prisma.borrowRecord.count({
+        where: {
+          memberId: id,
+          status: BorrowStatus.BORROWING,
+          dueDate: { lt: now },
+        },
+      }),
+    ]);
 
     return {
       ...member,

@@ -53,7 +53,8 @@ export class MailService {
     }
 
     const frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') || 'https://localhost:5173';
+      this.configService.get<string>('FRONTEND_URL') ||
+      'https://localhost:5173';
     const setupUrl = `${frontendUrl}/set-password?token=${data.setupToken}`;
     const from =
       this.configService.get<string>('MAIL_FROM') ||
@@ -173,7 +174,8 @@ export class MailService {
     }
 
     const frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') || 'https://localhost:5173';
+      this.configService.get<string>('FRONTEND_URL') ||
+      'https://localhost:5173';
     const resetUrl = `${frontendUrl}/login?resetToken=${data.resetToken}`;
     const from =
       this.configService.get<string>('MAIL_FROM') ||

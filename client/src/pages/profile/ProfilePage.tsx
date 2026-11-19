@@ -58,6 +58,12 @@ export function ProfilePage() {
     queryFn: getProfile,
   });
 
+  const [prevAvatar, setPrevAvatar] = useState(user?.avatar);
+  if (user?.avatar !== prevAvatar) {
+    setPrevAvatar(user?.avatar);
+    setImgLoadError(false);
+  }
+
   useEffect(() => {
     if (user) {
       setUser(user);

@@ -11,5 +11,10 @@ export function getMediaUrl(
     return path;
   }
 
-  return `${API_ORIGIN}${path.startsWith("/") ? path : `/${path}`}`;
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  const finalPath = cleanPath.startsWith("/uploads/")
+    ? cleanPath
+    : `/uploads${cleanPath}`;
+
+  return `${API_ORIGIN}${finalPath}`;
 }

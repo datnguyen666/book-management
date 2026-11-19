@@ -204,14 +204,18 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
+    const normalizedAvatar = avatarFilename.startsWith('/uploads/')
+      ? avatarFilename
+      : `/uploads/${avatarFilename}`;
+
     const updatedUser = await this.prisma.user.update({
       where: { id: userId },
-      data: { avatar: avatarFilename },
+      data: { avatar: normalizedAvatar },
     });
 
     return {
-      avatarUrl: `/uploads/${avatarFilename}`,
-      avatar: avatarFilename,
+      avatarUrl: normalizedAvatar,
+      avatar: normalizedAvatar,
       user: {
         id: updatedUser.id,
         username: updatedUser.username,
@@ -272,7 +276,14 @@ export class AuthService {
     }
 
     if (dto.avatar !== undefined) {
-      data.avatar = dto.avatar ? dto.avatar.trim() : null;
+      if (!dto.avatar || !dto.avatar.trim()) {
+        data.avatar = null;
+      } else {
+        const trimmed = dto.avatar.trim();
+        data.avatar = trimmed.startsWith('/uploads/')
+          ? trimmed
+          : `/uploads/${trimmed}`;
+      }
     }
 
     if (dto.newPassword !== undefined) {

@@ -299,6 +299,7 @@ export function UpdateProfilePage() {
     onSuccess: (updatedUser) => {
       setUser(updatedUser);
       queryClient.setQueryData(["profile", updatedUser.id], updatedUser);
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
       navigate("/profile", { replace: true });
     },
   });

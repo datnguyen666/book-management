@@ -17,6 +17,13 @@ export function Header({ onMenuClick }: HeaderProps) {
   const location = useLocation();
 
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [prevAvatar, setPrevAvatar] = useState(user?.avatar);
+  const [headerImgError, setHeaderImgError] = useState(false);
+
+  if (user?.avatar !== prevAvatar) {
+    setPrevAvatar(user?.avatar);
+    setHeaderImgError(false);
+  }
 
   // Cập nhật thời gian mỗi giây
   useEffect(() => {
@@ -113,10 +120,11 @@ export function Header({ onMenuClick }: HeaderProps) {
               color: "#C89B3C",
             }}
           >
-            {user?.avatar ? (
+            {user?.avatar && !headerImgError ? (
               <img
                 src={getMediaUrl(user.avatar)}
                 alt={user.fullName || user.username}
+                onError={() => setHeaderImgError(true)}
                 className="h-full w-full object-cover"
               />
             ) : (

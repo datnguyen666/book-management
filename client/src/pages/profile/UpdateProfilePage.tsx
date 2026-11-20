@@ -125,9 +125,9 @@ function getInitials(fullName?: string, username?: string) {
 }
 
 function getRoleLabel(role?: Role) {
-  if (role === "ADMIN") return "Quản trị viên (Admin)";
-  if (role === "STAFF") return "Nhân viên thư viện (Staff)";
-  return "Bạn đọc thư viện (Member)";
+  if (role === "ADMIN") return "Quản trị viên";
+  if (role === "STAFF") return "Nhân viên thư viện";
+  return "Bạn đọc thư viện";
 }
 
 function formatJoinedDate(date: string) {
@@ -627,51 +627,51 @@ export function UpdateProfilePage() {
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* Khối 2: Bảo mật & Đổi mật khẩu */}
-            <div className="rounded-2xl border border-gray-200/80 bg-white p-6 sm:p-7 shadow-2xs space-y-5">
-              <SectionTitle
-                icon={LockKeyhole}
-                title="Thay đổi mật khẩu"
-                description="Để trống các trường này nếu bạn không có nhu cầu đổi mật khẩu hiện tại"
-              />
-
-              <div className="grid gap-5 sm:grid-cols-3">
-                {/* Mật khẩu hiện tại */}
-                <PasswordInput
-                  label="Mật khẩu hiện tại"
-                  error={errors.currentPassword?.message}
-                  visible={showCurrentPassword}
-                  onToggle={() => setShowCurrentPassword((prev) => !prev)}
-                  registration={register("currentPassword")}
+              {/* Khối 2: Bảo mật & Đổi mật khẩu */}
+              <div className="rounded-2xl border border-gray-200/80 bg-white p-6 sm:p-7 shadow-2xs space-y-5">
+                <SectionTitle
+                  icon={LockKeyhole}
+                  title="Thay đổi mật khẩu"
+                  description="Để trống các trường này nếu bạn không có nhu cầu đổi mật khẩu hiện tại"
                 />
 
-                {/* Mật khẩu mới */}
-                <PasswordInput
-                  label="Mật khẩu mới"
-                  error={errors.newPassword?.message}
-                  visible={showNewPassword}
-                  onToggle={() => setShowNewPassword((prev) => !prev)}
-                  registration={register("newPassword")}
-                />
+                <div className="grid gap-5 sm:grid-cols-3">
+                  {/* Mật khẩu hiện tại */}
+                  <PasswordInput
+                    label="Mật khẩu hiện tại"
+                    error={errors.currentPassword?.message}
+                    visible={showCurrentPassword}
+                    onToggle={() => setShowCurrentPassword((prev) => !prev)}
+                    registration={register("currentPassword")}
+                  />
 
-                {/* Xác nhận mật khẩu mới */}
-                <PasswordInput
-                  label="Xác nhận mật khẩu mới"
-                  error={errors.confirmPassword?.message}
-                  visible={showConfirmPassword}
-                  onToggle={() => setShowConfirmPassword((prev) => !prev)}
-                  registration={register("confirmPassword")}
-                />
-              </div>
+                  {/* Mật khẩu mới */}
+                  <PasswordInput
+                    label="Mật khẩu mới"
+                    error={errors.newPassword?.message}
+                    visible={showNewPassword}
+                    onToggle={() => setShowNewPassword((prev) => !prev)}
+                    registration={register("newPassword")}
+                  />
 
-              {/* Lỗi API nếu có */}
-              {mutation.isError && (
-                <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-medium text-rose-700 shadow-2xs">
-                  {getMutationErrorMessage(mutation.error)}
+                  {/* Xác nhận mật khẩu mới */}
+                  <PasswordInput
+                    label="Xác nhận mật khẩu mới"
+                    error={errors.confirmPassword?.message}
+                    visible={showConfirmPassword}
+                    onToggle={() => setShowConfirmPassword((prev) => !prev)}
+                    registration={register("confirmPassword")}
+                  />
                 </div>
-              )}
+
+                {/* Lỗi API nếu có */}
+                {mutation.isError && (
+                  <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs font-medium text-rose-700 shadow-2xs">
+                    {getMutationErrorMessage(mutation.error)}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Khối 3: Nút Lưu Thay Đổi */}

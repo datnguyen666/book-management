@@ -562,11 +562,6 @@ export function UpdateProfilePage() {
                     className="mb-1.5 flex items-center justify-between text-xs font-semibold text-gray-700"
                   >
                     <span>Địa chỉ email</span>
-                    {isStaff && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-normal text-amber-700">
-                        <Lock size={11} /> Cố định theo vai trò
-                      </span>
-                    )}
                   </label>
 
                   <div className="relative">
@@ -601,12 +596,6 @@ export function UpdateProfilePage() {
                   {errors.email?.message && !isStaff && (
                     <p className="mt-1.5 text-xs text-rose-500 font-medium">
                       {errors.email.message}
-                    </p>
-                  )}
-
-                  {isStaff && (
-                    <p className="mt-2 text-xs text-amber-800 bg-amber-50 border border-amber-200/70 rounded-xl p-2.5 leading-relaxed">
-                      Tài khoản Nhân viên không được phép tự thay đổi email. Vui lòng liên hệ Quản trị viên nếu cần cấp đổi.
                     </p>
                   )}
                 </div>

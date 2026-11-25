@@ -5,13 +5,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { BorrowStatus, Prisma, Role } from '@prisma/client';
+import { BorrowStatus, NotificationType, Prisma, Role } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBorrowDto } from './dto/create-borrow.dto';
 import { QueryBorrowDto } from './dto/query-borrow.dto';
 import { RequestBorrowDto } from './dto/request-borrow.dto';
 import { RejectBorrowDto } from './dto/reject-borrow.dto';
+import { NotificationService } from '../notification/notification.service';
 
 const MAX_ACTIVE_BORROWS_PER_USER = 5;
 const DEFAULT_BORROW_DAYS = 14;
@@ -19,7 +20,10 @@ const RENEW_DAYS = 14;
 
 @Injectable()
 export class BorrowService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationService: NotificationService,
+  ) { }
 
   /**
    * Độc giả gửi yêu cầu mượn sách trực tuyến (Status: PENDING)
@@ -136,6 +140,18 @@ export class BorrowService {
           },
         },
       },
+    });
+
+    const borrowerName = user.fullName || user.username;
+    const borrowerCode = user.memberCode ? ` (${user.memberCode})` : '';
+
+    // Tạo thông báo gửi tới toàn bộ Ban quản lý (Staff & Admin)
+    await this.notificationService.createForStaffAndAdmin({
+      title: 'Yêu cầu mượn sách mới',
+      content: `Bạn đọc ${borrowerName}${borrowerCode} vừa gửi yêu cầu mượn sách "${record.book.title}".`,
+      type: NotificationType.BORROW_REQUEST,
+      link: '/borrows',
+      borrowRecordId: record.id,
     });
 
     return {
@@ -429,6 +445,23 @@ export class BorrowService {
       };
     });
 
+    // Tạo thông báo gửi cho bạn đọc sở hữu phiếu
+    const bookTitle = result.borrowRecord.book.title;
+    const dueDate = new Date(result.borrowRecord.dueDate);
+    const day = String(dueDate.getDate()).padStart(2, '0');
+    const month = String(dueDate.getMonth() + 1).padStart(2, '0');
+    const year = dueDate.getFullYear();
+    const dueDateStr = `${day}/${month}/${year}`;
+
+    await this.notificationService.createNotification({
+      userId: record.memberId,
+      title: 'Yêu cầu mượn sách đã được duyệt',
+      content: `Yêu cầu mượn sách "${bookTitle}" của bạn đã được phê duyệt. Hạn trả: ${dueDateStr}.`,
+      type: NotificationType.BORROW_APPROVED,
+      link: '/my-borrows',
+      borrowRecordId: record.id,
+    });
+
     return {
       message: 'Duyệt yêu cầu và bàn giao sách thành công.',
       data: result,
@@ -475,6 +508,19 @@ export class BorrowService {
           },
         },
       },
+    });
+
+    // Tạo thông báo gửi cho bạn đọc kèm lý do từ chối
+    const bookTitle = updated.book.title;
+    const reasonText = dto.reason?.trim() ? ` Lý do: ${dto.reason.trim()}` : '';
+
+    await this.notificationService.createNotification({
+      userId: record.memberId,
+      title: 'Yêu cầu mượn sách bị từ chối',
+      content: `Yêu cầu mượn sách "${bookTitle}" của bạn đã bị từ chối.${reasonText}`,
+      type: NotificationType.BORROW_REJECTED,
+      link: '/my-borrows',
+      borrowRecordId: record.id,
     });
 
     return {

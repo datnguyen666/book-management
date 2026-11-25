@@ -27,6 +27,14 @@ enum BorrowStatus {
   CANCELLED
 }
 
+enum NotificationType {
+  BORROW_REQUEST
+  BORROW_APPROVED
+  BORROW_REJECTED
+  DUE_SOON
+  OVERDUE
+}
+
 model User {
   id       Int    @id @default(autoincrement())
   username String @unique
@@ -50,6 +58,7 @@ model User {
 
   borrowRecords          BorrowRecord[] @relation("MemberBorrowRecords")
   processedBorrowRecords BorrowRecord[] @relation("StaffBorrowRecords")
+  notifications          Notification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -113,6 +122,8 @@ model BorrowRecord {
   processedById Int?
   processedBy   User? @relation("StaffBorrowRecords", fields: [processedById], references: [id], onDelete: SetNull)
 
+  notifications Notification[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -120,4 +131,25 @@ model BorrowRecord {
   @@index([memberId])
   @@index([processedById])
   @@index([status])
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  userId    Int
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  type      NotificationType
+  link      String
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+
+  borrowRecordId Int?
+  borrowRecord   BorrowRecord?   @relation(fields: [borrowRecordId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, isRead])
+  @@index([userId, borrowRecordId, type])
 }

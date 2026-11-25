@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  AlertTriangle,
   ArrowRight,
   Bell,
   BookOpen,
+  CheckCheck,
+  CheckCircle2,
   ChevronDown,
+  Clock,
   ExternalLink,
+  Inbox,
   Loader2,
   LogOut,
   Menu,
@@ -13,15 +18,74 @@ import {
   Sparkles,
   User as UserIcon,
   X,
+  XCircle,
 } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
 import { useLocation, useNavigate, useSearchParams, Link } from "react-router-dom";
 import { getAppBranding, getRouteTitle } from "@/utils/branding";
 import { getMediaUrl } from "@/lib/media";
 import { useBooks } from "@/hooks/use-books";
+import {
+  useNotifications,
+  useMarkNotificationAsRead,
+  useMarkAllNotificationsAsRead,
+} from "@/hooks/use-notifications";
+import type { Notification, NotificationType } from "@/api/notification.api";
 
 interface HeaderProps {
   onMenuClick: () => void;
+}
+
+function formatRelativeTime(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) return "Vừa xong";
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) return `${diffInMinutes} phút trước`;
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) return `${diffInHours} giờ trước`;
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays === 1) return "Hôm qua";
+  if (diffInDays < 7) return `${diffInDays} ngày trước`;
+
+  return date.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+function getNotificationVisuals(type: NotificationType) {
+  switch (type) {
+    case "BORROW_APPROVED":
+      return {
+        icon: <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />,
+        badgeBg: "bg-emerald-50",
+      };
+    case "BORROW_REJECTED":
+      return {
+        icon: <XCircle size={15} className="text-rose-600 shrink-0" />,
+        badgeBg: "bg-rose-50",
+      };
+    case "DUE_SOON":
+      return {
+        icon: <Clock size={15} className="text-amber-600 shrink-0" />,
+        badgeBg: "bg-amber-50",
+      };
+    case "OVERDUE":
+      return {
+        icon: <AlertTriangle size={15} className="text-red-600 shrink-0" />,
+        badgeBg: "bg-red-50",
+      };
+    case "BORROW_REQUEST":
+    default:
+      return {
+        icon: <BookOpen size={15} className="text-blue-600 shrink-0" />,
+        badgeBg: "bg-blue-50",
+      };
+  }
 }
 
 export function Header({ onMenuClick }: HeaderProps) {
@@ -62,7 +126,30 @@ export function Header({ onMenuClick }: HeaderProps) {
   // Dropdown states
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [hasUnreadNotice, setHasUnreadNotice] = useState(true);
+
+  // Real-time notifications hook
+  const { data: notificationData, isLoading: isNotificationsLoading } =
+    useNotifications({ limit: 15 });
+  const markAsReadMutation = useMarkNotificationAsRead();
+  const markAllAsReadMutation = useMarkAllNotificationsAsRead();
+
+  const notifications = notificationData?.data ?? [];
+  const unreadCount = notificationData?.unreadCount ?? 0;
+  const hasUnreadNotice = unreadCount > 0;
+
+  const handleNotificationClick = (notice: Notification) => {
+    if (!notice.isRead) {
+      markAsReadMutation.mutate(notice.id);
+    }
+    setIsNotificationsOpen(false);
+    navigate(notice.link);
+  };
+
+  const handleMarkAllRead = () => {
+    if (unreadCount > 0) {
+      markAllAsReadMutation.mutate();
+    }
+  };
 
   // Image error fallback
   const [prevAvatar, setPrevAvatar] = useState(user?.avatar);
@@ -277,46 +364,6 @@ export function Header({ onMenuClick }: HeaderProps) {
   const routeTitle = getRouteTitle(location.pathname, user?.role);
   const pageTitle = routeTitle || getAppBranding(user?.role).title;
 
-  // Mock thông báo theo vai trò người dùng
-  const mockNotifications =
-    user?.role === "MEMBER"
-      ? [
-        {
-          id: 1,
-          title: "Khám phá sách mới",
-          content: "Nhiều tựa sách phong phú vừa được cập nhật vào kho thư viện.",
-          time: "Hôm nay",
-          unread: true,
-          link: "/books",
-        },
-        {
-          id: 2,
-          title: "Tủ sách cá nhân",
-          content: "Kiểm tra hạn trả sách để tránh phát sinh tình trạng quá hạn.",
-          time: "Hôm qua",
-          unread: false,
-          link: "/my-borrows",
-        },
-      ]
-      : [
-        {
-          id: 1,
-          title: "Yêu cầu mượn sách",
-          content: "Có yêu cầu mượn sách mới đang chờ nhân viên phê duyệt.",
-          time: "10 phút trước",
-          unread: true,
-          link: "/borrows",
-        },
-        {
-          id: 2,
-          title: "Báo cáo tài sản",
-          content: "Số liệu tổng giá trị sách và tồn kho đã được đồng bộ mới.",
-          time: "2 giờ trước",
-          unread: false,
-          link: "/assets",
-        },
-      ];
-
   return (
     <header className="relative z-30 flex h-[70px] w-full items-center justify-between gap-3 sm:gap-4 border-b border-[#E6DFCE] bg-white/95 px-3.5 sm:px-6 backdrop-blur-md transition-all">
       {/* ---------------- TRÁI: Hamburger + Tiêu đề + Thời gian ---------------- */}
@@ -500,7 +547,6 @@ export function Header({ onMenuClick }: HeaderProps) {
             onClick={() => {
               setIsNotificationsOpen((prev) => !prev);
               setIsProfileOpen(false);
-              setHasUnreadNotice(false);
             }}
             aria-expanded={isNotificationsOpen}
             aria-label="Thông báo hệ thống"
@@ -508,47 +554,107 @@ export function Header({ onMenuClick }: HeaderProps) {
           >
             <Bell size={18} />
             {hasUnreadNotice && (
-              <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-[#C89B3C] ring-2 ring-white animate-pulse" />
+              <span className="absolute -top-1 -right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#C89B3C] text-[10px] font-bold text-white shadow-xs animate-pulse">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
             )}
           </button>
 
           {/* Popover Thông Báo (Responsive max-w để tránh tràn màn hình mobile) */}
           {isNotificationsOpen && (
-            <div className="absolute right-0 mt-2 w-76 sm:w-88 max-w-[calc(100vw-2rem)] rounded-2xl border border-stone-200 bg-white p-3 shadow-xl ring-1 ring-black/5 animate-in fade-in-50 zoom-in-95 z-50">
-              <div className="flex items-center justify-between border-b border-stone-100 pb-2 px-1">
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] rounded-2xl border border-stone-200 bg-white p-3 shadow-xl ring-1 ring-black/5 animate-in fade-in-50 zoom-in-95 z-50">
+              <div className="flex items-center justify-between border-b border-stone-100 pb-2.5 px-1">
                 <div className="flex items-center gap-1.5">
                   <Sparkles size={16} className="text-[#C89B3C]" />
                   <span className="text-sm font-semibold text-stone-900">Thông báo</span>
+                  {unreadCount > 0 && (
+                    <span className="rounded-full bg-amber-100 px-1.5 py-0.2 text-[10px] font-bold text-amber-800 border border-amber-200">
+                      {unreadCount} mới
+                    </span>
+                  )}
                 </div>
-                <span className="text-[11px] font-medium text-stone-500">
-                  {mockNotifications.length} tin mới
-                </span>
+
+                {unreadCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleMarkAllRead}
+                    disabled={markAllAsReadMutation.isPending}
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-[#8A5A1E] hover:text-[#C89B3C] hover:underline cursor-pointer disabled:opacity-50 transition-colors"
+                  >
+                    <CheckCheck size={13} />
+                    <span>Đọc tất cả</span>
+                  </button>
+                )}
               </div>
 
-              <div className="mt-2 space-y-1.5 max-h-72 overflow-y-auto">
-                {mockNotifications.map((notice) => (
-                  <Link
-                    key={notice.id}
-                    to={notice.link}
-                    onClick={() => setIsNotificationsOpen(false)}
-                    className="block rounded-xl p-2.5 text-left transition-colors hover:bg-stone-50 border border-transparent hover:border-stone-200/60"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="text-xs font-semibold text-stone-900 flex items-center gap-1.5">
-                        {notice.unread && (
-                          <span className="h-1.5 w-1.5 rounded-full bg-[#C89B3C]" />
-                        )}
-                        {notice.title}
-                      </p>
-                      <span className="text-[10px] text-stone-400 shrink-0">
-                        {notice.time}
-                      </span>
+              {/* Danh sách thông báo */}
+              <div className="mt-2 space-y-1.5 max-h-80 overflow-y-auto pr-0.5">
+                {isNotificationsLoading && notifications.length === 0 ? (
+                  <div className="flex items-center justify-center py-8 text-stone-400 text-xs gap-2">
+                    <Loader2 size={16} className="animate-spin text-[#C89B3C]" />
+                    <span>Đang tải thông báo...</span>
+                  </div>
+                ) : notifications.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-8 text-center text-stone-400">
+                    <div className="h-10 w-10 rounded-full bg-stone-50 flex items-center justify-center mb-1.5 text-stone-300 border border-stone-100">
+                      <Inbox size={20} />
                     </div>
-                    <p className="mt-1 text-xs text-stone-600 line-clamp-2">
-                      {notice.content}
+                    <p className="text-xs font-semibold text-stone-700">
+                      Bạn chưa có thông báo nào
                     </p>
-                  </Link>
-                ))}
+                    <p className="text-[11px] text-stone-400 mt-0.5">
+                      Các thông báo mượn trả và hạn sách sẽ xuất hiện tại đây
+                    </p>
+                  </div>
+                ) : (
+                  notifications.map((notice) => {
+                    const visuals = getNotificationVisuals(notice.type);
+                    return (
+                      <div
+                        key={notice.id}
+                        onClick={() => handleNotificationClick(notice)}
+                        className={`group block rounded-xl p-2.5 text-left transition-colors cursor-pointer border ${
+                          notice.isRead
+                            ? "bg-white hover:bg-stone-50 border-stone-100"
+                            : "bg-amber-50/40 hover:bg-amber-50/80 border-amber-200/60 shadow-2xs"
+                        }`}
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <div
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-stone-200/60 ${visuals.badgeBg}`}
+                          >
+                            {visuals.icon}
+                          </div>
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-1">
+                              <p
+                                className={`text-xs truncate ${
+                                  notice.isRead
+                                    ? "font-semibold text-stone-800"
+                                    : "font-bold text-stone-900"
+                                }`}
+                              >
+                                {notice.title}
+                              </p>
+                              <span className="text-[10px] text-stone-400 shrink-0 font-mono">
+                                {formatRelativeTime(notice.createdAt)}
+                              </span>
+                            </div>
+
+                            <p className="mt-0.5 text-xs text-stone-600 line-clamp-2 leading-relaxed">
+                              {notice.content}
+                            </p>
+                          </div>
+
+                          {!notice.isRead && (
+                            <span className="mt-1 h-2 w-2 rounded-full bg-[#C89B3C] ring-2 ring-white shrink-0" />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
 
               <div className="mt-2.5 border-t border-stone-100 pt-2 text-center">

@@ -14,6 +14,8 @@ import { MailModule } from './mail/mail.module';
 import { BorrowModule } from './borrow/borrow.module';
 import { AssetModule } from './asset/asset.module';
 import { MemberModule } from './member/member.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -25,6 +27,7 @@ import { MemberModule } from './member/member.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    ScheduleModule.forRoot(),
     PrismaModule,
     AuthModule,
     CategoryModule,
@@ -35,6 +38,7 @@ import { MemberModule } from './member/member.module';
     BorrowModule,
     AssetModule,
     MemberModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

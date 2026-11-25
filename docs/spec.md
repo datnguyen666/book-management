@@ -11,6 +11,7 @@ Hệ thống Quản lý Thư viện sách (Book Management) phục vụ 2 nhóm 
 2. Ban quản lý (Admin và Staff) chưa có nơi tập trung để tra cứu danh sách độc giả, xem hồ sơ cá nhân và theo dõi toàn bộ lịch sử mượn/trả sách của từng bạn đọc khi làm việc tại quầy thư viện.
 3. Chuẩn hóa triệt để mô hình Bạn đọc (`Member`): Loại bỏ hoàn toàn sự tồn tại song song của các trường `borrowerName`, `borrowerCode` trong cơ sở dữ liệu. Thống nhất một khái niệm duy nhất là Bạn đọc (`Member`), liên kết trực tiếp qua khóa ngoại `memberId` bắt buộc.
 4. Giao diện hiện tại hiển thị cố định nhận diện "Book Management" (Quản lý sách) ở mọi nơi, không phù hợp với trải nghiệm của Bạn đọc (`MEMBER`) - những người cần một cổng thư viện để tra cứu và mượn sách thay vì phần mềm quản lý nội bộ. Đồng thời, toàn bộ menu điều hướng đang dùng tiếng Anh nên tên thương hiệu và tiêu đề cần đồng bộ bằng tiếng Anh.
+5. Nút chuông thông báo trên Header hiện chỉ hiển thị dữ liệu giả lập (mock), chưa được kết nối với cơ sở dữ liệu và chưa tự động thông báo các sự kiện quan trọng trong quá trình mượn/trả sách (yêu cầu mượn mới, duyệt mượn, từ chối, nhắc sắp đến hạn trả và cảnh báo quá hạn).
 
 ---
 
@@ -39,6 +40,12 @@ Hệ thống Quản lý Thư viện sách (Book Management) phục vụ 2 nhóm 
     * Cổng công khai / Khách chưa đăng nhập (`/login`, `/register`, `/forgot-password`,...): Tên thương hiệu trung lập **"Digital Library"**, phụ đề **"Welcome Portal"**; tiêu đề tab trình duyệt có định dạng `{Tên trang} · Digital Library`.
   * **Header hiển thị tiêu đề trang động (Dynamic Page Title):**
     * Thay thế tiêu đề cố định "Book Management" trên thanh Header thành tên trang tiếng Anh tương ứng với vị trí người dùng đang đứng (ví dụ: *Search Books*, *Reading List*, *Dashboard*, *Categories*, *Books*, *Staff*, *Members*, *Loans & Returns*, *My Profile*).
+  * **Hệ thống thông báo nội bộ (In-app Notification):**
+    * Cơ sở dữ liệu lưu trữ thông báo thực tế gắn với từng tài khoản (`userId`).
+    * Thông báo cho Bạn đọc (`MEMBER`): Khi yêu cầu mượn được duyệt (`BORROW_APPROVED`), khi yêu cầu mượn bị từ chối kèm lý do (`BORROW_REJECTED`), khi sách sắp đến hạn trả trước 1 ngày (`DUE_SOON`), khi sách đã quá hạn trả (`OVERDUE`).
+    * Thông báo cho Ban quản lý (`STAFF`, `ADMIN`): Khi có bạn đọc gửi yêu cầu mượn mới (`BORROW_REQUEST`), khi có sách chuyển sang trạng thái quá hạn (`OVERDUE`).
+    * Tác vụ quét hạn trả chạy ngầm (Cron Job): Tự động quét các phiếu mượn mỗi ngày một lần vào 08:00 sáng để tạo thông báo sắp đến hạn và quá hạn; chỉ gửi đúng 1 lần duy nhất cho mỗi cuốn sách để tránh spam lặp lại.
+    * Giao diện chuông trên Header: Chấm đỏ khi có thông báo chưa đọc, popover danh sách thông báo mới nhất, bấm vào từng thông báo để đánh dấu đã đọc và chuyển hướng đến trang liên quan, nút "Đánh dấu tất cả là đã đọc".
 * **Cố tình chưa làm:**
   * Cho phép người chưa có thẻ/tài khoản Bạn đọc (khách vãng lai) mượn sách mang về (bắt buộc phải có tài khoản Bạn đọc trong hệ thống).
   * Giữ lại dữ liệu snapshot họ tên cũ khi bạn đọc đổi tên (chấp nhận hiển thị tên mới nhất của bạn đọc cho tất cả các phiếu mượn).
@@ -46,6 +53,9 @@ Hệ thống Quản lý Thư viện sách (Book Management) phục vụ 2 nhóm 
   * Chỉnh sửa thông tin cá nhân của bạn đọc từ phía quản trị (bạn đọc tự cập nhật ở trang cá nhân).
   * Xuất danh sách bạn đọc hoặc xuất phiếu lý lịch bạn đọc ra Excel/PDF.
   * Lưu thông tin cấu hình thương hiệu (tên, logo, slogan) vào cơ sở dữ liệu để Admin tự tùy biến (hiện tại xác định nhận diện trực tiếp ở tầng giao diện theo vai trò của người dùng).
+  * Gửi thông báo qua email hoặc SMS (tập trung thông báo nội bộ trong ứng dụng trước).
+  * Đẩy thông báo tức thì theo thời gian thực qua WebSocket/SSE (tải dữ liệu qua API khi vào trang hoặc mở chuông).
+  * Xóa từng thông báo hoặc xóa tất cả (chỉ hỗ trợ đánh dấu đã đọc).
 
 ---
 
@@ -93,20 +103,31 @@ Hệ thống Quản lý Thư viện sách (Book Management) phục vụ 2 nhóm 
   * Tiêu đề tab trình duyệt cập nhật theo định dạng: `{Tên trang} · Digital Library`.
   * Dòng bản quyền ở chân trang (Footer) hiển thị: `© {Năm} Digital Library. All rights reserved.`
 
+### 3.6. Hệ thống Thông báo (Notification)
+* **Khi bạn đọc gửi yêu cầu mượn sách trực tuyến:** Hệ thống tự động tạo một thông báo mới cho toàn bộ tài khoản `STAFF` và `ADMIN` đang hoạt động (`isActive = true`) với nội dung: *"Bạn đọc [Họ tên] vừa gửi yêu cầu mượn sách [Tên sách]"*, liên kết trực tiếp tới trang `/borrows`.
+* **Khi thủ thư phê duyệt yêu cầu mượn sách:** Hệ thống tạo một thông báo gửi tới bạn đọc sở hữu phiếu với nội dung: *"Yêu cầu mượn sách [Tên sách] của bạn đã được duyệt. Hạn trả: [dd/mm/yyyy]"*, liên kết trực tiếp tới trang `/my-borrows`.
+* **Khi thủ thư từ chối yêu cầu mượn sách:** Hệ thống tạo một thông báo gửi tới bạn đọc sở hữu phiếu với nội dung: *"Yêu cầu mượn sách [Tên sách] đã bị từ chối. Lý do: [Lý do từ chối]"*, liên kết trực tiếp tới trang `/my-borrows`.
+* **Khi tác vụ chạy ngầm quét sách sắp đến hạn trả (mỗi ngày vào 08:00 sáng):** Hệ thống tìm các phiếu mượn có hạn trả là ngày mai (còn 1 ngày). Nếu phiếu đó chưa từng được gửi thông báo nhắc hạn, hệ thống tạo thông báo cho bạn đọc: *"Sách [Tên sách] sắp đến hạn trả vào ngày mai ([dd/mm/yyyy]). Vui lòng hoàn trả sách hoặc gia hạn nhé."*, liên kết tới `/my-borrows`.
+* **Khi tác vụ chạy ngầm quét sách quá hạn:** Hệ thống tìm các phiếu mượn có hạn trả đã qua ngày hiện tại. Nếu phiếu đó chưa từng được gửi thông báo quá hạn, hệ thống tạo thông báo gửi cho bạn đọc: *"Sách [Tên sách] đã quá hạn trả từ ngày [dd/mm/yyyy]. Vui lòng hoàn trả sách để tránh bị tạm khóa tài khoản."* và tạo thông báo gửi cho toàn bộ `STAFF`/`ADMIN`: *"Bạn đọc [Họ tên] có sách [Tên sách] đã quá hạn trả."*
+* **Khi người dùng mở menu chuông thông báo trên Header:** Hệ thống hiển thị danh sách các thông báo mới nhất của người dùng, phân biệt trực quan giữa tin đã đọc và chưa đọc, cùng số lượng tin chưa đọc.
+* **Khi người dùng bấm vào một thông báo cụ thể:** Hệ thống cập nhật trạng thái thông báo thành đã đọc (`isRead = true`), trừ số lượng tin chưa đọc, đóng popover và chuyển hướng đến trang tương ứng (`link`).
+* **Khi người dùng bấm nút "Đánh dấu tất cả là đã đọc":** Toàn bộ thông báo chưa đọc của người dùng hiện tại được cập nhật thành đã đọc và chấm đỏ trên nút chuông biến mất.
+
 ---
 
 ## 4. Dữ liệu & vai trò
 
 | Loại dữ liệu | Mỗi dòng thuộc về ai | Nối với |
 |---|---|---|
-| Người dùng (`User`) | Bản thân người dùng sở hữu | Phiếu mượn (`BorrowRecord`) |
+| Người dùng (`User`) | Bản thân người dùng sở hữu | Phiếu mượn (`BorrowRecord`), Thông báo (`Notification`) |
 | Phiếu mượn (`BorrowRecord`) | Thuộc về Bạn đọc mượn sách (`memberId`) | Tài khoản Bạn đọc (`User` qua `memberId`), Sách (`Book` qua `bookId`), Nhân viên xử lý (`User` qua `processedById`) |
+| Thông báo (`Notification`) | Thuộc về tài khoản người nhận (`userId`) | Tài khoản người dùng (`User` qua `userId`), Phiếu mượn (`BorrowRecord` qua `borrowRecordId`, tùy chọn) |
 
 | Vai trò | Xem | Thêm | Sửa | Xoá |
 |---|---|---|---|---|
-| **Bạn đọc (`MEMBER`)** | Hồ sơ của mình, phiếu mượn của mình | Tự đăng ký tài khoản, gửi yêu cầu mượn online | Sửa hồ sơ cá nhân, đổi mật khẩu | Không |
-| **Nhân viên (`STAFF`)** | Xem tất cả sách, thể loại, phiếu mượn, danh sách & chi tiết bạn đọc | Tạo phiếu mượn tại quầy cho Bạn đọc | Khóa/mở khóa bạn đọc, duyệt/trả sách | Không |
-| **Quản trị viên (`ADMIN`)** | Xem toàn bộ hệ thống (báo cáo, nhân viên, sách, bạn đọc, phiếu mượn) | Tạo nhân viên, sách, thể loại, tạo phiếu mượn | Khóa/mở khóa bạn đọc & nhân viên, sửa cấu hình | Xóa dữ liệu cho phép |
+| **Bạn đọc (`MEMBER`)** | Hồ sơ của mình, phiếu mượn của mình, thông báo của mình | Tự đăng ký tài khoản, gửi yêu cầu mượn online | Sửa hồ sơ cá nhân, đổi mật khẩu, đánh dấu đã đọc thông báo của mình | Không |
+| **Nhân viên (`STAFF`)** | Xem tất cả sách, thể loại, phiếu mượn, bạn đọc, thông báo của mình | Tạo phiếu mượn tại quầy cho Bạn đọc | Khóa/mở khóa bạn đọc, duyệt/trả sách, đánh dấu đã đọc thông báo của mình | Không |
+| **Quản trị viên (`ADMIN`)** | Xem toàn bộ hệ thống (báo cáo, nhân viên, sách, bạn đọc, phiếu mượn, thông báo của mình) | Tạo nhân viên, sách, thể loại, tạo phiếu mượn | Khóa/mở khóa bạn đọc & nhân viên, sửa cấu hình, đánh dấu đã đọc thông báo của mình | Xóa dữ liệu cho phép |
 
 *Ghi chú về nhận diện thương hiệu:* Tên thương hiệu, phụ đề và tiêu đề trang được định nghĩa và cấu hình tĩnh ở tầng giao diện (Frontend) theo vai trò (`Role`) của tài khoản và vị trí trang hiện tại; không lưu trong cơ sở dữ liệu và không cần API cấu hình.
 
@@ -117,7 +138,7 @@ Hệ thống Quản lý Thư viện sách (Book Management) phục vụ 2 nhóm 
 * **Bạn đọc thay đổi họ tên hoặc số điện thoại:** Toàn bộ phiếu mượn trong quá khứ và hiện tại của bạn đọc này tự động hiển thị theo thông tin mới nhất từ tài khoản Bạn đọc.
 * **Bạn đọc chưa có lịch sử mượn:** Khu vực lịch sử mượn sách hiển thị trạng thái trống thân thiện *"Chưa có lịch sử mượn sách"*.
 * **Bạn đọc có sách quá hạn chưa trả:** Trong danh sách chi tiết mượn, làm nổi bật trạng thái "Quá hạn" bằng nhãn cảnh báo đỏ để thủ thư nhận biết ngay lập tức.
-* **Tài khoản bị khóa (`isActive = false`):** Khi bị khóa, bạn đọc không thể đăng nhập, không thể gửi yêu cầu mượn online, và thủ thư không thể tạo phiếu mượn tại quầy cho bạn đọc này.
+* **Tài khoản bị khóa (`isActive = false`):** Khi bị khóa, bạn đọc không thể đăng nhập, không thể gửi yêu cầu mượn online, và thủ thư không thể tạo phiếu mượn tại quầy cho bạn đọc này. Tác vụ tạo thông báo cho ban quản lý cũng tự động bỏ qua các tài khoản nhân viên bị khóa.
 * **Tài khoản nhân viên chưa kích hoạt mật khẩu (`mustChangePassword = true`):** Chuyển hướng đến trang thiết lập mật khẩu mới (`/set-password`).
 * **Truy cập trái phép trang `/members`:** Nếu tài khoản có vai trò `MEMBER` cố tình truy cập vào `/members`, hệ thống chặn quyền và điều hướng về trang cho phép (như `/books`).
 * **Đăng xuất / Chuyển đổi vai trò tài khoản:** Khi người dùng đăng xuất và đăng nhập vào tài khoản có vai trò khác (ví dụ từ `STAFF` sang `MEMBER` hoặc ngược lại), nhận diện thương hiệu ở Sidebar, Header và tiêu đề tab trình duyệt lập tức cập nhật theo vai trò mới mà không cần tải lại toàn bộ trang (F5).
@@ -125,6 +146,10 @@ Hệ thống Quản lý Thư viện sách (Book Management) phục vụ 2 nhóm 
 * **Màn hình trang không tìm thấy (404):** Tiêu đề tab trình duyệt hiển thị hậu tố theo vai trò của người dùng hiện tại (nếu đã đăng nhập) hoặc `· Digital Library` (nếu chưa đăng nhập).
 * **Tìm kiếm không có kết quả:** Hiển thị thông báo *"Không tìm thấy bạn đọc nào phù hợp với từ khóa tìm kiếm."*
 * **Mất kết nối mạng:** Hiển thị thông báo *"Không thể kết nối đến máy chủ, vui lòng kiểm tra kết nối mạng."*
+* **Danh sách thông báo trống:** Khi người dùng chưa có thông báo nào, menu chuông hiển thị thông báo thân thiện *"Bạn chưa có thông báo nào"*.
+* **Sách đã được hoàn trả trước ngày quét:** Tác vụ chạy ngầm bỏ qua các phiếu mượn có trạng thái `RETURNED`, `CANCELLED`, `REJECTED`, không sinh thông báo nhắc hạn hay quá hạn.
+* **Chống tạo thông báo trùng lặp:** Tác vụ chạy ngầm kiểm tra tổ hợp (`userId`, `borrowRecordId`, `type`). Nếu thông báo tương ứng đã tồn tại trong cơ sở dữ liệu thì không tạo thêm bản ghi mới.
+* **Tất cả thông báo đều đã đọc:** Nút chuông không hiển thị chấm đỏ báo tin mới.
 
 ---
 
@@ -133,4 +158,6 @@ Hệ thống Quản lý Thư viện sách (Book Management) phục vụ 2 nhóm 
 * **Hình thức hiển thị chi tiết bạn đọc:** Nên sử dụng trang riêng biệt (`/members/:id`) hay dùng bảng trượt (drawer) / modal bật lên ngay trên trang danh sách để thuận tiện tra cứu nhanh? *(Đề xuất: Sử dụng trang riêng `/members/:id` để có không gian hiển thị bảng lịch sử mượn sách đầy đủ cột và phân trang dễ dàng).*
 * **Phân quyền thao tác khóa tài khoản:** Có nên cho phép cả `STAFF` bấm Khóa / Mở khóa thẻ bạn đọc khi phát hiện vi phạm tại quầy, hay chỉ giới hạn riêng cho `ADMIN`? *(Đề xuất: Cho phép cả `ADMIN` và `STAFF` khóa thẻ bạn đọc để xử lý kịp thời khi có vi phạm).*
 * **Xử lý dữ liệu cũ khi migration sang `memberId` bắt buộc:** Nếu trong cơ sở dữ liệu hiện có bản ghi phiếu mượn cũ bị `userId = null`, ta sẽ cần script gán tự động sang một tài khoản Bạn đọc mẫu trước khi chạy lệnh áp dụng `memberId NOT NULL` vào database.
+* **Khung giờ chạy ngầm của thông báo:** Hiện mặc định quét tự động vào 08:00 sáng mỗi ngày. Trong tương lai có cần bổ sung thêm khung giờ quét (ví dụ 16:00 chiều) hoặc cho phép cấu hình từ file `.env` không?
+* **Thời hạn lưu trữ và dọn dẹp thông báo:** Có cần thêm tác vụ tự động xóa các thông báo đã đọc cũ hơn 30 hoặc 60 ngày để tránh tăng kích thước bảng cơ sở dữ liệu theo thời gian không?
 

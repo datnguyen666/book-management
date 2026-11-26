@@ -6,13 +6,19 @@ import { useState } from "react";
 
 export function Layout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
     <div
       className="flex h-screen"
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed((v) => !v)}
+      />
 
       <div className="flex flex-1 flex-col min-w-0">
         <header className="shrink-0">
